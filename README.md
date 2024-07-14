@@ -14,7 +14,7 @@ Refs:
 
 ### Registration
 
-prview в linux - Alt-D.
+prview в VSCode - Alt-D.
 
 ```plantuml
 @startuml
