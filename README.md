@@ -1,1 +1,1 @@
-# gophkeeper
+# gophkeeper - Yandex Practicum graduation project
