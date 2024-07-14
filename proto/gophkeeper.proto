@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package proto;
+
+import "validate/validate.proto";
+
+option go_package = "internal/proto";
+
+message CheckEMailRequest {
+    string email = 1 [(validate.rules).string.email = true];
+}
+
+message CheckEMailResponse{
+    bool available = 1;
+}
+
+message RegistrationRequest {
+    string email = 1 [(validate.rules).string.email = true];
+    string password = 2;
+}
+
+message PromptOPTResponse{
+}
+
+message OTPPassRequest {
+    string password = 1;
+}
+
+message LoginRequest {
+    string email = 1 [(validate.rules).string.email = true];
+    string password = 2;
+}
+
+message LoginResponse {
+    string access_token = 1; 
+}
+
+service RegistrationService {
+    rpc CheckEMail(CheckEMailRequest) returns (CheckEMailResponse);
+    rpc Register(RegistrationRequest) returns (PromptOPTResponse);
+    rpc PassOTP(OTPPassRequest) returns (LoginResponse);
+};
+
+service AuthService {
+    rpc Login(LoginRequest) returns (PromptOPTResponse);
+    rpc PassOTP(OTPPassRequest) returns (LoginResponse);
+};

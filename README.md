@@ -3,7 +3,7 @@
 ## iteration1 - authirization
 
 Client <-> Server:
-- gRPC interaction  (based on tls, with server generated ssl certificate)
+- gRPC interaction  (based on tls, CA authority -> Server cert, start client with CA certificate)
 - registration
 - authorization (OTP)
 - authentfication (JWT)
@@ -18,7 +18,7 @@ prview в VSCode - Alt-D.
 
 ```plantuml
 @startuml
-Client->GoKeeper: CheckRmail Request (Email: string)
+Client->GoKeeper: CheckEMail Request (Email: string)
 GoKeeper--->Client: CheckEmail Response (Status: bool)
 Client->Client: Promt Authentification password
 Client->GoKeeper: Registration Request (Email: string, Password: string)
