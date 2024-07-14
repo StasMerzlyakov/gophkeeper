@@ -8,21 +8,21 @@ const (
 	ServerDefaultTLSCert = ""
 )
 
-type GophKeeperConf struct {
+type ServerConf struct {
 	Port    string `env:"PORT"`
 	TLSKey  string `env:"TLS_KEY"`
 	TLSCert string `env:"TLS_CERT"`
 }
 
-func defaultServConf() *GophKeeperConf {
-	return &GophKeeperConf{
+func defaultServConf() *ServerConf {
+	return &ServerConf{
 		Port:    ServerDefaultPort,
 		TLSKey:  ServerDefaultTLSKey,
 		TLSCert: ServerDefaultTLSCert,
 	}
 }
 
-func LoadServConf() (*GophKeeperConf, error) {
+func LoadServConf() (*ServerConf, error) {
 	srvConf := defaultServConf()
 	err := env.Parse(srvConf)
 	if err != nil {
