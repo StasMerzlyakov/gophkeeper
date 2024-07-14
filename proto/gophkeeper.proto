@@ -50,5 +50,5 @@ message PingRequest {}
 message PingResponse {}
 
 service Pinger {
-    rpc Pint(PingRequest) returns (PingResponse);
+    rpc Ping(PingRequest) returns (PingResponse);
 };
