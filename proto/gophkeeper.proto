@@ -45,3 +45,10 @@ service AuthService {
     rpc Login(LoginRequest) returns (PromptOPTResponse);
     rpc PassOTP(OTPPassRequest) returns (LoginResponse);
 };
+
+message PingRequest {}
+message PingResponse {}
+
+service Pinger {
+    rpc Pint(PingRequest) returns (PingResponse);
+};

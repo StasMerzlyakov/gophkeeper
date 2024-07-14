@@ -313,3 +313,94 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "gophkeeper.proto",
 }
+
+const (
+	Pinger_Pint_FullMethodName = "/proto.Pinger/Pint"
+)
+
+// PingerClient is the client API for Pinger service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type PingerClient interface {
+	Pint(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
+}
+
+type pingerClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewPingerClient(cc grpc.ClientConnInterface) PingerClient {
+	return &pingerClient{cc}
+}
+
+func (c *pingerClient) Pint(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PingResponse)
+	err := c.cc.Invoke(ctx, Pinger_Pint_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// PingerServer is the server API for Pinger service.
+// All implementations must embed UnimplementedPingerServer
+// for forward compatibility
+type PingerServer interface {
+	Pint(context.Context, *PingRequest) (*PingResponse, error)
+	mustEmbedUnimplementedPingerServer()
+}
+
+// UnimplementedPingerServer must be embedded to have forward compatible implementations.
+type UnimplementedPingerServer struct {
+}
+
+func (UnimplementedPingerServer) Pint(context.Context, *PingRequest) (*PingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Pint not implemented")
+}
+func (UnimplementedPingerServer) mustEmbedUnimplementedPingerServer() {}
+
+// UnsafePingerServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PingerServer will
+// result in compilation errors.
+type UnsafePingerServer interface {
+	mustEmbedUnimplementedPingerServer()
+}
+
+func RegisterPingerServer(s grpc.ServiceRegistrar, srv PingerServer) {
+	s.RegisterService(&Pinger_ServiceDesc, srv)
+}
+
+func _Pinger_Pint_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PingerServer).Pint(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Pinger_Pint_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PingerServer).Pint(ctx, req.(*PingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Pinger_ServiceDesc is the grpc.ServiceDesc for Pinger service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Pinger_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.Pinger",
+	HandlerType: (*PingerServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Pint",
+			Handler:    _Pinger_Pint_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "gophkeeper.proto",
+}
