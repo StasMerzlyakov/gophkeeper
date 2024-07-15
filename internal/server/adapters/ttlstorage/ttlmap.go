@@ -2,7 +2,6 @@ package ttlstorage
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 )
@@ -29,15 +28,11 @@ func NewTTLMap(ctx context.Context, ttl time.Duration) *TTLMap {
 				return
 			case <-ticker.C:
 				now := time.Now()
-				println(now.Format(time.RFC1123))
-				ttlMap.data.Range(func(k, v interface{}) bool {
+				ttlMap.data.Range(func(k, v any) bool {
 					if expEnt, ok := v.(expireEntry); ok {
 						if expEnt.ExpiresAt.Before(now) {
-							fmt.Printf("delte key %v\n", k)
 							ttlMap.data.Delete(k)
 						}
-					} else {
-						ttlMap.data.Delete(k) // unexpected data
 					}
 					return true
 				})
@@ -50,10 +45,10 @@ func NewTTLMap(ctx context.Context, ttl time.Duration) *TTLMap {
 
 type expireEntry struct {
 	ExpiresAt time.Time
-	Value     interface{}
+	Value     any
 }
 
-func (t *TTLMap) Store(key string, val interface{}) {
+func (t *TTLMap) Store(key string, val any) {
 	t.data.Store(key, expireEntry{
 		ExpiresAt: time.Now().Add(t.ttl),
 		Value:     val,
@@ -64,12 +59,30 @@ func (t *TTLMap) Delete(key string) {
 	t.data.Delete(key)
 }
 
-func (t *TTLMap) Load(key string) (val interface{}) {
+func (t *TTLMap) LoadAndDelete(key string) (any, bool) {
+	entry, ok := t.data.LoadAndDelete(key)
+	if !ok {
+		return nil, false
+	}
+	expireEntry := entry.(expireEntry)
+	return expireEntry.Value, true
+}
+
+func (t *TTLMap) LoadOrStore(key string, val any) (any, bool) {
+	entry, ok := t.data.LoadOrStore(key, expireEntry{
+		ExpiresAt: time.Now().Add(t.ttl),
+		Value:     val,
+	})
+	expireEntry := entry.(expireEntry)
+	return expireEntry.Value, ok
+}
+
+func (t *TTLMap) Load(key string) (any, bool) {
 	entry, ok := t.data.Load(key)
 	if !ok {
-		return nil
+		return nil, false
 	}
 
 	expireEntry := entry.(expireEntry)
-	return expireEntry.Value
+	return expireEntry.Value, true
 }
