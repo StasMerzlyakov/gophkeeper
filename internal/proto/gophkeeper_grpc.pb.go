@@ -19,16 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	RegistrationService_CheckEMail_FullMethodName = "/proto.RegistrationService/CheckEMail"
-	RegistrationService_Register_FullMethodName   = "/proto.RegistrationService/Register"
-	RegistrationService_PassOTP_FullMethodName    = "/proto.RegistrationService/PassOTP"
+	RegistrationService_Register_FullMethodName = "/proto.RegistrationService/Register"
+	RegistrationService_PassOTP_FullMethodName  = "/proto.RegistrationService/PassOTP"
 )
 
 // RegistrationServiceClient is the client API for RegistrationService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RegistrationServiceClient interface {
-	CheckEMail(ctx context.Context, in *CheckEMailRequest, opts ...grpc.CallOption) (*CheckEMailResponse, error)
 	Register(ctx context.Context, in *RegistrationRequest, opts ...grpc.CallOption) (*PromptOPTResponse, error)
 	PassOTP(ctx context.Context, in *OTPPassRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 }
@@ -39,16 +37,6 @@ type registrationServiceClient struct {
 
 func NewRegistrationServiceClient(cc grpc.ClientConnInterface) RegistrationServiceClient {
 	return &registrationServiceClient{cc}
-}
-
-func (c *registrationServiceClient) CheckEMail(ctx context.Context, in *CheckEMailRequest, opts ...grpc.CallOption) (*CheckEMailResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CheckEMailResponse)
-	err := c.cc.Invoke(ctx, RegistrationService_CheckEMail_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *registrationServiceClient) Register(ctx context.Context, in *RegistrationRequest, opts ...grpc.CallOption) (*PromptOPTResponse, error) {
@@ -75,7 +63,6 @@ func (c *registrationServiceClient) PassOTP(ctx context.Context, in *OTPPassRequ
 // All implementations must embed UnimplementedRegistrationServiceServer
 // for forward compatibility
 type RegistrationServiceServer interface {
-	CheckEMail(context.Context, *CheckEMailRequest) (*CheckEMailResponse, error)
 	Register(context.Context, *RegistrationRequest) (*PromptOPTResponse, error)
 	PassOTP(context.Context, *OTPPassRequest) (*LoginResponse, error)
 	mustEmbedUnimplementedRegistrationServiceServer()
@@ -85,9 +72,6 @@ type RegistrationServiceServer interface {
 type UnimplementedRegistrationServiceServer struct {
 }
 
-func (UnimplementedRegistrationServiceServer) CheckEMail(context.Context, *CheckEMailRequest) (*CheckEMailResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CheckEMail not implemented")
-}
 func (UnimplementedRegistrationServiceServer) Register(context.Context, *RegistrationRequest) (*PromptOPTResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
@@ -105,24 +89,6 @@ type UnsafeRegistrationServiceServer interface {
 
 func RegisterRegistrationServiceServer(s grpc.ServiceRegistrar, srv RegistrationServiceServer) {
 	s.RegisterService(&RegistrationService_ServiceDesc, srv)
-}
-
-func _RegistrationService_CheckEMail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CheckEMailRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RegistrationServiceServer).CheckEMail(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RegistrationService_CheckEMail_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RegistrationServiceServer).CheckEMail(ctx, req.(*CheckEMailRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _RegistrationService_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -168,10 +134,6 @@ var RegistrationService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.RegistrationService",
 	HandlerType: (*RegistrationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "CheckEMail",
-			Handler:    _RegistrationService_CheckEMail_Handler,
-		},
 		{
 			MethodName: "Register",
 			Handler:    _RegistrationService_Register_Handler,

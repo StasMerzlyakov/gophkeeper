@@ -18,8 +18,6 @@ prview в VSCode - Alt-D.
 
 ```plantuml
 @startuml
-Client->GoKeeper: CheckEMail Request (Email: string)
-GoKeeper--->Client: CheckEmail Response (Status: bool)
 Client->Client: Promt Authentification password
 Client->GoKeeper: Registration Request (Email: string, Password: string)
 GoKeeper-> EmailServer: Send OTP QR

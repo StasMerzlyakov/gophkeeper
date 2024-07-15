@@ -28,7 +28,7 @@ func main() {
 
 	sugarLog := logger.Sugar()
 
-	domain.SetMainLogger(sugarLog)
+	domain.SetApplicationLogger(sugarLog)
 
 	srvCtx, cancelFn := context.WithCancel(context.Background())
 

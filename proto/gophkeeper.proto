@@ -36,7 +36,6 @@ message LoginResponse {
 }
 
 service RegistrationService {
-    rpc CheckEMail(CheckEMailRequest) returns (CheckEMailResponse);
     rpc Register(RegistrationRequest) returns (PromptOPTResponse);
     rpc PassOTP(OTPPassRequest) returns (LoginResponse);
 };
