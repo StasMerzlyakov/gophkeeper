@@ -19,16 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	RegistrationService_Register_FullMethodName = "/proto.RegistrationService/Register"
-	RegistrationService_PassOTP_FullMethodName  = "/proto.RegistrationService/PassOTP"
+	RegistrationService_CheckEMail_FullMethodName = "/proto.RegistrationService/CheckEMail"
+	RegistrationService_Register_FullMethodName   = "/proto.RegistrationService/Register"
+	RegistrationService_PassOTP_FullMethodName    = "/proto.RegistrationService/PassOTP"
+	RegistrationService_MasterKey_FullMethodName  = "/proto.RegistrationService/MasterKey"
 )
 
 // RegistrationServiceClient is the client API for RegistrationService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RegistrationServiceClient interface {
-	Register(ctx context.Context, in *RegistrationRequest, opts ...grpc.CallOption) (*PromptOPTResponse, error)
-	PassOTP(ctx context.Context, in *OTPPassRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	CheckEMail(ctx context.Context, in *CheckEMailRequest, opts ...grpc.CallOption) (*CheckEMailResponse, error)
+	Register(ctx context.Context, in *RegistraionRequest, opts ...grpc.CallOption) (*RegistraionResponse, error)
+	PassOTP(ctx context.Context, in *PassOTPRequest, opts ...grpc.CallOption) (*PassOTPResponse, error)
+	MasterKey(ctx context.Context, in *MasterKeyRequest, opts ...grpc.CallOption) (*MasterKeyResponse, error)
 }
 
 type registrationServiceClient struct {
@@ -39,9 +43,19 @@ func NewRegistrationServiceClient(cc grpc.ClientConnInterface) RegistrationServi
 	return &registrationServiceClient{cc}
 }
 
-func (c *registrationServiceClient) Register(ctx context.Context, in *RegistrationRequest, opts ...grpc.CallOption) (*PromptOPTResponse, error) {
+func (c *registrationServiceClient) CheckEMail(ctx context.Context, in *CheckEMailRequest, opts ...grpc.CallOption) (*CheckEMailResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PromptOPTResponse)
+	out := new(CheckEMailResponse)
+	err := c.cc.Invoke(ctx, RegistrationService_CheckEMail_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *registrationServiceClient) Register(ctx context.Context, in *RegistraionRequest, opts ...grpc.CallOption) (*RegistraionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RegistraionResponse)
 	err := c.cc.Invoke(ctx, RegistrationService_Register_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -49,10 +63,20 @@ func (c *registrationServiceClient) Register(ctx context.Context, in *Registrati
 	return out, nil
 }
 
-func (c *registrationServiceClient) PassOTP(ctx context.Context, in *OTPPassRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
+func (c *registrationServiceClient) PassOTP(ctx context.Context, in *PassOTPRequest, opts ...grpc.CallOption) (*PassOTPResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(LoginResponse)
+	out := new(PassOTPResponse)
 	err := c.cc.Invoke(ctx, RegistrationService_PassOTP_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *registrationServiceClient) MasterKey(ctx context.Context, in *MasterKeyRequest, opts ...grpc.CallOption) (*MasterKeyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MasterKeyResponse)
+	err := c.cc.Invoke(ctx, RegistrationService_MasterKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -63,8 +87,10 @@ func (c *registrationServiceClient) PassOTP(ctx context.Context, in *OTPPassRequ
 // All implementations must embed UnimplementedRegistrationServiceServer
 // for forward compatibility
 type RegistrationServiceServer interface {
-	Register(context.Context, *RegistrationRequest) (*PromptOPTResponse, error)
-	PassOTP(context.Context, *OTPPassRequest) (*LoginResponse, error)
+	CheckEMail(context.Context, *CheckEMailRequest) (*CheckEMailResponse, error)
+	Register(context.Context, *RegistraionRequest) (*RegistraionResponse, error)
+	PassOTP(context.Context, *PassOTPRequest) (*PassOTPResponse, error)
+	MasterKey(context.Context, *MasterKeyRequest) (*MasterKeyResponse, error)
 	mustEmbedUnimplementedRegistrationServiceServer()
 }
 
@@ -72,11 +98,17 @@ type RegistrationServiceServer interface {
 type UnimplementedRegistrationServiceServer struct {
 }
 
-func (UnimplementedRegistrationServiceServer) Register(context.Context, *RegistrationRequest) (*PromptOPTResponse, error) {
+func (UnimplementedRegistrationServiceServer) CheckEMail(context.Context, *CheckEMailRequest) (*CheckEMailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckEMail not implemented")
+}
+func (UnimplementedRegistrationServiceServer) Register(context.Context, *RegistraionRequest) (*RegistraionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
-func (UnimplementedRegistrationServiceServer) PassOTP(context.Context, *OTPPassRequest) (*LoginResponse, error) {
+func (UnimplementedRegistrationServiceServer) PassOTP(context.Context, *PassOTPRequest) (*PassOTPResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PassOTP not implemented")
+}
+func (UnimplementedRegistrationServiceServer) MasterKey(context.Context, *MasterKeyRequest) (*MasterKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MasterKey not implemented")
 }
 func (UnimplementedRegistrationServiceServer) mustEmbedUnimplementedRegistrationServiceServer() {}
 
@@ -91,8 +123,26 @@ func RegisterRegistrationServiceServer(s grpc.ServiceRegistrar, srv Registration
 	s.RegisterService(&RegistrationService_ServiceDesc, srv)
 }
 
+func _RegistrationService_CheckEMail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckEMailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistrationServiceServer).CheckEMail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RegistrationService_CheckEMail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistrationServiceServer).CheckEMail(ctx, req.(*CheckEMailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _RegistrationService_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RegistrationRequest)
+	in := new(RegistraionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -104,13 +154,13 @@ func _RegistrationService_Register_Handler(srv interface{}, ctx context.Context,
 		FullMethod: RegistrationService_Register_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RegistrationServiceServer).Register(ctx, req.(*RegistrationRequest))
+		return srv.(RegistrationServiceServer).Register(ctx, req.(*RegistraionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _RegistrationService_PassOTP_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OTPPassRequest)
+	in := new(PassOTPRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -122,7 +172,25 @@ func _RegistrationService_PassOTP_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: RegistrationService_PassOTP_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RegistrationServiceServer).PassOTP(ctx, req.(*OTPPassRequest))
+		return srv.(RegistrationServiceServer).PassOTP(ctx, req.(*PassOTPRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RegistrationService_MasterKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MasterKeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RegistrationServiceServer).MasterKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RegistrationService_MasterKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RegistrationServiceServer).MasterKey(ctx, req.(*MasterKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -135,12 +203,20 @@ var RegistrationService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*RegistrationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "CheckEMail",
+			Handler:    _RegistrationService_CheckEMail_Handler,
+		},
+		{
 			MethodName: "Register",
 			Handler:    _RegistrationService_Register_Handler,
 		},
 		{
 			MethodName: "PassOTP",
 			Handler:    _RegistrationService_PassOTP_Handler,
+		},
+		{
+			MethodName: "MasterKey",
+			Handler:    _RegistrationService_MasterKey_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -156,8 +232,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthServiceClient interface {
-	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*PromptOPTResponse, error)
-	PassOTP(ctx context.Context, in *OTPPassRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	PassOTP(ctx context.Context, in *PassOTPRequest, opts ...grpc.CallOption) (*PassOTPResponse, error)
 }
 
 type authServiceClient struct {
@@ -168,9 +244,9 @@ func NewAuthServiceClient(cc grpc.ClientConnInterface) AuthServiceClient {
 	return &authServiceClient{cc}
 }
 
-func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*PromptOPTResponse, error) {
+func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PromptOPTResponse)
+	out := new(LoginResponse)
 	err := c.cc.Invoke(ctx, AuthService_Login_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -178,9 +254,9 @@ func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 	return out, nil
 }
 
-func (c *authServiceClient) PassOTP(ctx context.Context, in *OTPPassRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
+func (c *authServiceClient) PassOTP(ctx context.Context, in *PassOTPRequest, opts ...grpc.CallOption) (*PassOTPResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(LoginResponse)
+	out := new(PassOTPResponse)
 	err := c.cc.Invoke(ctx, AuthService_PassOTP_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -192,8 +268,8 @@ func (c *authServiceClient) PassOTP(ctx context.Context, in *OTPPassRequest, opt
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility
 type AuthServiceServer interface {
-	Login(context.Context, *LoginRequest) (*PromptOPTResponse, error)
-	PassOTP(context.Context, *OTPPassRequest) (*LoginResponse, error)
+	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	PassOTP(context.Context, *PassOTPRequest) (*PassOTPResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -201,10 +277,10 @@ type AuthServiceServer interface {
 type UnimplementedAuthServiceServer struct {
 }
 
-func (UnimplementedAuthServiceServer) Login(context.Context, *LoginRequest) (*PromptOPTResponse, error) {
+func (UnimplementedAuthServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedAuthServiceServer) PassOTP(context.Context, *OTPPassRequest) (*LoginResponse, error) {
+func (UnimplementedAuthServiceServer) PassOTP(context.Context, *PassOTPRequest) (*PassOTPResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PassOTP not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
@@ -239,7 +315,7 @@ func _AuthService_Login_Handler(srv interface{}, ctx context.Context, dec func(i
 }
 
 func _AuthService_PassOTP_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OTPPassRequest)
+	in := new(PassOTPRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -251,7 +327,7 @@ func _AuthService_PassOTP_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: AuthService_PassOTP_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).PassOTP(ctx, req.(*OTPPassRequest))
+		return srv.(AuthServiceServer).PassOTP(ctx, req.(*PassOTPRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

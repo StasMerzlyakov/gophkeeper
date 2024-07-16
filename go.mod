@@ -5,6 +5,8 @@ go 1.22.2
 require (
 	github.com/caarlos0/env v3.5.0+incompatible
 	github.com/envoyproxy/protoc-gen-validate v1.0.4
+	github.com/golang-jwt/jwt/v4 v4.5.0
+	github.com/google/uuid v1.6.0
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/zap v1.27.0
 	google.golang.org/grpc v1.65.0

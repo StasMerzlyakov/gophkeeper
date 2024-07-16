@@ -19,7 +19,9 @@ prview в VSCode - Alt-D.
 ```plantuml
 @startuml
 Client->Client: Promt Authentification password
-Client->GoKeeper: Registration Request (Email: string, Password: string)
+Client->GoKeeper: CheckEmail (EMail: string)
+GoKeeper --> Client: EMailStatus
+Client->GoKeeper: Registration Request (EMail: string, Password: string)
 GoKeeper-> EmailServer: Send OTP QR
 EmailServer-->GoKeeper:
 GoKeeper-->Client: Prompt OTP password
@@ -32,7 +34,7 @@ GoKeeper-->Client: Registration complete, JWT
 ### Authorization
 ```plantuml
 @startuml
-Client->GoKeeper: Authorization Request(Email, Password)
+Client->GoKeeper: Authorization Request(EMail, Password)
 GoKeeper-->Client: Prompt OTP password
 Client->GoKeeper: OTP pass
 GoKeeper-->Client: JWT

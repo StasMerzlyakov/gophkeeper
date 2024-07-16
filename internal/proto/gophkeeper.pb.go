@@ -21,6 +21,350 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type CheckEMailResponse_EMailStatus int32
+
+const (
+	CheckEMailResponse_BUSY      CheckEMailResponse_EMailStatus = 0
+	CheckEMailResponse_AVAILABLE CheckEMailResponse_EMailStatus = 1
+)
+
+// Enum value maps for CheckEMailResponse_EMailStatus.
+var (
+	CheckEMailResponse_EMailStatus_name = map[int32]string{
+		0: "BUSY",
+		1: "AVAILABLE",
+	}
+	CheckEMailResponse_EMailStatus_value = map[string]int32{
+		"BUSY":      0,
+		"AVAILABLE": 1,
+	}
+)
+
+func (x CheckEMailResponse_EMailStatus) Enum() *CheckEMailResponse_EMailStatus {
+	p := new(CheckEMailResponse_EMailStatus)
+	*p = x
+	return p
+}
+
+func (x CheckEMailResponse_EMailStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CheckEMailResponse_EMailStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_gophkeeper_proto_enumTypes[0].Descriptor()
+}
+
+func (CheckEMailResponse_EMailStatus) Type() protoreflect.EnumType {
+	return &file_gophkeeper_proto_enumTypes[0]
+}
+
+func (x CheckEMailResponse_EMailStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CheckEMailResponse_EMailStatus.Descriptor instead.
+func (CheckEMailResponse_EMailStatus) EnumDescriptor() ([]byte, []int) {
+	return file_gophkeeper_proto_rawDescGZIP(), []int{7, 0}
+}
+
+type RegistraionRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Email    string `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	Password string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+}
+
+func (x *RegistraionRequest) Reset() {
+	*x = RegistraionRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_gophkeeper_proto_msgTypes[0]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *RegistraionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegistraionRequest) ProtoMessage() {}
+
+func (x *RegistraionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_gophkeeper_proto_msgTypes[0]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegistraionRequest.ProtoReflect.Descriptor instead.
+func (*RegistraionRequest) Descriptor() ([]byte, []int) {
+	return file_gophkeeper_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *RegistraionRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *RegistraionRequest) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+type RegistraionResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+}
+
+func (x *RegistraionResponse) Reset() {
+	*x = RegistraionResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_gophkeeper_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *RegistraionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegistraionResponse) ProtoMessage() {}
+
+func (x *RegistraionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_gophkeeper_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegistraionResponse.ProtoReflect.Descriptor instead.
+func (*RegistraionResponse) Descriptor() ([]byte, []int) {
+	return file_gophkeeper_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *RegistraionResponse) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+type PassOTPRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Password string `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`
+}
+
+func (x *PassOTPRequest) Reset() {
+	*x = PassOTPRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_gophkeeper_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PassOTPRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PassOTPRequest) ProtoMessage() {}
+
+func (x *PassOTPRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_gophkeeper_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PassOTPRequest.ProtoReflect.Descriptor instead.
+func (*PassOTPRequest) Descriptor() ([]byte, []int) {
+	return file_gophkeeper_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *PassOTPRequest) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+type PassOTPResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	SessionId string `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+}
+
+func (x *PassOTPResponse) Reset() {
+	*x = PassOTPResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_gophkeeper_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PassOTPResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PassOTPResponse) ProtoMessage() {}
+
+func (x *PassOTPResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_gophkeeper_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PassOTPResponse.ProtoReflect.Descriptor instead.
+func (*PassOTPResponse) Descriptor() ([]byte, []int) {
+	return file_gophkeeper_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *PassOTPResponse) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+type MasterKeyRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	EncryptedMasterKey string `protobuf:"bytes,1,opt,name=encryptedMasterKey,proto3" json:"encryptedMasterKey,omitempty"`
+	MasterKeyPassHint  string `protobuf:"bytes,2,opt,name=masterKeyPassHint,proto3" json:"masterKeyPassHint,omitempty"`
+}
+
+func (x *MasterKeyRequest) Reset() {
+	*x = MasterKeyRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_gophkeeper_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MasterKeyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MasterKeyRequest) ProtoMessage() {}
+
+func (x *MasterKeyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_gophkeeper_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MasterKeyRequest.ProtoReflect.Descriptor instead.
+func (*MasterKeyRequest) Descriptor() ([]byte, []int) {
+	return file_gophkeeper_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *MasterKeyRequest) GetEncryptedMasterKey() string {
+	if x != nil {
+		return x.EncryptedMasterKey
+	}
+	return ""
+}
+
+func (x *MasterKeyRequest) GetMasterKeyPassHint() string {
+	if x != nil {
+		return x.MasterKeyPassHint
+	}
+	return ""
+}
+
+type MasterKeyResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	AccessToken string `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+}
+
+func (x *MasterKeyResponse) Reset() {
+	*x = MasterKeyResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_gophkeeper_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MasterKeyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MasterKeyResponse) ProtoMessage() {}
+
+func (x *MasterKeyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_gophkeeper_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MasterKeyResponse.ProtoReflect.Descriptor instead.
+func (*MasterKeyResponse) Descriptor() ([]byte, []int) {
+	return file_gophkeeper_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *MasterKeyResponse) GetAccessToken() string {
+	if x != nil {
+		return x.AccessToken
+	}
+	return ""
+}
+
 type CheckEMailRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -32,7 +376,7 @@ type CheckEMailRequest struct {
 func (x *CheckEMailRequest) Reset() {
 	*x = CheckEMailRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_gophkeeper_proto_msgTypes[0]
+		mi := &file_gophkeeper_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -45,7 +389,7 @@ func (x *CheckEMailRequest) String() string {
 func (*CheckEMailRequest) ProtoMessage() {}
 
 func (x *CheckEMailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[0]
+	mi := &file_gophkeeper_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -58,7 +402,7 @@ func (x *CheckEMailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckEMailRequest.ProtoReflect.Descriptor instead.
 func (*CheckEMailRequest) Descriptor() ([]byte, []int) {
-	return file_gophkeeper_proto_rawDescGZIP(), []int{0}
+	return file_gophkeeper_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CheckEMailRequest) GetEmail() string {
@@ -73,13 +417,13 @@ type CheckEMailResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Available bool `protobuf:"varint,1,opt,name=available,proto3" json:"available,omitempty"`
+	Status CheckEMailResponse_EMailStatus `protobuf:"varint,1,opt,name=status,proto3,enum=proto.CheckEMailResponse_EMailStatus" json:"status,omitempty"`
 }
 
 func (x *CheckEMailResponse) Reset() {
 	*x = CheckEMailResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_gophkeeper_proto_msgTypes[1]
+		mi := &file_gophkeeper_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -92,7 +436,7 @@ func (x *CheckEMailResponse) String() string {
 func (*CheckEMailResponse) ProtoMessage() {}
 
 func (x *CheckEMailResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[1]
+	mi := &file_gophkeeper_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -105,154 +449,14 @@ func (x *CheckEMailResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckEMailResponse.ProtoReflect.Descriptor instead.
 func (*CheckEMailResponse) Descriptor() ([]byte, []int) {
-	return file_gophkeeper_proto_rawDescGZIP(), []int{1}
+	return file_gophkeeper_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *CheckEMailResponse) GetAvailable() bool {
+func (x *CheckEMailResponse) GetStatus() CheckEMailResponse_EMailStatus {
 	if x != nil {
-		return x.Available
+		return x.Status
 	}
-	return false
-}
-
-type RegistrationRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Email    string `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
-	Password string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-}
-
-func (x *RegistrationRequest) Reset() {
-	*x = RegistrationRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_gophkeeper_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *RegistrationRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RegistrationRequest) ProtoMessage() {}
-
-func (x *RegistrationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RegistrationRequest.ProtoReflect.Descriptor instead.
-func (*RegistrationRequest) Descriptor() ([]byte, []int) {
-	return file_gophkeeper_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *RegistrationRequest) GetEmail() string {
-	if x != nil {
-		return x.Email
-	}
-	return ""
-}
-
-func (x *RegistrationRequest) GetPassword() string {
-	if x != nil {
-		return x.Password
-	}
-	return ""
-}
-
-type PromptOPTResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-}
-
-func (x *PromptOPTResponse) Reset() {
-	*x = PromptOPTResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_gophkeeper_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *PromptOPTResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PromptOPTResponse) ProtoMessage() {}
-
-func (x *PromptOPTResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PromptOPTResponse.ProtoReflect.Descriptor instead.
-func (*PromptOPTResponse) Descriptor() ([]byte, []int) {
-	return file_gophkeeper_proto_rawDescGZIP(), []int{3}
-}
-
-type OTPPassRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Password string `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`
-}
-
-func (x *OTPPassRequest) Reset() {
-	*x = OTPPassRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_gophkeeper_proto_msgTypes[4]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *OTPPassRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*OTPPassRequest) ProtoMessage() {}
-
-func (x *OTPPassRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[4]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use OTPPassRequest.ProtoReflect.Descriptor instead.
-func (*OTPPassRequest) Descriptor() ([]byte, []int) {
-	return file_gophkeeper_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *OTPPassRequest) GetPassword() string {
-	if x != nil {
-		return x.Password
-	}
-	return ""
+	return CheckEMailResponse_BUSY
 }
 
 type LoginRequest struct {
@@ -267,7 +471,7 @@ type LoginRequest struct {
 func (x *LoginRequest) Reset() {
 	*x = LoginRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_gophkeeper_proto_msgTypes[5]
+		mi := &file_gophkeeper_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -280,7 +484,7 @@ func (x *LoginRequest) String() string {
 func (*LoginRequest) ProtoMessage() {}
 
 func (x *LoginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[5]
+	mi := &file_gophkeeper_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -293,7 +497,7 @@ func (x *LoginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
 func (*LoginRequest) Descriptor() ([]byte, []int) {
-	return file_gophkeeper_proto_rawDescGZIP(), []int{5}
+	return file_gophkeeper_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *LoginRequest) GetEmail() string {
@@ -315,13 +519,13 @@ type LoginResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	AccessToken string `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	SessionId string `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
 }
 
 func (x *LoginResponse) Reset() {
 	*x = LoginResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_gophkeeper_proto_msgTypes[6]
+		mi := &file_gophkeeper_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -334,7 +538,7 @@ func (x *LoginResponse) String() string {
 func (*LoginResponse) ProtoMessage() {}
 
 func (x *LoginResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[6]
+	mi := &file_gophkeeper_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -347,12 +551,12 @@ func (x *LoginResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginResponse.ProtoReflect.Descriptor instead.
 func (*LoginResponse) Descriptor() ([]byte, []int) {
-	return file_gophkeeper_proto_rawDescGZIP(), []int{6}
+	return file_gophkeeper_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *LoginResponse) GetAccessToken() string {
+func (x *LoginResponse) GetSessionId() string {
 	if x != nil {
-		return x.AccessToken
+		return x.SessionId
 	}
 	return ""
 }
@@ -366,7 +570,7 @@ type PingRequest struct {
 func (x *PingRequest) Reset() {
 	*x = PingRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_gophkeeper_proto_msgTypes[7]
+		mi := &file_gophkeeper_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -379,7 +583,7 @@ func (x *PingRequest) String() string {
 func (*PingRequest) ProtoMessage() {}
 
 func (x *PingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[7]
+	mi := &file_gophkeeper_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -392,7 +596,7 @@ func (x *PingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PingRequest.ProtoReflect.Descriptor instead.
 func (*PingRequest) Descriptor() ([]byte, []int) {
-	return file_gophkeeper_proto_rawDescGZIP(), []int{7}
+	return file_gophkeeper_proto_rawDescGZIP(), []int{10}
 }
 
 type PingResponse struct {
@@ -404,7 +608,7 @@ type PingResponse struct {
 func (x *PingResponse) Reset() {
 	*x = PingResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_gophkeeper_proto_msgTypes[8]
+		mi := &file_gophkeeper_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -417,7 +621,7 @@ func (x *PingResponse) String() string {
 func (*PingResponse) ProtoMessage() {}
 
 func (x *PingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[8]
+	mi := &file_gophkeeper_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -430,7 +634,7 @@ func (x *PingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PingResponse.ProtoReflect.Descriptor instead.
 func (*PingResponse) Descriptor() ([]byte, []int) {
-	return file_gophkeeper_proto_rawDescGZIP(), []int{8}
+	return file_gophkeeper_proto_rawDescGZIP(), []int{11}
 }
 
 var File_gophkeeper_proto protoreflect.FileDescriptor
@@ -439,55 +643,82 @@ var file_gophkeeper_proto_rawDesc = []byte{
 	0x0a, 0x10, 0x67, 0x6f, 0x70, 0x68, 0x6b, 0x65, 0x65, 0x70, 0x65, 0x72, 0x2e, 0x70, 0x72, 0x6f,
 	0x74, 0x6f, 0x12, 0x05, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x17, 0x76, 0x61, 0x6c, 0x69, 0x64,
 	0x61, 0x74, 0x65, 0x2f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x65, 0x2e, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x22, 0x32, 0x0a, 0x11, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x45, 0x4d, 0x61, 0x69, 0x6c,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1d, 0x0a, 0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c,
-	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x07, 0xfa, 0x42, 0x04, 0x72, 0x02, 0x60, 0x01, 0x52,
-	0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x22, 0x32, 0x0a, 0x12, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x45,
-	0x4d, 0x61, 0x69, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1c, 0x0a, 0x09,
-	0x61, 0x76, 0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52,
-	0x09, 0x61, 0x76, 0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65, 0x22, 0x50, 0x0a, 0x13, 0x52, 0x65,
-	0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x12, 0x1d, 0x0a, 0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
-	0x42, 0x07, 0xfa, 0x42, 0x04, 0x72, 0x02, 0x60, 0x01, 0x52, 0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c,
-	0x12, 0x1a, 0x0a, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x02, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x22, 0x13, 0x0a, 0x11,
-	0x50, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x4f, 0x50, 0x54, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x22, 0x2c, 0x0a, 0x0e, 0x4f, 0x54, 0x50, 0x50, 0x61, 0x73, 0x73, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x22,
-	0x49, 0x0a, 0x0c, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
+	0x74, 0x6f, 0x22, 0x4f, 0x0a, 0x12, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x69, 0x6f,
+	0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1d, 0x0a, 0x05, 0x65, 0x6d, 0x61, 0x69,
+	0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x07, 0xfa, 0x42, 0x04, 0x72, 0x02, 0x60, 0x01,
+	0x52, 0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77,
+	0x6f, 0x72, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77,
+	0x6f, 0x72, 0x64, 0x22, 0x2b, 0x0a, 0x13, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x69,
+	0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x74, 0x6f,
+	0x6b, 0x65, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x74, 0x6f, 0x6b, 0x65, 0x6e,
+	0x22, 0x2c, 0x0a, 0x0e, 0x50, 0x61, 0x73, 0x73, 0x4f, 0x54, 0x50, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x22, 0x30,
+	0x0a, 0x0f, 0x50, 0x61, 0x73, 0x73, 0x4f, 0x54, 0x50, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x73, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x5f, 0x69, 0x64, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x73, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x49, 0x64,
+	0x22, 0x70, 0x0a, 0x10, 0x4d, 0x61, 0x73, 0x74, 0x65, 0x72, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x12, 0x2e, 0x0a, 0x12, 0x65, 0x6e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x65,
+	0x64, 0x4d, 0x61, 0x73, 0x74, 0x65, 0x72, 0x4b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x12, 0x65, 0x6e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x65, 0x64, 0x4d, 0x61, 0x73, 0x74, 0x65,
+	0x72, 0x4b, 0x65, 0x79, 0x12, 0x2c, 0x0a, 0x11, 0x6d, 0x61, 0x73, 0x74, 0x65, 0x72, 0x4b, 0x65,
+	0x79, 0x50, 0x61, 0x73, 0x73, 0x48, 0x69, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x11, 0x6d, 0x61, 0x73, 0x74, 0x65, 0x72, 0x4b, 0x65, 0x79, 0x50, 0x61, 0x73, 0x73, 0x48, 0x69,
+	0x6e, 0x74, 0x22, 0x36, 0x0a, 0x11, 0x4d, 0x61, 0x73, 0x74, 0x65, 0x72, 0x4b, 0x65, 0x79, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x21, 0x0a, 0x0c, 0x61, 0x63, 0x63, 0x65, 0x73,
+	0x73, 0x5f, 0x74, 0x6f, 0x6b, 0x65, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x61,
+	0x63, 0x63, 0x65, 0x73, 0x73, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x22, 0x32, 0x0a, 0x11, 0x43, 0x68,
+	0x65, 0x63, 0x6b, 0x45, 0x4d, 0x61, 0x69, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
 	0x1d, 0x0a, 0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x07,
-	0xfa, 0x42, 0x04, 0x72, 0x02, 0x60, 0x01, 0x52, 0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x1a,
-	0x0a, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
-	0x52, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x22, 0x32, 0x0a, 0x0d, 0x4c, 0x6f,
-	0x67, 0x69, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x21, 0x0a, 0x0c, 0x61,
-	0x63, 0x63, 0x65, 0x73, 0x73, 0x5f, 0x74, 0x6f, 0x6b, 0x65, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28,
-	0x09, 0x52, 0x0b, 0x61, 0x63, 0x63, 0x65, 0x73, 0x73, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x22, 0x0d,
-	0x0a, 0x0b, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x0e, 0x0a,
-	0x0c, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0x8f, 0x01,
-	0x0a, 0x13, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x53, 0x65,
-	0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x40, 0x0a, 0x08, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65,
-	0x72, 0x12, 0x1a, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74,
-	0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x18, 0x2e,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x50, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x4f, 0x50, 0x54, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x36, 0x0a, 0x07, 0x50, 0x61, 0x73, 0x73, 0x4f,
-	0x54, 0x50, 0x12, 0x15, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x4f, 0x54, 0x50, 0x50, 0x61,
-	0x73, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x14, 0x2e, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x2e, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32,
-	0x7d, 0x0a, 0x0b, 0x41, 0x75, 0x74, 0x68, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x36,
-	0x0a, 0x05, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x12, 0x13, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e,
-	0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x18, 0x2e, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x50, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x4f, 0x50, 0x54, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x36, 0x0a, 0x07, 0x50, 0x61, 0x73, 0x73, 0x4f, 0x54,
-	0x50, 0x12, 0x15, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x4f, 0x54, 0x50, 0x50, 0x61, 0x73,
-	0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x14, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x2e, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0x39,
-	0x0a, 0x06, 0x50, 0x69, 0x6e, 0x67, 0x65, 0x72, 0x12, 0x2f, 0x0a, 0x04, 0x50, 0x69, 0x6e, 0x67,
-	0x12, 0x12, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x1a, 0x13, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x50, 0x69, 0x6e,
-	0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x10, 0x5a, 0x0e, 0x69, 0x6e, 0x74,
-	0x65, 0x72, 0x6e, 0x61, 0x6c, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x33,
+	0xfa, 0x42, 0x04, 0x72, 0x02, 0x60, 0x01, 0x52, 0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x22, 0x7b,
+	0x0a, 0x12, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x45, 0x4d, 0x61, 0x69, 0x6c, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3d, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x0e, 0x32, 0x25, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x43, 0x68, 0x65,
+	0x63, 0x6b, 0x45, 0x4d, 0x61, 0x69, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x2e,
+	0x45, 0x4d, 0x61, 0x69, 0x6c, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x06, 0x73, 0x74, 0x61,
+	0x74, 0x75, 0x73, 0x22, 0x26, 0x0a, 0x0b, 0x45, 0x4d, 0x61, 0x69, 0x6c, 0x53, 0x74, 0x61, 0x74,
+	0x75, 0x73, 0x12, 0x08, 0x0a, 0x04, 0x42, 0x55, 0x53, 0x59, 0x10, 0x00, 0x12, 0x0d, 0x0a, 0x09,
+	0x41, 0x56, 0x41, 0x49, 0x4c, 0x41, 0x42, 0x4c, 0x45, 0x10, 0x01, 0x22, 0x49, 0x0a, 0x0c, 0x4c,
+	0x6f, 0x67, 0x69, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1d, 0x0a, 0x05, 0x65,
+	0x6d, 0x61, 0x69, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x07, 0xfa, 0x42, 0x04, 0x72,
+	0x02, 0x60, 0x01, 0x52, 0x05, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x61,
+	0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x70, 0x61,
+	0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x22, 0x2e, 0x0a, 0x0d, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x73, 0x65, 0x73, 0x73, 0x69,
+	0x6f, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x73, 0x65, 0x73,
+	0x73, 0x69, 0x6f, 0x6e, 0x49, 0x64, 0x22, 0x0d, 0x0a, 0x0b, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x0e, 0x0a, 0x0c, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0x95, 0x02, 0x0a, 0x13, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74,
+	0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x41, 0x0a,
+	0x0a, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x45, 0x4d, 0x61, 0x69, 0x6c, 0x12, 0x18, 0x2e, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x2e, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x45, 0x4d, 0x61, 0x69, 0x6c, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x43, 0x68,
+	0x65, 0x63, 0x6b, 0x45, 0x4d, 0x61, 0x69, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x41, 0x0a, 0x08, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x12, 0x19, 0x2e, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x69, 0x6f, 0x6e,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1a, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e,
+	0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x12, 0x38, 0x0a, 0x07, 0x50, 0x61, 0x73, 0x73, 0x4f, 0x54, 0x50, 0x12, 0x15,
+	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x50, 0x61, 0x73, 0x73, 0x4f, 0x54, 0x50, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x16, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x50, 0x61,
+	0x73, 0x73, 0x4f, 0x54, 0x50, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3e, 0x0a,
+	0x09, 0x4d, 0x61, 0x73, 0x74, 0x65, 0x72, 0x4b, 0x65, 0x79, 0x12, 0x17, 0x2e, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x2e, 0x4d, 0x61, 0x73, 0x74, 0x65, 0x72, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x1a, 0x18, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x4d, 0x61, 0x73, 0x74,
+	0x65, 0x72, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0x7b, 0x0a,
+	0x0b, 0x41, 0x75, 0x74, 0x68, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x32, 0x0a, 0x05,
+	0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x12, 0x13, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x4c, 0x6f,
+	0x67, 0x69, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x14, 0x2e, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x2e, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x38, 0x0a, 0x07, 0x50, 0x61, 0x73, 0x73, 0x4f, 0x54, 0x50, 0x12, 0x15, 0x2e, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x2e, 0x50, 0x61, 0x73, 0x73, 0x4f, 0x54, 0x50, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x16, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x50, 0x61, 0x73, 0x73, 0x4f,
+	0x54, 0x50, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0x39, 0x0a, 0x06, 0x50, 0x69,
+	0x6e, 0x67, 0x65, 0x72, 0x12, 0x2f, 0x0a, 0x04, 0x50, 0x69, 0x6e, 0x67, 0x12, 0x12, 0x2e, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x1a, 0x13, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x10, 0x5a, 0x0e, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x6e, 0x61,
+	0x6c, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -502,34 +733,44 @@ func file_gophkeeper_proto_rawDescGZIP() []byte {
 	return file_gophkeeper_proto_rawDescData
 }
 
-var file_gophkeeper_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_gophkeeper_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_gophkeeper_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_gophkeeper_proto_goTypes = []any{
-	(*CheckEMailRequest)(nil),   // 0: proto.CheckEMailRequest
-	(*CheckEMailResponse)(nil),  // 1: proto.CheckEMailResponse
-	(*RegistrationRequest)(nil), // 2: proto.RegistrationRequest
-	(*PromptOPTResponse)(nil),   // 3: proto.PromptOPTResponse
-	(*OTPPassRequest)(nil),      // 4: proto.OTPPassRequest
-	(*LoginRequest)(nil),        // 5: proto.LoginRequest
-	(*LoginResponse)(nil),       // 6: proto.LoginResponse
-	(*PingRequest)(nil),         // 7: proto.PingRequest
-	(*PingResponse)(nil),        // 8: proto.PingResponse
+	(CheckEMailResponse_EMailStatus)(0), // 0: proto.CheckEMailResponse.EMailStatus
+	(*RegistraionRequest)(nil),          // 1: proto.RegistraionRequest
+	(*RegistraionResponse)(nil),         // 2: proto.RegistraionResponse
+	(*PassOTPRequest)(nil),              // 3: proto.PassOTPRequest
+	(*PassOTPResponse)(nil),             // 4: proto.PassOTPResponse
+	(*MasterKeyRequest)(nil),            // 5: proto.MasterKeyRequest
+	(*MasterKeyResponse)(nil),           // 6: proto.MasterKeyResponse
+	(*CheckEMailRequest)(nil),           // 7: proto.CheckEMailRequest
+	(*CheckEMailResponse)(nil),          // 8: proto.CheckEMailResponse
+	(*LoginRequest)(nil),                // 9: proto.LoginRequest
+	(*LoginResponse)(nil),               // 10: proto.LoginResponse
+	(*PingRequest)(nil),                 // 11: proto.PingRequest
+	(*PingResponse)(nil),                // 12: proto.PingResponse
 }
 var file_gophkeeper_proto_depIdxs = []int32{
-	2, // 0: proto.RegistrationService.Register:input_type -> proto.RegistrationRequest
-	4, // 1: proto.RegistrationService.PassOTP:input_type -> proto.OTPPassRequest
-	5, // 2: proto.AuthService.Login:input_type -> proto.LoginRequest
-	4, // 3: proto.AuthService.PassOTP:input_type -> proto.OTPPassRequest
-	7, // 4: proto.Pinger.Ping:input_type -> proto.PingRequest
-	3, // 5: proto.RegistrationService.Register:output_type -> proto.PromptOPTResponse
-	6, // 6: proto.RegistrationService.PassOTP:output_type -> proto.LoginResponse
-	3, // 7: proto.AuthService.Login:output_type -> proto.PromptOPTResponse
-	6, // 8: proto.AuthService.PassOTP:output_type -> proto.LoginResponse
-	8, // 9: proto.Pinger.Ping:output_type -> proto.PingResponse
-	5, // [5:10] is the sub-list for method output_type
-	0, // [0:5] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0,  // 0: proto.CheckEMailResponse.status:type_name -> proto.CheckEMailResponse.EMailStatus
+	7,  // 1: proto.RegistrationService.CheckEMail:input_type -> proto.CheckEMailRequest
+	1,  // 2: proto.RegistrationService.Register:input_type -> proto.RegistraionRequest
+	3,  // 3: proto.RegistrationService.PassOTP:input_type -> proto.PassOTPRequest
+	5,  // 4: proto.RegistrationService.MasterKey:input_type -> proto.MasterKeyRequest
+	9,  // 5: proto.AuthService.Login:input_type -> proto.LoginRequest
+	3,  // 6: proto.AuthService.PassOTP:input_type -> proto.PassOTPRequest
+	11, // 7: proto.Pinger.Ping:input_type -> proto.PingRequest
+	8,  // 8: proto.RegistrationService.CheckEMail:output_type -> proto.CheckEMailResponse
+	2,  // 9: proto.RegistrationService.Register:output_type -> proto.RegistraionResponse
+	4,  // 10: proto.RegistrationService.PassOTP:output_type -> proto.PassOTPResponse
+	6,  // 11: proto.RegistrationService.MasterKey:output_type -> proto.MasterKeyResponse
+	10, // 12: proto.AuthService.Login:output_type -> proto.LoginResponse
+	4,  // 13: proto.AuthService.PassOTP:output_type -> proto.PassOTPResponse
+	12, // 14: proto.Pinger.Ping:output_type -> proto.PingResponse
+	8,  // [8:15] is the sub-list for method output_type
+	1,  // [1:8] is the sub-list for method input_type
+	1,  // [1:1] is the sub-list for extension type_name
+	1,  // [1:1] is the sub-list for extension extendee
+	0,  // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_gophkeeper_proto_init() }
@@ -539,7 +780,7 @@ func file_gophkeeper_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_gophkeeper_proto_msgTypes[0].Exporter = func(v any, i int) any {
-			switch v := v.(*CheckEMailRequest); i {
+			switch v := v.(*RegistraionRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -551,7 +792,7 @@ func file_gophkeeper_proto_init() {
 			}
 		}
 		file_gophkeeper_proto_msgTypes[1].Exporter = func(v any, i int) any {
-			switch v := v.(*CheckEMailResponse); i {
+			switch v := v.(*RegistraionResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -563,7 +804,7 @@ func file_gophkeeper_proto_init() {
 			}
 		}
 		file_gophkeeper_proto_msgTypes[2].Exporter = func(v any, i int) any {
-			switch v := v.(*RegistrationRequest); i {
+			switch v := v.(*PassOTPRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -575,7 +816,7 @@ func file_gophkeeper_proto_init() {
 			}
 		}
 		file_gophkeeper_proto_msgTypes[3].Exporter = func(v any, i int) any {
-			switch v := v.(*PromptOPTResponse); i {
+			switch v := v.(*PassOTPResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -587,7 +828,7 @@ func file_gophkeeper_proto_init() {
 			}
 		}
 		file_gophkeeper_proto_msgTypes[4].Exporter = func(v any, i int) any {
-			switch v := v.(*OTPPassRequest); i {
+			switch v := v.(*MasterKeyRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -599,7 +840,7 @@ func file_gophkeeper_proto_init() {
 			}
 		}
 		file_gophkeeper_proto_msgTypes[5].Exporter = func(v any, i int) any {
-			switch v := v.(*LoginRequest); i {
+			switch v := v.(*MasterKeyResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -611,7 +852,7 @@ func file_gophkeeper_proto_init() {
 			}
 		}
 		file_gophkeeper_proto_msgTypes[6].Exporter = func(v any, i int) any {
-			switch v := v.(*LoginResponse); i {
+			switch v := v.(*CheckEMailRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -623,7 +864,7 @@ func file_gophkeeper_proto_init() {
 			}
 		}
 		file_gophkeeper_proto_msgTypes[7].Exporter = func(v any, i int) any {
-			switch v := v.(*PingRequest); i {
+			switch v := v.(*CheckEMailResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -635,6 +876,42 @@ func file_gophkeeper_proto_init() {
 			}
 		}
 		file_gophkeeper_proto_msgTypes[8].Exporter = func(v any, i int) any {
+			switch v := v.(*LoginRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_gophkeeper_proto_msgTypes[9].Exporter = func(v any, i int) any {
+			switch v := v.(*LoginResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_gophkeeper_proto_msgTypes[10].Exporter = func(v any, i int) any {
+			switch v := v.(*PingRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_gophkeeper_proto_msgTypes[11].Exporter = func(v any, i int) any {
 			switch v := v.(*PingResponse); i {
 			case 0:
 				return &v.state
@@ -652,13 +929,14 @@ func file_gophkeeper_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_gophkeeper_proto_rawDesc,
-			NumEnums:      0,
-			NumMessages:   9,
+			NumEnums:      1,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   3,
 		},
 		GoTypes:           file_gophkeeper_proto_goTypes,
 		DependencyIndexes: file_gophkeeper_proto_depIdxs,
+		EnumInfos:         file_gophkeeper_proto_enumTypes,
 		MessageInfos:      file_gophkeeper_proto_msgTypes,
 	}.Build()
 	File_gophkeeper_proto = out.File

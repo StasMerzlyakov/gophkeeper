@@ -6,25 +6,50 @@ import "validate/validate.proto";
 
 option go_package = "internal/proto";
 
-message CheckEMailRequest {
-    string email = 1 [(validate.rules).string.email = true];
-}
-
-message CheckEMailResponse{
-    bool available = 1;
-}
-
 message RegistrationRequest {
     string email = 1 [(validate.rules).string.email = true];
     string password = 2;
 }
 
-message PromptOPTResponse{
+message RegistrationResponse {
+    string session_id = 1;
 }
 
-message OTPPassRequest {
+message PassOTPRequest {
     string password = 1;
 }
+
+message PassOTPResponse {
+    string session_id = 1;
+}
+
+message MasterKeyRequest {
+    string encryptedMasterKey = 1;
+    string masterKeyPassHint = 2;
+}
+
+message MasterKeyResponse {
+    string access_token = 1;
+}
+
+message CheckEMailRequest {
+    string email = 1 [(validate.rules).string.email = true];
+}
+
+message CheckEMailResponse {
+    enum EMailStatus {
+        BUSY = 0;
+        AVAILABLE = 1;
+    }
+    EMailStatus status = 1; 
+}
+
+service RegistrationService {
+    rpc CheckEMail(CheckEMailRequest)  returns (CheckEMailResponse);
+    rpc Register(RegistrationRequest) returns (RegistrationResponse);
+    rpc PassOTP(PassOTPRequest) returns (PassOTPResponse);
+    rpc MasterKey(MasterKeyRequest) returns (MasterKeyResponse);
+};
 
 message LoginRequest {
     string email = 1 [(validate.rules).string.email = true];
@@ -32,17 +57,12 @@ message LoginRequest {
 }
 
 message LoginResponse {
-    string access_token = 1; 
+    string session_id = 1;
 }
 
-service RegistrationService {
-    rpc Register(RegistrationRequest) returns (PromptOPTResponse);
-    rpc PassOTP(OTPPassRequest) returns (LoginResponse);
-};
-
 service AuthService {
-    rpc Login(LoginRequest) returns (PromptOPTResponse);
-    rpc PassOTP(OTPPassRequest) returns (LoginResponse);
+    rpc Login(LoginRequest) returns (LoginResponse);
+    rpc PassOTP(PassOTPRequest) returns (PassOTPResponse);
 };
 
 message PingRequest {}

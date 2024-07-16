@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"sync"
@@ -24,7 +25,11 @@ func main() {
 	if err != nil {
 		panic("cannot initialize zap")
 	}
-	defer logger.Sync()
+	defer func() {
+		if err := logger.Sync(); err != nil {
+			panic(err)
+		}
+	}()
 
 	sugarLog := logger.Sugar()
 
@@ -48,7 +53,9 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		handler.Start(srvCtx)
+		if err := handler.Start(srvCtx); err != nil {
+			panic(fmt.Errorf("can't start %w", err))
+		}
 	}()
 
 	wg.Add(1)
@@ -59,5 +66,4 @@ func main() {
 	}()
 
 	wg.Wait()
-
 }
