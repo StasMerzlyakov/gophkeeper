@@ -1,56 +1,86 @@
 package email_test
 
 import (
-	"log"
+	"context"
+	"io"
+	"os"
+	"path/filepath"
 	"testing"
 
+	"github.com/StasMerzlyakov/gophkeeper/internal/config"
+	"github.com/StasMerzlyakov/gophkeeper/internal/server/adapters/email"
 	"github.com/stretchr/testify/require"
-	mail "github.com/xhit/go-simple-mail"
 )
 
-const htmlBody = `<html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<title>Hello Gophers!</title>
-	</head>
-	<body>
-		<p>This is the <b>Go gopher</b>.</p>
-		<p><img src="cid:Gopher.png" alt="Go gopher" /></p>
-		<p>Image created by Renee French</p>
-	</body>
-</html>`
-
-const htmlBodySimple = `<html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<title>Hello Gophers!</title>
-	</head>
-	<body>
-		<p>This is the <b>Go gopher</b>.</p>
-		<p>Image created by Renee French</p>
-	</body>
-</html>`
+const TestDataDirectory = "../../../../testdata/"
 
 func TestSendMail(t *testing.T) {
-	server := mail.NewSMTPClient()
 
-	server.Host = "127.0.0.1"
-	server.Port = 25
+	hostAddress, portNumber := "127.0.0.1", mockServer.PortNumber()
 
-	smtpClient, err := server.Connect()
+	serverEmail := "gookeeper@localdomain.ru"
+	clientEmail := "st.merzlyakov@yandex.ru"
+
+	qrFile := filepath.Join(TestDataDirectory, "QR.png")
+
+	fl, err := os.Open(qrFile)
+	require.NoError(t, err)
+	defer fl.Close()
+
+	qr, err := io.ReadAll(fl)
 	require.NoError(t, err)
 
-	email := mail.NewMSG()
-	email.SetFrom("From Example <test@test.com>").
-		AddTo("st.merzlyakov@yandex.ru").
-		SetSubject("New Go Email")
-
-	email.SetBody(mail.TextHTML, htmlBodySimple)
-
-	if email.Error != nil {
-		log.Fatal(email.Error)
+	conf := &config.ServerConf{
+		SMTPHost:        hostAddress,
+		SMTPPort:        portNumber,
+		SMTPServerEMail: serverEmail,
 	}
 
-	err = email.Send(smtpClient)
+	emailSender := email.NewSender(conf)
+
+	ctx := context.Background()
+
+	err = emailSender.Connect(ctx)
 	require.NoError(t, err)
+	defer emailSender.Close()
+
+	err = emailSender.Send(ctx, clientEmail, qr)
+	require.NoError(t, err)
+
+	msgs := mockServer.Messages()
+	require.True(t, len(msgs) == 1)
+}
+
+func TestSendMailErr(t *testing.T) {
+
+	hostAddress, portNumber := "127.0.0.1", mockServer.PortNumber()
+
+	serverEmail := "gookeeper@localdomain"
+	clientEmail := "st.merzlyakov@yandex.ru"
+
+	qrFile := filepath.Join(TestDataDirectory, "QR.png")
+
+	fl, err := os.Open(qrFile)
+	require.NoError(t, err)
+	defer fl.Close()
+
+	qr, err := io.ReadAll(fl)
+	require.NoError(t, err)
+
+	conf := &config.ServerConf{
+		SMTPHost:        hostAddress,
+		SMTPPort:        portNumber,
+		SMTPServerEMail: serverEmail,
+	}
+
+	emailSender := email.NewSender(conf)
+
+	ctx := context.Background()
+
+	err = emailSender.Connect(ctx)
+	require.NoError(t, err)
+	defer emailSender.Close()
+
+	err = emailSender.Send(ctx, clientEmail, qr)
+	require.Error(t, err)
 }

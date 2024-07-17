@@ -1,4 +1,4 @@
-.PHONY: proto clean test cover
+.PHONY: proto clean test cover generate
 
 test: clean
 	go vet ./...
@@ -17,3 +17,7 @@ proto:
 cover: test
 	go tool cover -html=cover.out -o coverage.html
 	firefox coverage.html &	
+
+gen:
+	go generate ./...
+

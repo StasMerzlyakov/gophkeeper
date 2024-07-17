@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gotest.tools/v3/assert"
 )
 
 func TestClientConf(t *testing.T) {

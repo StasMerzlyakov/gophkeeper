@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gotest.tools/v3/assert"
 )
 
 func TestLoadServConf(t *testing.T) {
@@ -24,8 +24,12 @@ func TestLoadServConf(t *testing.T) {
 		assert.Equal(t, config.ServerDefaultTokenSecret, conf.TokenSecret)
 		assert.Equal(t, config.ServerDefaultAuthStageTimeout, conf.AuthStageTimeout)
 
-		assert.Equal(t, config.ServerDefaultMasterKey, conf.MasterKey)
+		assert.Equal(t, config.ServerDefaultServerKey, conf.ServerKey)
 		assert.Equal(t, config.ServerDefaultDomainName, conf.DomainName)
+
+		assert.Equal(t, config.ServerDefaultSMTPHost, conf.SMTPHost)
+		assert.Equal(t, config.ServerDefaultSMTPPort, conf.SMTPPort)
+		assert.Equal(t, config.ServerDefaultSMTPServerEMail, conf.SMTPServerEMail)
 	})
 
 	t.Run("env values", func(t *testing.T) {
@@ -37,8 +41,12 @@ func TestLoadServConf(t *testing.T) {
 		os.Setenv("JWT_SECRET", "pass")
 		os.Setenv("AUTH_STAGE_TIMEOUT", "4m")
 
-		os.Setenv("MASTER_KEY", "key")
+		os.Setenv("SERVER_KEY", "key")
 		os.Setenv("DOMAIN_NAME", "example.com")
+
+		os.Setenv("SMTP_HOST", "127.0.0.1")
+		os.Setenv("SMTP_PORT", "26")
+		os.Setenv("SMTP_SERVER_EMAIL", "gopheer@localhost")
 
 		conf, err := config.LoadServConf()
 		require.NoError(t, err)
@@ -50,7 +58,19 @@ func TestLoadServConf(t *testing.T) {
 		assert.Equal(t, 1*time.Hour, conf.TokenExp)
 		assert.Equal(t, "pass", conf.TokenSecret)
 		assert.Equal(t, 4*time.Minute, conf.AuthStageTimeout)
-		assert.Equal(t, "key", conf.MasterKey)
+		assert.Equal(t, "key", conf.ServerKey)
 		assert.Equal(t, "example.com", conf.DomainName)
+
+		assert.Equal(t, "127.0.0.1", conf.SMTPHost)
+		assert.Equal(t, 26, conf.SMTPPort)
+		assert.Equal(t, "gopheer@localhost", conf.SMTPServerEMail)
+	})
+
+	t.Run("err", func(t *testing.T) {
+		os.Setenv("SMTP_PORT", "26asdasd")
+
+		conf, err := config.LoadServConf()
+		require.Nil(t, conf)
+		require.Error(t, err)
 	})
 }

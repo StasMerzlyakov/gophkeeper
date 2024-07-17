@@ -13,8 +13,11 @@ const (
 	ServerDefaultTokenExp         = 3 * time.Hour
 	ServerDefaultTokenSecret      = "secret"
 	ServerDefaultAuthStageTimeout = 5 * time.Minute
-	ServerDefaultMasterKey        = "MasterKey!"
+	ServerDefaultServerKey        = "ServerKey!"
 	ServerDefaultDomainName       = "localhost"
+	ServerDefaultSMTPHost         = "localhost"
+	ServerDefaultSMTPPort         = 25
+	ServerDefaultSMTPServerEMail  = "localhost@localdomain"
 )
 
 type ServerConf struct {
@@ -24,8 +27,11 @@ type ServerConf struct {
 	TokenExp         time.Duration `env:"JWT_EXP"`
 	TokenSecret      string        `env:"JWT_SECRET"`
 	AuthStageTimeout time.Duration `env:"AUTH_STAGE_TIMEOUT"`
-	MasterKey        string        `env:"MASTER_KEY"`
+	ServerKey        string        `env:"SERVER_KEY"`
 	DomainName       string        `env:"DOMAIN_NAME"`
+	SMTPHost         string        `env:"SMTP_HOST"`
+	SMTPPort         int           `env:"SMTP_PORT"`
+	SMTPServerEMail  string        `env:"SMTP_SERVER_EMAIL"`
 }
 
 func defaultServConf() *ServerConf {
@@ -36,8 +42,11 @@ func defaultServConf() *ServerConf {
 		TokenExp:         ServerDefaultTokenExp,
 		TokenSecret:      ServerDefaultTokenSecret,
 		AuthStageTimeout: ServerDefaultAuthStageTimeout,
-		MasterKey:        ServerDefaultMasterKey,
+		ServerKey:        ServerDefaultServerKey,
 		DomainName:       ServerDefaultDomainName,
+		SMTPHost:         ServerDefaultSMTPHost,
+		SMTPPort:         ServerDefaultSMTPPort,
+		SMTPServerEMail:  ServerDefaultSMTPServerEMail,
 	}
 }
 

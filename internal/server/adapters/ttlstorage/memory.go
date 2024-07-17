@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
-	"github.com/StasMerzlyakov/gophkeeper/internal/server/domain"
+	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
 func NewMemStorage(ctx context.Context, conf *config.ServerConf) *memStorage {

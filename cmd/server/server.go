@@ -9,8 +9,8 @@ import (
 	"syscall"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
+	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	"github.com/StasMerzlyakov/gophkeeper/internal/server/adapters/grpc/handler"
-	"github.com/StasMerzlyakov/gophkeeper/internal/server/domain"
 	"go.uber.org/zap"
 )
 
@@ -21,7 +21,11 @@ func main() {
 		panic(err)
 	}
 
-	logger, err := zap.NewDevelopment()
+	if err := domain.CheckServerSecretKey(conf.ServerKey); err != nil {
+		panic(err)
+	}
+
+	logger, err := zap.NewProduction()
 	if err != nil {
 		panic("cannot initialize zap")
 	}
@@ -46,13 +50,6 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		<-exit
-		cancelFn()
-	}()
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
 		if err := handler.Start(srvCtx); err != nil {
 			panic(fmt.Errorf("can't start %w", err))
 		}
@@ -65,5 +62,7 @@ func main() {
 		handler.Stop()
 	}()
 
+	<-exit
+	cancelFn()
 	wg.Wait()
 }

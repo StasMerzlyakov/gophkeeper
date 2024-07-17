@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
+	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	"github.com/StasMerzlyakov/gophkeeper/internal/server/adapters/ttlstorage"
-	"github.com/StasMerzlyakov/gophkeeper/internal/server/domain"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
