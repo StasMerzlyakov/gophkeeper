@@ -16,7 +16,8 @@ message RegistrationResponse {
 }
 
 message PassOTPRequest {
-    string password = 1;
+    string session_id = 1;
+    string password = 2;
 }
 
 message PassOTPResponse {
@@ -24,9 +25,10 @@ message PassOTPResponse {
 }
 
 message MasterKeyRequest {
-    string encryptedMasterKey = 1;
-    string masterKeyPassHint = 2;
-    string helloWorldEncrypted = 3;
+    string session_id = 1;
+    string encryptedMasterKey = 2;
+    string masterKeyPassHint = 3;
+    string helloWorldEncrypted = 4;
 }
 
 message MasterKeyResponse {
