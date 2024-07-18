@@ -775,3 +775,227 @@ func TestRegistrator_PassOTP(t *testing.T) {
 	})
 
 }
+
+func TestRegistration_InitMasterKey(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	t.Run("ok", func(t *testing.T) {
+
+		currentID := domain.SessionID("currentID")
+
+		encryptedMasterKey := "EncryptedMasterKey"
+		masterKeyHint := "MasterKeyHint"
+		helloEncrypted := "HelloEncrypted"
+		encryptedOTPKey := "asdasdasd!iasd"
+
+		keyData := &domain.MasterKeyData{
+			EncryptedMasterKey: encryptedMasterKey,
+			MasterKeyHint:      masterKeyHint,
+			HelloEncrypted:     helloEncrypted,
+		}
+
+		data := domain.RegistrationData{
+			State:           domain.RegistrationStateAuth,
+			EncryptedOTPKey: encryptedOTPKey,
+			EMail:           "Email",
+			PasswordHash:    "Hash",
+			PasswordSalt:    "Salt",
+		}
+		userId := domain.UserID("asdasd")
+
+		mockTempStorage := NewMockTemporaryStorage(ctrl)
+		mockTempStorage.EXPECT().LoadAndDelete(gomock.Any(), gomock.Eq(currentID)).Times(1).DoAndReturn(func(ctx context.Context,
+			id domain.SessionID,
+		) (any, error) {
+			return data, nil
+		})
+
+		mockStflStorage := NewMockStateFullStorage(ctrl)
+		mockStflStorage.EXPECT().Registrate(gomock.Any(), gomock.Any()).Times(1).
+			DoAndReturn(func(ctx context.Context, fullData *domain.FullRegistrationData) (domain.UserID, error) {
+				assert.Equal(t, data.EncryptedOTPKey, fullData.EncryptedOTPKey)
+				assert.Equal(t, data.EMail, fullData.EMail)
+				assert.Equal(t, data.PasswordHash, fullData.PasswordHash)
+				assert.Equal(t, data.PasswordSalt, fullData.PasswordSalt)
+				assert.Equal(t, keyData.EncryptedMasterKey, fullData.EncryptedMasterKey)
+				assert.Equal(t, keyData.MasterKeyHint, fullData.MasterKeyHint)
+				assert.Equal(t, keyData.HelloEncrypted, fullData.HelloEncrypted)
+				return userId, nil
+			})
+
+		registrator := usecases.NewRegistrator(
+			nil,
+			mockStflStorage,
+			mockTempStorage,
+			nil,
+			nil,
+		)
+
+		ctx := context.Background()
+		err := registrator.InitMasterKey(ctx, currentID, keyData)
+		require.NoError(t, err)
+	})
+
+	t.Run("load_and_del_err", func(t *testing.T) {
+
+		currentID := domain.SessionID("currentID")
+
+		encryptedMasterKey := "EncryptedMasterKey"
+		masterKeyHint := "MasterKeyHint"
+		helloEncrypted := "HelloEncrypted"
+
+		keyData := &domain.MasterKeyData{
+			EncryptedMasterKey: encryptedMasterKey,
+			MasterKeyHint:      masterKeyHint,
+			HelloEncrypted:     helloEncrypted,
+		}
+
+		mockTempStorage := NewMockTemporaryStorage(ctrl)
+		testErr := errors.New("test_error")
+		mockTempStorage.EXPECT().LoadAndDelete(gomock.Any(), gomock.Eq(currentID)).Times(1).DoAndReturn(func(ctx context.Context,
+			id domain.SessionID,
+		) (any, error) {
+			return nil, testErr
+		})
+
+		registrator := usecases.NewRegistrator(
+			nil,
+			nil,
+			mockTempStorage,
+			nil,
+			nil,
+		)
+
+		ctx := context.Background()
+		err := registrator.InitMasterKey(ctx, currentID, keyData)
+		require.ErrorIs(t, err, testErr)
+	})
+
+	t.Run("wrong_data", func(t *testing.T) {
+
+		currentID := domain.SessionID("currentID")
+
+		encryptedMasterKey := "EncryptedMasterKey"
+		masterKeyHint := "MasterKeyHint"
+		helloEncrypted := "HelloEncrypted"
+
+		keyData := &domain.MasterKeyData{
+			EncryptedMasterKey: encryptedMasterKey,
+			MasterKeyHint:      masterKeyHint,
+			HelloEncrypted:     helloEncrypted,
+		}
+
+		mockTempStorage := NewMockTemporaryStorage(ctrl)
+		mockTempStorage.EXPECT().LoadAndDelete(gomock.Any(), gomock.Eq(currentID)).Times(1).DoAndReturn(func(ctx context.Context,
+			id domain.SessionID,
+		) (any, error) {
+			return "asdasd", nil
+		})
+
+		registrator := usecases.NewRegistrator(
+			nil,
+			nil,
+			mockTempStorage,
+			nil,
+			nil,
+		)
+
+		ctx := context.Background()
+		err := registrator.InitMasterKey(ctx, currentID, keyData)
+		require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
+	})
+
+	t.Run("wrong_state", func(t *testing.T) {
+
+		currentID := domain.SessionID("currentID")
+
+		encryptedMasterKey := "EncryptedMasterKey"
+		masterKeyHint := "MasterKeyHint"
+		helloEncrypted := "HelloEncrypted"
+		encryptedOTPKey := "asdasdasd!iasd"
+
+		keyData := &domain.MasterKeyData{
+			EncryptedMasterKey: encryptedMasterKey,
+			MasterKeyHint:      masterKeyHint,
+			HelloEncrypted:     helloEncrypted,
+		}
+
+		data := domain.RegistrationData{
+			State:           domain.RegistrationStateInit,
+			EncryptedOTPKey: encryptedOTPKey,
+			EMail:           "Email",
+			PasswordHash:    "Hash",
+			PasswordSalt:    "Salt",
+		}
+
+		mockTempStorage := NewMockTemporaryStorage(ctrl)
+		mockTempStorage.EXPECT().LoadAndDelete(gomock.Any(), gomock.Eq(currentID)).Times(1).DoAndReturn(func(ctx context.Context,
+			id domain.SessionID,
+		) (any, error) {
+			return data, nil
+		})
+
+		registrator := usecases.NewRegistrator(
+			nil,
+			nil,
+			mockTempStorage,
+			nil,
+			nil,
+		)
+
+		ctx := context.Background()
+		err := registrator.InitMasterKey(ctx, currentID, keyData)
+		require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
+	})
+
+	t.Run("registrate_err", func(t *testing.T) {
+
+		currentID := domain.SessionID("currentID")
+
+		encryptedMasterKey := "EncryptedMasterKey"
+		masterKeyHint := "MasterKeyHint"
+		helloEncrypted := "HelloEncrypted"
+		encryptedOTPKey := "asdasdasd!iasd"
+
+		keyData := &domain.MasterKeyData{
+			EncryptedMasterKey: encryptedMasterKey,
+			MasterKeyHint:      masterKeyHint,
+			HelloEncrypted:     helloEncrypted,
+		}
+
+		data := domain.RegistrationData{
+			State:           domain.RegistrationStateAuth,
+			EncryptedOTPKey: encryptedOTPKey,
+			EMail:           "Email",
+			PasswordHash:    "Hash",
+			PasswordSalt:    "Salt",
+		}
+
+		mockTempStorage := NewMockTemporaryStorage(ctrl)
+		mockTempStorage.EXPECT().LoadAndDelete(gomock.Any(), gomock.Eq(currentID)).Times(1).DoAndReturn(func(ctx context.Context,
+			id domain.SessionID,
+		) (any, error) {
+			return data, nil
+		})
+
+		mockStflStorage := NewMockStateFullStorage(ctrl)
+		testErr := errors.New("testErr")
+		mockStflStorage.EXPECT().Registrate(gomock.Any(), gomock.Any()).Times(1).
+			DoAndReturn(func(ctx context.Context, fullData *domain.FullRegistrationData) (domain.UserID, error) {
+				return "", testErr
+			})
+
+		registrator := usecases.NewRegistrator(
+			nil,
+			mockStflStorage,
+			mockTempStorage,
+			nil,
+			nil,
+		)
+
+		ctx := context.Background()
+		err := registrator.InitMasterKey(ctx, currentID, keyData)
+		require.ErrorIs(t, err, testErr)
+	})
+}

@@ -28,11 +28,10 @@ message MasterKeyRequest {
     string session_id = 1;
     string encryptedMasterKey = 2;
     string masterKeyPassHint = 3;
-    string helloWorldEncrypted = 4;
+    string helloEncrypted = 4;
 }
 
 message MasterKeyResponse {
-    string access_token = 1;
 }
 
 message CheckEMailRequest {
@@ -63,9 +62,13 @@ message LoginResponse {
     string session_id = 1;
 }
 
+message AuthResponse {
+    string token = 1;
+}
+
 service AuthService {
     rpc Login(LoginRequest) returns (LoginResponse);
-    rpc PassOTP(PassOTPRequest) returns (PassOTPResponse);
+    rpc PassOTP(PassOTPRequest) returns (AuthResponse);
 };
 
 message PingRequest {}
@@ -73,4 +76,15 @@ message PingResponse {}
 
 service Pinger {
     rpc Ping(PingRequest) returns (PingResponse);
+};
+
+
+message HelloRequest{}
+
+message HelloResponse{
+    string helloEncrypted = 1;
+}
+
+service DataAccessor {
+    rpc Hello(HelloRequest) returns (HelloResponse);
 };

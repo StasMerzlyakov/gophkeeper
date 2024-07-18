@@ -54,13 +54,20 @@ type RegistrationData struct {
 
 // FullRegistrationData stuct contains all registration data for user creation in StateFullStorage
 type FullRegistrationData struct {
-	EMail               string
-	PasswordHash        string
-	PasswordSalt        string
-	EncryptedOTPKey     string
-	EncryptedMasterKey  string
-	MasterKeyHing       string
-	HelloWorldEncrypted string
+	EMail              string
+	PasswordHash       string
+	PasswordSalt       string
+	EncryptedOTPKey    string
+	EncryptedMasterKey string
+	MasterKeyHint      string
+	HelloEncrypted     string
+}
+
+// MasterKeyData struct used in registration process
+type MasterKeyData struct {
+	EncryptedMasterKey string
+	MasterKeyHint      string
+	HelloEncrypted     string
 }
 
 type AuthorizationState string
@@ -74,10 +81,10 @@ const (
 
 // LoginData stuct used in authorization process
 type LoginData struct {
-	EMail            string
-	PasswordHash     string
-	PasswordSalt     string
-	EncryptedOTPPass string
+	EMail           string
+	PasswordHash    string
+	PasswordSalt    string
+	EncryptedOTPKey string
 }
 
 // HashData struct contains user password information for saving

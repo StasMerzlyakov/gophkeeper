@@ -233,7 +233,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-	PassOTP(ctx context.Context, in *PassOTPRequest, opts ...grpc.CallOption) (*PassOTPResponse, error)
+	PassOTP(ctx context.Context, in *PassOTPRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 }
 
 type authServiceClient struct {
@@ -254,9 +254,9 @@ func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 	return out, nil
 }
 
-func (c *authServiceClient) PassOTP(ctx context.Context, in *PassOTPRequest, opts ...grpc.CallOption) (*PassOTPResponse, error) {
+func (c *authServiceClient) PassOTP(ctx context.Context, in *PassOTPRequest, opts ...grpc.CallOption) (*AuthResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PassOTPResponse)
+	out := new(AuthResponse)
 	err := c.cc.Invoke(ctx, AuthService_PassOTP_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -269,7 +269,7 @@ func (c *authServiceClient) PassOTP(ctx context.Context, in *PassOTPRequest, opt
 // for forward compatibility
 type AuthServiceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
-	PassOTP(context.Context, *PassOTPRequest) (*PassOTPResponse, error)
+	PassOTP(context.Context, *PassOTPRequest) (*AuthResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -280,7 +280,7 @@ type UnimplementedAuthServiceServer struct {
 func (UnimplementedAuthServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedAuthServiceServer) PassOTP(context.Context, *PassOTPRequest) (*PassOTPResponse, error) {
+func (UnimplementedAuthServiceServer) PassOTP(context.Context, *PassOTPRequest) (*AuthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PassOTP not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
@@ -437,6 +437,97 @@ var Pinger_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Ping",
 			Handler:    _Pinger_Ping_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "gophkeeper.proto",
+}
+
+const (
+	DataAccessor_Hello_FullMethodName = "/proto.DataAccessor/Hello"
+)
+
+// DataAccessorClient is the client API for DataAccessor service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type DataAccessorClient interface {
+	Hello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error)
+}
+
+type dataAccessorClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewDataAccessorClient(cc grpc.ClientConnInterface) DataAccessorClient {
+	return &dataAccessorClient{cc}
+}
+
+func (c *dataAccessorClient) Hello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(HelloResponse)
+	err := c.cc.Invoke(ctx, DataAccessor_Hello_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// DataAccessorServer is the server API for DataAccessor service.
+// All implementations must embed UnimplementedDataAccessorServer
+// for forward compatibility
+type DataAccessorServer interface {
+	Hello(context.Context, *HelloRequest) (*HelloResponse, error)
+	mustEmbedUnimplementedDataAccessorServer()
+}
+
+// UnimplementedDataAccessorServer must be embedded to have forward compatible implementations.
+type UnimplementedDataAccessorServer struct {
+}
+
+func (UnimplementedDataAccessorServer) Hello(context.Context, *HelloRequest) (*HelloResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Hello not implemented")
+}
+func (UnimplementedDataAccessorServer) mustEmbedUnimplementedDataAccessorServer() {}
+
+// UnsafeDataAccessorServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to DataAccessorServer will
+// result in compilation errors.
+type UnsafeDataAccessorServer interface {
+	mustEmbedUnimplementedDataAccessorServer()
+}
+
+func RegisterDataAccessorServer(s grpc.ServiceRegistrar, srv DataAccessorServer) {
+	s.RegisterService(&DataAccessor_ServiceDesc, srv)
+}
+
+func _DataAccessor_Hello_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HelloRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataAccessorServer).Hello(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DataAccessor_Hello_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataAccessorServer).Hello(ctx, req.(*HelloRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// DataAccessor_ServiceDesc is the grpc.ServiceDesc for DataAccessor service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var DataAccessor_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.DataAccessor",
+	HandlerType: (*DataAccessorServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Hello",
+			Handler:    _DataAccessor_Hello_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
