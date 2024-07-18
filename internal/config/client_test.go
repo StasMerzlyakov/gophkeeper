@@ -30,7 +30,14 @@ func TestClientConf(t *testing.T) {
 		assert.Equal(t, "ca.cert", conf.CACert)
 	})
 
-	/*os.Args = append(os.Args, "--addr=http://b.com:566/something.avsc")
-	os.Args = append(os.Args, "Get")
-	os.Args = append(os.Args, `./some/resource/fred`)*/
+	/*
+		t.Run("err", func(t *testing.T) {
+			os.Setenv("SERVER_ADDRESS", "http://test")
+			os.Setenv("CA_CERT", "ca.cert")
+
+			conf, err := config.LoadClientConf()
+			require.Error(t, err)
+
+		}) */
+
 }

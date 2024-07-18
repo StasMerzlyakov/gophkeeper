@@ -1,110 +1,152 @@
 package usecases
 
 import (
-	"bytes"
 	"context"
-	"crypto/rand"
 	"fmt"
-	"image/png"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
-	"github.com/google/uuid"
-	"github.com/pquerna/otp/totp"
 )
 
-func NewRegistratrator(conf *config.ServerConf,
+func NewRegistrator(conf *config.ServerConf,
 	stflStorage StateFullStorage,
 	tempStorage TemporaryStorage,
+	emailSender EMailSender,
+	regHelper RegistrationHelper,
 ) *registrator {
 
 	return &registrator{
+		conf:        conf,
 		stflStorage: stflStorage,
-		serverKey:   conf.ServerKey,
-		domainName:  conf.DomainName,
 		tempStorage: tempStorage,
+		emailSender: emailSender,
+		regHelper:   regHelper,
 	}
 }
 
 type registrator struct {
 	stflStorage StateFullStorage
 	tempStorage TemporaryStorage
-	serverKey   string
-	domainName  string
+	emailSender EMailSender
+	regHelper   RegistrationHelper
+	conf        *config.ServerConf
 }
 
-func (reg *registrator) CheckEMail(ctx context.Context, email string) (domain.EMailStatus, error) {
-	if isBusy, err := reg.stflStorage.IsEMailBusy(ctx, email); err != nil {
+func (reg *registrator) GetEMailStatus(ctx context.Context, email string) (domain.EMailStatus, error) {
+	if isAvailable, err := reg.stflStorage.IsEMailAvailable(ctx, email); err != nil {
 		return domain.EMailBusy, fmt.Errorf("checkEMail err - %w", err)
 	} else {
-		if isBusy {
-			return domain.EMailBusy, nil
-		} else {
+		if isAvailable {
 			return domain.EMailAvailable, nil
+		} else {
+			return domain.EMailBusy, nil
 		}
 	}
 }
 
 func (reg *registrator) Register(ctx context.Context, data *domain.EMailData) (domain.SessionID, error) {
 
-	if _, err := domain.CheckEMailData(data); err != nil {
-		return "", fmt.Errorf("register err - %w", err)
-	}
-
-	sessionID := domain.SessionID(uuid.NewString())
+	sessionID := reg.regHelper.NewSessionID()
+	log := domain.GetApplicationLogger()
 
 	action := domain.GetAction(1)
 
-	hashPasswordData, err := domain.HashPassword(data.Password, rand.Read)
+	if _, err := reg.regHelper.CheckEMailData(data); err != nil {
+		return "", fmt.Errorf("register err - %w", err)
+	}
+
+	hashPasswordData, err := reg.regHelper.HashPassword(data.Password)
 	if err != nil {
 		return "", fmt.Errorf("register err - %w", err)
 	}
 
-	key, err := totp.Generate(totp.GenerateOpts{
-		Issuer:      reg.domainName,
-		AccountName: data.EMail,
-	})
-
+	key, image, err := reg.regHelper.GenerateQR(reg.conf.DomainName, data.EMail)
 	if err != nil {
-		log := domain.GetApplicationLogger()
-		log.Warnf(action, "err", fmt.Sprintf("TOTP key generation err %s", err.Error()))
 		return "", fmt.Errorf("register err - %w", err)
 	}
 
-	var buf bytes.Buffer
-	img, err := key.Image(450, 450)
+	encryptedKey, err := reg.regHelper.EncryptData(reg.conf.ServerKey, key)
 	if err != nil {
-		log := domain.GetApplicationLogger()
-		log.Warnf(action, "err", fmt.Sprintf("TOTP image generation err %s", err.Error()))
-		return "", fmt.Errorf("register err - %w", err)
-	}
-	if err = png.Encode(&buf, img); err != nil {
-		log := domain.GetApplicationLogger()
-		log.Warnf(action, "err", fmt.Sprintf("png ecode err %s", err.Error()))
-		return "", fmt.Errorf("register err - %w", err)
-	}
-
-	keyURL := key.URL()
-
-	encryptedKey, err := domain.EncryptData(reg.serverKey, keyURL, rand.Read)
-	if err != nil {
-		log := domain.GetApplicationLogger()
 		log.Warnf(action, "err", fmt.Sprintf("encrypt data err %s", err.Error()))
 		return "", fmt.Errorf("register err - %w", err)
 	}
 
 	regData := domain.RegistrationData{
-		EMail:            data.EMail,
-		PasswordHash:     hashPasswordData.Hash,
-		PasswordSalt:     hashPasswordData.Salt,
-		EncryptedOTPPass: encryptedKey,
-		State:            domain.RegistrationStateInit,
+		EMail:           data.EMail,
+		PasswordHash:    hashPasswordData.Hash,
+		PasswordSalt:    hashPasswordData.Salt,
+		EncryptedOTPKey: encryptedKey,
+		State:           domain.RegistrationStateInit,
 	}
 
 	if err := reg.tempStorage.Create(ctx, sessionID, regData); err != nil {
+		log.Warnf(action, "err", fmt.Sprintf("create data err %s", err.Error()))
 		return "", fmt.Errorf("register err - %w", err)
 	}
 
-	// generate OTP pass
+	if err := reg.emailSender.Send(ctx, data.EMail, image); err != nil {
+		log.Warnf(action, "err", fmt.Sprintf("send email err %s", err.Error()))
+		return "", fmt.Errorf("register err - %w", err)
+	}
 	return sessionID, nil
+}
+
+func (reg *registrator) PassOTP(ctx context.Context, currentID domain.SessionID, otpPass string) (domain.SessionID, error) {
+
+	log := domain.GetApplicationLogger()
+	action := domain.GetAction(1)
+
+	data, err := reg.tempStorage.Load(ctx, currentID)
+	if err != nil {
+		log.Warnf(action, "err", fmt.Sprintf("encrypt data err %s", err.Error()))
+		return "", fmt.Errorf("passOTP err - %w", err)
+	}
+
+	regData, ok := data.(domain.RegistrationData)
+	if !ok {
+		err := fmt.Errorf("%w unexpected data by id %s", domain.ErrClientDataIncorrect, currentID)
+		log.Warnf(action, "err", err.Error())
+		return "", fmt.Errorf("passOTP err - %w", err)
+	}
+
+	if regData.State != domain.RegistrationStateInit {
+		err := fmt.Errorf("%w - wrong registartionState by id %s", domain.ErrClientDataIncorrect, currentID)
+		log.Warnf(action, "err", err.Error())
+		return "", fmt.Errorf("passOTP err - %w", err)
+	}
+
+	otpKeyUrl, err := reg.regHelper.DecryptData(reg.conf.ServerKey, regData.EncryptedOTPKey)
+	if err != nil {
+		log.Warnf(action, "err", fmt.Sprintf("decrypt data err %s", err.Error()))
+		return "", fmt.Errorf("passOTP err - %w", err)
+	}
+
+	ok, err = reg.regHelper.ValidatePassCode(otpKeyUrl, otpPass)
+	if err != nil {
+		log.Warnf(action, "err", fmt.Sprintf("validate pass err %s", err.Error()))
+		return "", fmt.Errorf("passOTP err - %w", err)
+	}
+
+	if !ok {
+		err := fmt.Errorf("%w - wrong otp pass", domain.ErrClientDataIncorrect)
+		log.Warnf(action, "err", err.Error())
+		return "", fmt.Errorf("passOTP err - %w", err)
+	}
+
+	regDataNew := domain.RegistrationData{
+		EMail:           regData.EMail,
+		PasswordHash:    regData.PasswordHash,
+		PasswordSalt:    regData.PasswordSalt,
+		EncryptedOTPKey: regData.EncryptedOTPKey,
+		State:           domain.RegistrationStateAuth,
+	}
+
+	newSessionID := reg.regHelper.NewSessionID()
+
+	if err := reg.tempStorage.DeleteAndCreate(ctx, currentID, newSessionID, regDataNew); err != nil {
+		log.Warnf(action, "err", fmt.Sprintf("can't refresh reg data - %s", err.Error()))
+		return "", fmt.Errorf("passOTP err - %w", err)
+	}
+
+	return newSessionID, nil
 }

@@ -23,11 +23,11 @@ func TestMemStorage1(t *testing.T) {
 	memStorage := ttlstorage.NewMemStorage(ctx, srvConf)
 
 	regStage1 := domain.RegistrationData{
-		EMail:            "test@test.com",
-		PasswordHash:     "AABBCC",
-		PasswordSalt:     "EE<asd",
-		EncryptedOTPPass: "PASS",
-		State:            domain.RegistrationStateInit,
+		EMail:           "test@test.com",
+		PasswordHash:    "AABBCC",
+		PasswordSalt:    "EE<asd",
+		EncryptedOTPKey: "Key",
+		State:           domain.RegistrationStateInit,
 	}
 
 	stage1ID := domain.SessionID(uuid.NewString())
@@ -43,11 +43,11 @@ func TestMemStorage1(t *testing.T) {
 	require.Equal(t, regStage1, val)
 
 	regStage2 := domain.RegistrationData{
-		EMail:            "test2@test.com",
-		PasswordHash:     "AABBCCD",
-		PasswordSalt:     "EE<asdE",
-		EncryptedOTPPass: "PASSSS",
-		State:            domain.RegistrationStateAuthPassed,
+		EMail:           "test2@test.com",
+		PasswordHash:    "AABBCCD",
+		PasswordSalt:    "EE<asdE",
+		EncryptedOTPKey: "Key",
+		State:           domain.RegistrationStateAuth,
 	}
 
 	stage2ID := domain.SessionID(uuid.NewString())
@@ -82,11 +82,11 @@ func TestMemStorage2(t *testing.T) {
 	memStorage := ttlstorage.NewMemStorage(ctx, srvConf)
 
 	regStage1 := domain.RegistrationData{
-		EMail:            "test@test.com",
-		PasswordHash:     "AABBCC",
-		PasswordSalt:     "EE<asd",
-		EncryptedOTPPass: "PASS",
-		State:            domain.RegistrationStateInit,
+		EMail:           "test@test.com",
+		PasswordHash:    "AABBCC",
+		PasswordSalt:    "EE<asd",
+		EncryptedOTPKey: "Key",
+		State:           domain.RegistrationStateInit,
 	}
 
 	stage1ID := domain.SessionID(uuid.NewString())

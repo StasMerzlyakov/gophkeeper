@@ -30,7 +30,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RegistrationServiceClient interface {
 	CheckEMail(ctx context.Context, in *CheckEMailRequest, opts ...grpc.CallOption) (*CheckEMailResponse, error)
-	Register(ctx context.Context, in *RegistraionRequest, opts ...grpc.CallOption) (*RegistraionResponse, error)
+	Register(ctx context.Context, in *RegistrationRequest, opts ...grpc.CallOption) (*RegistrationResponse, error)
 	PassOTP(ctx context.Context, in *PassOTPRequest, opts ...grpc.CallOption) (*PassOTPResponse, error)
 	MasterKey(ctx context.Context, in *MasterKeyRequest, opts ...grpc.CallOption) (*MasterKeyResponse, error)
 }
@@ -53,9 +53,9 @@ func (c *registrationServiceClient) CheckEMail(ctx context.Context, in *CheckEMa
 	return out, nil
 }
 
-func (c *registrationServiceClient) Register(ctx context.Context, in *RegistraionRequest, opts ...grpc.CallOption) (*RegistraionResponse, error) {
+func (c *registrationServiceClient) Register(ctx context.Context, in *RegistrationRequest, opts ...grpc.CallOption) (*RegistrationResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RegistraionResponse)
+	out := new(RegistrationResponse)
 	err := c.cc.Invoke(ctx, RegistrationService_Register_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func (c *registrationServiceClient) MasterKey(ctx context.Context, in *MasterKey
 // for forward compatibility
 type RegistrationServiceServer interface {
 	CheckEMail(context.Context, *CheckEMailRequest) (*CheckEMailResponse, error)
-	Register(context.Context, *RegistraionRequest) (*RegistraionResponse, error)
+	Register(context.Context, *RegistrationRequest) (*RegistrationResponse, error)
 	PassOTP(context.Context, *PassOTPRequest) (*PassOTPResponse, error)
 	MasterKey(context.Context, *MasterKeyRequest) (*MasterKeyResponse, error)
 	mustEmbedUnimplementedRegistrationServiceServer()
@@ -101,7 +101,7 @@ type UnimplementedRegistrationServiceServer struct {
 func (UnimplementedRegistrationServiceServer) CheckEMail(context.Context, *CheckEMailRequest) (*CheckEMailResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckEMail not implemented")
 }
-func (UnimplementedRegistrationServiceServer) Register(context.Context, *RegistraionRequest) (*RegistraionResponse, error) {
+func (UnimplementedRegistrationServiceServer) Register(context.Context, *RegistrationRequest) (*RegistrationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
 func (UnimplementedRegistrationServiceServer) PassOTP(context.Context, *PassOTPRequest) (*PassOTPResponse, error) {
@@ -142,7 +142,7 @@ func _RegistrationService_CheckEMail_Handler(srv interface{}, ctx context.Contex
 }
 
 func _RegistrationService_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RegistraionRequest)
+	in := new(RegistrationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func _RegistrationService_Register_Handler(srv interface{}, ctx context.Context,
 		FullMethod: RegistrationService_Register_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RegistrationServiceServer).Register(ctx, req.(*RegistraionRequest))
+		return srv.(RegistrationServiceServer).Register(ctx, req.(*RegistrationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

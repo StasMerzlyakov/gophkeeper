@@ -40,26 +40,27 @@ const (
 	// User created, OTP QR sent
 	RegistrationStateInit RegistrationState = "INIT"
 	// OTP passed, masterKey is required
-	RegistrationStateAuthPassed RegistrationState = "AUTH"
+	RegistrationStateAuth RegistrationState = "Auth"
 )
 
 // RegistrationData struct contains Registration process data
 type RegistrationData struct {
-	EMail            string
-	PasswordHash     string
-	PasswordSalt     string
-	EncryptedOTPPass string
-	State            RegistrationState
+	EMail           string
+	PasswordHash    string
+	PasswordSalt    string
+	EncryptedOTPKey string
+	State           RegistrationState
 }
 
 // FullRegistrationData stuct contains all registration data for user creation in StateFullStorage
 type FullRegistrationData struct {
-	EMail              string
-	PasswordHash       string
-	PasswordSalt       string
-	EncryptedOTPPass   string
-	EncryptedMasterKey string
-	MasterKeyHing      string
+	EMail               string
+	PasswordHash        string
+	PasswordSalt        string
+	EncryptedOTPKey     string
+	EncryptedMasterKey  string
+	MasterKeyHing       string
+	HelloWorldEncrypted string
 }
 
 type AuthorizationState string
@@ -77,4 +78,10 @@ type LoginData struct {
 	PasswordHash     string
 	PasswordSalt     string
 	EncryptedOTPPass string
+}
+
+// HashData struct contains user password information for saving
+type HashData struct {
+	Hash string
+	Salt string
 }

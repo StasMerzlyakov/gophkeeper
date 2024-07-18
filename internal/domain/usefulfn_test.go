@@ -1,10 +1,14 @@
 package domain_test
 
 import (
+	"crypto/rand"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
+	"github.com/pquerna/otp"
+	"github.com/pquerna/otp/totp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -36,7 +40,7 @@ func TestCheckEMailData(t *testing.T) {
 				EMail:    "test",
 				Password: "IK0exasdF!",
 			},
-			domain.ErrDataFormat,
+			domain.ErrClientDataIncorrect,
 		},
 		{
 
@@ -45,7 +49,7 @@ func TestCheckEMailData(t *testing.T) {
 				EMail:    "test@email",
 				Password: "123",
 			},
-			domain.ErrDataFormat,
+			domain.ErrClientDataIncorrect,
 		},
 	}
 
@@ -103,13 +107,13 @@ func TestPasswordOperation(t *testing.T) {
 	t.Run("errHashDecode", func(t *testing.T) {
 		ok, err := domain.CheckPassword("", "In-BZhwpWKZH_S1QtMWcAOONZcrO9jVDaMDoJqgOfWM", "")
 		require.False(t, ok)
-		assert.ErrorIs(t, err, domain.ErrDataFormat)
+		assert.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 	})
 
 	t.Run("errHashDecode", func(t *testing.T) {
 		ok, err := domain.CheckPassword("", "In-BZhwpWKZH_S1QtMWcAOONZcrO9jVDaMDoJqgOfWM=", "AAECAwQFBgcICQoLDA0ODw=")
 		require.False(t, ok)
-		assert.ErrorIs(t, err, domain.ErrDataFormat)
+		assert.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 	})
 
 	t.Run("password incorrect", func(t *testing.T) {
@@ -180,5 +184,117 @@ func TestEncryptDecrypt(t *testing.T) {
 		assert.True(t, len(cipherText) == 0)
 		require.ErrorIs(t, err, domain.ErrInternalServer)
 	})
+
+}
+
+func TestGenerateQR(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		issuer := "issuer"
+		accountName := "accountName"
+
+		key, png, err := domain.GenerateQR(issuer, accountName)
+		require.NoError(t, err)
+		require.NotEmpty(t, key)
+		require.NotNil(t, png)
+	})
+
+	t.Run("err", func(t *testing.T) {
+		issuer := ""
+		accountName := "accountName"
+
+		key, png, err := domain.GenerateQR(issuer, accountName)
+		require.Error(t, err)
+		require.Empty(t, key)
+		require.Nil(t, png)
+	})
+
+	t.Run("err2", func(t *testing.T) {
+		issuer := "issuer"
+		accountName := ""
+
+		key, png, err := domain.GenerateQR(issuer, accountName)
+		require.Error(t, err)
+		require.Empty(t, key)
+		require.Nil(t, png)
+	})
+}
+
+func TestValidate(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		issuer := "issuer"
+		accountName := "accountName"
+
+		keyURL, _, err := domain.GenerateQR(issuer, accountName)
+
+		require.NoError(t, err)
+
+		key, err := otp.NewKeyFromURL(keyURL)
+		require.NoError(t, err)
+
+		validOpts := totp.ValidateOpts{
+			Period:    domain.TOTPPeriod,
+			Digits:    domain.TOTPDigits,
+			Algorithm: domain.TOTPAlgorithm,
+		}
+		passcode, err := totp.GenerateCodeCustom(key.Secret(), time.Now(), validOpts)
+		require.NoError(t, err)
+
+		ok, err := domain.ValidatePassCode(key.URL(), passcode)
+		require.NoError(t, err)
+
+		assert.True(t, ok)
+	})
+
+	t.Run("err", func(t *testing.T) {
+		_, err := domain.ValidatePassCode(":\\", "12345")
+		require.Error(t, err)
+	})
+
+	t.Run("err2", func(t *testing.T) {
+		issuer := "issuer"
+		accountName := ""
+
+		key, png, err := domain.GenerateQR(issuer, accountName)
+		require.Error(t, err)
+		require.Empty(t, key)
+		require.Nil(t, png)
+	})
+}
+
+func TestHelloWorld(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		generated, err := domain.GenerateHello(rand.Read)
+		require.NoError(t, err)
+
+		ok, err := domain.CheckHello(generated)
+		require.NoError(t, err)
+		require.True(t, ok)
+	})
+
+	t.Run("saltErr", func(t *testing.T) {
+		generated, err := domain.GenerateHello(testErrSaltFn)
+		require.ErrorIs(t, err, domain.ErrInternalServer)
+		assert.Empty(t, generated)
+	})
+
+	t.Run("false", func(t *testing.T) {
+		ok, err := domain.CheckHello("9COumBoRUEFVXbFYg5LM1GhlbGxvIGZyb20gR29waEtlRXBlciEhIQ")
+		require.NoError(t, err)
+		require.False(t, ok)
+	})
+
+	t.Run("b64_err", func(t *testing.T) {
+		ok, err := domain.CheckHello("9COumBoRUEFVXbFYg5LM1GhlbGxvIGZyb20gR29waEtlRXBlciEh=")
+		require.Error(t, err, domain.ErrClientDataIncorrect)
+		require.False(t, ok)
+	})
+
+	t.Run("wrong_length", func(t *testing.T) {
+		ok, err := domain.CheckHello("9COu")
+		require.Error(t, err, domain.ErrClientDataIncorrect)
+		require.False(t, ok)
+	})
+
+	//	ok, err = domain.CheckHelloWorld()
 
 }

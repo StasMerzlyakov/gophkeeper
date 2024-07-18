@@ -26,6 +26,7 @@ message PassOTPResponse {
 message MasterKeyRequest {
     string encryptedMasterKey = 1;
     string masterKeyPassHint = 2;
+    string helloWorldEncrypted = 3;
 }
 
 message MasterKeyResponse {
