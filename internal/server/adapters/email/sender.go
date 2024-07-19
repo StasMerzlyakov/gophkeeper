@@ -55,18 +55,18 @@ const htmlBody = `<html>
 
 func (snd *sender) Send(ctx context.Context, email string, png []byte) error {
 	emailMsg := mail.NewMSG()
-	emailMsg.SetFrom(fmt.Sprintf("GophKeeper <%s>", snd.conf.SMTPServerEMail)).
+	emailMsg.SetFrom(fmt.Sprintf("GophKeeper <%s>", snd.conf.ServerEMail)).
 		AddTo(email).
 		SetSubject("GophKeeper OTP QR")
 	emailMsg.SetBody(mail.TextHTML, htmlBody)
 	pngB64 := base64.StdEncoding.EncodeToString(png)
 	emailMsg.AddAttachmentBase64(pngB64, "QR.png")
 	if emailMsg.Error != nil {
-		return fmt.Errorf("%w: email creation error: %s", domain.ErrInternalServer, emailMsg.Error.Error())
+		return fmt.Errorf("%w: email creation error: %s", domain.ErrServerInternal, emailMsg.Error.Error())
 	}
 
 	if err := emailMsg.Send(snd.client); err != nil {
-		return fmt.Errorf("%w: send error: %s", domain.ErrInternalServer, err.Error())
+		return fmt.Errorf("%w: send error: %s", domain.ErrServerInternal, err.Error())
 	}
 
 	return nil

@@ -33,8 +33,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 	t.Run("ok", func(t *testing.T) {
 		conf := &config.ServerConf{
-			DomainName: "localhost",
-			ServerKey:  "secret_key",
+			DomainName:          "localhost",
+			ServerEncryptionKey: "secret_key",
 		}
 
 		data := &domain.EMailData{
@@ -60,10 +60,10 @@ func TestRegistrator_Regisration(t *testing.T) {
 		}, nil)
 
 		qrKey := "qrKey"
-		mockHelper.EXPECT().GenerateQR(gomock.Eq(conf.DomainName), gomock.Eq(data.EMail)).Times(1).Return(qrKey, qr, nil)
+		mockHelper.EXPECT().GenerateQR(gomock.Eq(data.EMail)).Times(1).Return(qrKey, qr, nil)
 
 		encryptedOTPKey := "encryptedOTPKey"
-		mockHelper.EXPECT().EncryptData(gomock.Eq(conf.ServerKey), gomock.Eq(qrKey)).Times(1).Return(encryptedOTPKey, nil)
+		mockHelper.EXPECT().EncryptData(gomock.Eq(qrKey)).Times(1).Return(encryptedOTPKey, nil)
 
 		mockTempStorage := NewMockTemporaryStorage(ctrl)
 		mockTempStorage.EXPECT().Create(gomock.Any(), gomock.Any(), gomock.Any()).Times(1).
@@ -98,8 +98,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 	t.Run("check_email_err", func(t *testing.T) {
 		conf := &config.ServerConf{
-			DomainName: "localhost",
-			ServerKey:  "secret_key",
+			DomainName:          "localhost",
+			ServerEncryptionKey: "secret_key",
 		}
 
 		data := &domain.EMailData{
@@ -135,8 +135,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 	t.Run("hash_passport_err", func(t *testing.T) {
 		conf := &config.ServerConf{
-			DomainName: "localhost",
-			ServerKey:  "secret_key",
+			DomainName:          "localhost",
+			ServerEncryptionKey: "secret_key",
 		}
 
 		data := &domain.EMailData{
@@ -173,8 +173,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 	t.Run("generte_qr_err", func(t *testing.T) {
 		conf := &config.ServerConf{
-			DomainName: "localhost",
-			ServerKey:  "secret_key",
+			DomainName:          "localhost",
+			ServerEncryptionKey: "secret_key",
 		}
 
 		data := &domain.EMailData{
@@ -200,7 +200,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 		}, nil)
 
 		testErr := errors.New("generate qr err")
-		mockHelper.EXPECT().GenerateQR(gomock.Eq(conf.DomainName), gomock.Eq(data.EMail)).Times(1).Return("", nil, testErr)
+		mockHelper.EXPECT().GenerateQR(gomock.Eq(data.EMail)).Times(1).Return("", nil, testErr)
 
 		registrator := usecases.NewRegistrator(
 			conf,
@@ -217,8 +217,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 	t.Run("encrypt_data_err", func(t *testing.T) {
 		conf := &config.ServerConf{
-			DomainName: "localhost",
-			ServerKey:  "secret_key",
+			DomainName:          "localhost",
+			ServerEncryptionKey: "secret_key",
 		}
 
 		data := &domain.EMailData{
@@ -244,10 +244,10 @@ func TestRegistrator_Regisration(t *testing.T) {
 		}, nil)
 
 		qrKey := "qrKey"
-		mockHelper.EXPECT().GenerateQR(gomock.Eq(conf.DomainName), gomock.Eq(data.EMail)).Times(1).Return(qrKey, qr, nil)
+		mockHelper.EXPECT().GenerateQR(gomock.Eq(data.EMail)).Times(1).Return(qrKey, qr, nil)
 
 		testErr := errors.New("encrypt data err")
-		mockHelper.EXPECT().EncryptData(gomock.Eq(conf.ServerKey), gomock.Eq(qrKey)).Times(1).Return("", testErr)
+		mockHelper.EXPECT().EncryptData(gomock.Eq(qrKey)).Times(1).Return("", testErr)
 
 		registrator := usecases.NewRegistrator(
 			conf,
@@ -264,8 +264,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 	t.Run("create_err", func(t *testing.T) {
 		conf := &config.ServerConf{
-			DomainName: "localhost",
-			ServerKey:  "secret_key",
+			DomainName:          "localhost",
+			ServerEncryptionKey: "secret_key",
 		}
 
 		data := &domain.EMailData{
@@ -291,10 +291,10 @@ func TestRegistrator_Regisration(t *testing.T) {
 		}, nil)
 
 		qrKey := "qrKey"
-		mockHelper.EXPECT().GenerateQR(gomock.Eq(conf.DomainName), gomock.Eq(data.EMail)).Times(1).Return(qrKey, qr, nil)
+		mockHelper.EXPECT().GenerateQR(gomock.Eq(data.EMail)).Times(1).Return(qrKey, qr, nil)
 
 		encryptedOTPKey := "encryptedOTPKey"
-		mockHelper.EXPECT().EncryptData(gomock.Eq(conf.ServerKey), gomock.Eq(qrKey)).Times(1).Return(encryptedOTPKey, nil)
+		mockHelper.EXPECT().EncryptData(gomock.Eq(qrKey)).Times(1).Return(encryptedOTPKey, nil)
 
 		mockTempStorage := NewMockTemporaryStorage(ctrl)
 		testErr := errors.New("create data err")
@@ -326,8 +326,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 	t.Run("send_err", func(t *testing.T) {
 		conf := &config.ServerConf{
-			DomainName: "localhost",
-			ServerKey:  "secret_key",
+			DomainName:          "localhost",
+			ServerEncryptionKey: "secret_key",
 		}
 
 		data := &domain.EMailData{
@@ -353,10 +353,10 @@ func TestRegistrator_Regisration(t *testing.T) {
 		}, nil)
 
 		qrKey := "qrKey"
-		mockHelper.EXPECT().GenerateQR(gomock.Eq(conf.DomainName), gomock.Eq(data.EMail)).Times(1).Return(qrKey, qr, nil)
+		mockHelper.EXPECT().GenerateQR(gomock.Eq(data.EMail)).Times(1).Return(qrKey, qr, nil)
 
 		encryptedOTPKey := "encryptedOTPKey"
-		mockHelper.EXPECT().EncryptData(gomock.Eq(conf.ServerKey), gomock.Eq(qrKey)).Times(1).Return(encryptedOTPKey, nil)
+		mockHelper.EXPECT().EncryptData(gomock.Eq(qrKey)).Times(1).Return(encryptedOTPKey, nil)
 
 		mockTempStorage := NewMockTemporaryStorage(ctrl)
 		mockTempStorage.EXPECT().Create(gomock.Any(), gomock.Any(), gomock.Any()).Times(1).
@@ -460,7 +460,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerKey: "serverKey",
+			ServerEncryptionKey: "serverKey",
 		}
 		encryptedOTPKey := "asdasdasd!iasd"
 		decryptedOTPKey := "otp_key"
@@ -481,7 +481,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 		)
 
 		mockHelper := NewMockRegistrationHelper(ctrl)
-		mockHelper.EXPECT().DecryptData(gomock.Eq(conf.ServerKey), gomock.Eq(encryptedOTPKey)).Times(1).Return(
+		mockHelper.EXPECT().DecryptData(gomock.Eq(encryptedOTPKey)).Times(1).Return(
 			decryptedOTPKey, nil,
 		)
 
@@ -525,7 +525,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 	t.Run("load_err", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerKey: "serverKey",
+			ServerEncryptionKey: "serverKey",
 		}
 		encryptedOTPKey := "asdasdasd!iasd"
 		otpPass := "123345"
@@ -561,7 +561,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 	t.Run("wrong_type_loaded", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerKey: "serverKey",
+			ServerEncryptionKey: "serverKey",
 		}
 
 		encryptedOTPKey := "asdasdasd!iasd"
@@ -591,13 +591,13 @@ func TestRegistrator_PassOTP(t *testing.T) {
 
 		ctx := context.Background()
 		_, err := registrator.PassOTP(ctx, domain.SessionID(currentID), otpPass)
-		require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
+		require.ErrorIs(t, err, domain.ErrAuthDataIncorrect)
 	})
 
 	t.Run("decrypt_err", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerKey: "serverKey",
+			ServerEncryptionKey: "serverKey",
 		}
 		encryptedOTPKey := "asdasdasd!iasd"
 
@@ -620,7 +620,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 		mockHelper := NewMockRegistrationHelper(ctrl)
 		testErr := errors.New("test error")
 
-		mockHelper.EXPECT().DecryptData(gomock.Eq(conf.ServerKey), gomock.Eq(encryptedOTPKey)).Times(1).Return(
+		mockHelper.EXPECT().DecryptData(gomock.Eq(encryptedOTPKey)).Times(1).Return(
 			"", testErr,
 		)
 
@@ -640,7 +640,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 	t.Run("validate_err", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerKey: "serverKey",
+			ServerEncryptionKey: "serverKey",
 		}
 		encryptedOTPKey := "asdasdasd!iasd"
 		decryptedOTPKey := "otp_key"
@@ -661,7 +661,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 		)
 
 		mockHelper := NewMockRegistrationHelper(ctrl)
-		mockHelper.EXPECT().DecryptData(gomock.Eq(conf.ServerKey), gomock.Eq(encryptedOTPKey)).Times(1).Return(
+		mockHelper.EXPECT().DecryptData(gomock.Eq(encryptedOTPKey)).Times(1).Return(
 			decryptedOTPKey, nil,
 		)
 
@@ -684,7 +684,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 	t.Run("validate_pass_wrong", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerKey: "serverKey",
+			ServerEncryptionKey: "serverKey",
 		}
 		encryptedOTPKey := "asdasdasd!iasd"
 		decryptedOTPKey := "otp_key"
@@ -705,7 +705,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 		)
 
 		mockHelper := NewMockRegistrationHelper(ctrl)
-		mockHelper.EXPECT().DecryptData(gomock.Eq(conf.ServerKey), gomock.Eq(encryptedOTPKey)).Times(1).Return(
+		mockHelper.EXPECT().DecryptData(gomock.Eq(encryptedOTPKey)).Times(1).Return(
 			decryptedOTPKey, nil,
 		)
 
@@ -721,13 +721,13 @@ func TestRegistrator_PassOTP(t *testing.T) {
 
 		ctx := context.Background()
 		_, err := registrator.PassOTP(ctx, domain.SessionID(currentID), otpPass)
-		require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
+		require.ErrorIs(t, err, domain.ErrAuthDataIncorrect)
 	})
 
 	t.Run("delete_and_create_err", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerKey: "serverKey",
+			ServerEncryptionKey: "serverKey",
 		}
 		encryptedOTPKey := "asdasdasd!iasd"
 		decryptedOTPKey := "otp_key"
@@ -748,7 +748,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 		)
 
 		mockHelper := NewMockRegistrationHelper(ctrl)
-		mockHelper.EXPECT().DecryptData(gomock.Eq(conf.ServerKey), gomock.Eq(encryptedOTPKey)).Times(1).Return(
+		mockHelper.EXPECT().DecryptData(gomock.Eq(encryptedOTPKey)).Times(1).Return(
 			decryptedOTPKey, nil,
 		)
 
@@ -802,7 +802,6 @@ func TestRegistration_InitMasterKey(t *testing.T) {
 			PasswordHash:    "Hash",
 			PasswordSalt:    "Salt",
 		}
-		userId := domain.UserID("asdasd")
 
 		mockTempStorage := NewMockTemporaryStorage(ctrl)
 		mockTempStorage.EXPECT().LoadAndDelete(gomock.Any(), gomock.Eq(currentID)).Times(1).DoAndReturn(func(ctx context.Context,
@@ -812,24 +811,31 @@ func TestRegistration_InitMasterKey(t *testing.T) {
 		})
 
 		mockStflStorage := NewMockStateFullStorage(ctrl)
+		userID := domain.UserID("userID")
+
 		mockStflStorage.EXPECT().Registrate(gomock.Any(), gomock.Any()).Times(1).
-			DoAndReturn(func(ctx context.Context, fullData *domain.FullRegistrationData) (domain.UserID, error) {
+			DoAndReturn(func(ctx context.Context, fullData *domain.FullRegistrationData) error {
 				assert.Equal(t, data.EncryptedOTPKey, fullData.EncryptedOTPKey)
 				assert.Equal(t, data.EMail, fullData.EMail)
+				assert.Equal(t, userID, fullData.UserID)
 				assert.Equal(t, data.PasswordHash, fullData.PasswordHash)
 				assert.Equal(t, data.PasswordSalt, fullData.PasswordSalt)
 				assert.Equal(t, keyData.EncryptedMasterKey, fullData.EncryptedMasterKey)
 				assert.Equal(t, keyData.MasterKeyHint, fullData.MasterKeyHint)
 				assert.Equal(t, keyData.HelloEncrypted, fullData.HelloEncrypted)
-				return userId, nil
+				return nil
 			})
+
+		mockHelper := NewMockRegistrationHelper(ctrl)
+
+		mockHelper.EXPECT().NewUserID().Times(1).Return(userID)
 
 		registrator := usecases.NewRegistrator(
 			nil,
 			mockStflStorage,
 			mockTempStorage,
 			nil,
-			nil,
+			mockHelper,
 		)
 
 		ctx := context.Background()
@@ -982,16 +988,21 @@ func TestRegistration_InitMasterKey(t *testing.T) {
 		mockStflStorage := NewMockStateFullStorage(ctrl)
 		testErr := errors.New("testErr")
 		mockStflStorage.EXPECT().Registrate(gomock.Any(), gomock.Any()).Times(1).
-			DoAndReturn(func(ctx context.Context, fullData *domain.FullRegistrationData) (domain.UserID, error) {
-				return "", testErr
+			DoAndReturn(func(ctx context.Context, fullData *domain.FullRegistrationData) error {
+				return testErr
 			})
+
+		mockHelper := NewMockRegistrationHelper(ctrl)
+		userID := domain.UserID("asdasd")
+
+		mockHelper.EXPECT().NewUserID().Times(1).Return(userID)
 
 		registrator := usecases.NewRegistrator(
 			nil,
 			mockStflStorage,
 			mockTempStorage,
 			nil,
-			nil,
+			mockHelper,
 		)
 
 		ctx := context.Background()

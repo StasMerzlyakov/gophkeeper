@@ -1,5 +1,7 @@
 package domain
 
+import "github.com/golang-jwt/jwt/v4"
+
 // EMailData struct contains registration and login data
 type EMailData struct {
 	EMail    string
@@ -54,6 +56,7 @@ type RegistrationData struct {
 
 // FullRegistrationData stuct contains all registration data for user creation in StateFullStorage
 type FullRegistrationData struct {
+	UserID             UserID
 	EMail              string
 	PasswordHash       string
 	PasswordSalt       string
@@ -81,6 +84,7 @@ const (
 
 // LoginData stuct used in authorization process
 type LoginData struct {
+	UserID          UserID
 	EMail           string
 	PasswordHash    string
 	PasswordSalt    string
@@ -91,4 +95,11 @@ type LoginData struct {
 type HashData struct {
 	Hash string
 	Salt string
+}
+
+type JWTToken string
+
+type Claims struct {
+	jwt.RegisteredClaims
+	UserID UserID
 }

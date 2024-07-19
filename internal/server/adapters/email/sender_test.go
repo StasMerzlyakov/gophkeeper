@@ -31,9 +31,9 @@ func TestSendMail(t *testing.T) {
 	require.NoError(t, err)
 
 	conf := &config.ServerConf{
-		SMTPHost:        hostAddress,
-		SMTPPort:        portNumber,
-		SMTPServerEMail: serverEmail,
+		SMTPHost:    hostAddress,
+		SMTPPort:    portNumber,
+		ServerEMail: serverEmail,
 	}
 
 	emailSender := email.NewSender(conf)
@@ -68,9 +68,9 @@ func TestSendMailErr(t *testing.T) {
 	require.NoError(t, err)
 
 	conf := &config.ServerConf{
-		SMTPHost:        hostAddress,
-		SMTPPort:        portNumber,
-		SMTPServerEMail: serverEmail,
+		SMTPHost:    hostAddress,
+		SMTPPort:    portNumber,
+		ServerEMail: serverEmail,
 	}
 
 	emailSender := email.NewSender(conf)

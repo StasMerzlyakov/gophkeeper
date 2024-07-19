@@ -101,7 +101,7 @@ func TestPasswordOperation(t *testing.T) {
 		pass := "12345678"
 		hash, err := domain.HashPassword(pass, saltFn)
 		require.Nil(t, hash)
-		require.ErrorIs(t, err, domain.ErrInternalServer)
+		require.ErrorIs(t, err, domain.ErrServerInternal)
 	})
 
 	t.Run("errHashDecode", func(t *testing.T) {
@@ -118,7 +118,7 @@ func TestPasswordOperation(t *testing.T) {
 
 	t.Run("password incorrect", func(t *testing.T) {
 		ok, err := domain.CheckPassword("123456789", "In-BZhwpWKZH_S1QtMWcAOONZcrO9jVDaMDoJqgOfWM=", "AAECAwQFBgcICQoLDA0ODw==")
-		require.ErrorIs(t, err, domain.ErrWrongLoginPassword)
+		require.ErrorIs(t, err, domain.ErrAuthDataIncorrect)
 		assert.False(t, ok)
 	})
 }
@@ -161,7 +161,7 @@ func TestEncryptDecrypt(t *testing.T) {
 		secretKey := "N1PCdw3M2B1TfJhoaY2mL736p2vCUc4"
 		plainText := "testTestTest123"
 		cipherText, err := domain.EncryptData(secretKey, plainText, testOKSaltFn)
-		require.ErrorIs(t, err, domain.ErrInternalServer)
+		require.ErrorIs(t, err, domain.ErrServerInternal)
 		assert.True(t, len(cipherText) == 0)
 	})
 
@@ -173,7 +173,7 @@ func TestEncryptDecrypt(t *testing.T) {
 		require.True(t, len(cipherText) > 0)
 
 		text, err := domain.DecryptData(secretKey[2:], cipherText)
-		require.ErrorIs(t, err, domain.ErrInternalServer)
+		require.ErrorIs(t, err, domain.ErrServerInternal)
 		assert.True(t, len(text) == 0)
 	})
 
@@ -182,7 +182,7 @@ func TestEncryptDecrypt(t *testing.T) {
 		plainText := "testTestTest123"
 		cipherText, err := domain.EncryptData(secretKey, plainText, testErrSaltFn)
 		assert.True(t, len(cipherText) == 0)
-		require.ErrorIs(t, err, domain.ErrInternalServer)
+		require.ErrorIs(t, err, domain.ErrServerInternal)
 	})
 
 }
@@ -273,7 +273,7 @@ func TestHelloWorld(t *testing.T) {
 
 	t.Run("saltErr", func(t *testing.T) {
 		generated, err := domain.GenerateHello(testErrSaltFn)
-		require.ErrorIs(t, err, domain.ErrInternalServer)
+		require.ErrorIs(t, err, domain.ErrServerInternal)
 		assert.Empty(t, generated)
 	})
 
@@ -297,4 +297,51 @@ func TestHelloWorld(t *testing.T) {
 
 	//	ok, err = domain.CheckHelloWorld()
 
+}
+
+func TestJWT(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		tokenSecret := "tokenSecret"
+		tokenDuration := 2 * time.Second
+		userID := domain.UserID("userID")
+
+		jwtTok, err := domain.CreateJWTToken([]byte(tokenSecret), tokenDuration, userID)
+		require.NoError(t, err)
+		require.NotEmpty(t, jwtTok)
+
+		uID, err := domain.ParseJWTToken([]byte(tokenSecret), jwtTok)
+		require.NoError(t, err)
+		require.Equal(t, userID, uID)
+	})
+
+	t.Run("timeout", func(t *testing.T) {
+		tokenSecret := "tokenSecret"
+		tokenDuration := 1 * time.Second
+		userID := domain.UserID("userID")
+
+		jwtTok, err := domain.CreateJWTToken([]byte(tokenSecret), tokenDuration, userID)
+		require.NoError(t, err)
+		require.NotEmpty(t, jwtTok)
+
+		time.Sleep(2 * time.Second)
+
+		_, err = domain.ParseJWTToken([]byte(tokenSecret), jwtTok)
+		require.ErrorIs(t, err, domain.ErrAuthDataIncorrect)
+	})
+
+	t.Run("wrong_secret", func(t *testing.T) {
+		tokenSecret := "tokenSecret"
+		tokenDuration := 1 * time.Second
+		userID := domain.UserID("userID")
+
+		jwtTok, err := domain.CreateJWTToken([]byte(tokenSecret), tokenDuration, userID)
+		require.NoError(t, err)
+		require.NotEmpty(t, jwtTok)
+
+		time.Sleep(2 * time.Second)
+
+		tokenSecret = tokenSecret + "nonce"
+		_, err = domain.ParseJWTToken([]byte(tokenSecret), jwtTok)
+		require.ErrorIs(t, err, domain.ErrAuthDataIncorrect)
+	})
 }

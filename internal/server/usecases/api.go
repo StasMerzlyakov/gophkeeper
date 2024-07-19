@@ -37,12 +37,15 @@ type EMailSender interface {
 type RegistrationHelper interface {
 	CheckEMailData(data *domain.EMailData) (bool, error)
 	HashPassword(pass string) (*domain.HashData, error)
-	GenerateQR(issuer string, accountName string) (string, []byte, error)
-	EncryptData(secretKey string, plaintext string) (string, error)
-	DecryptData(secretKey string, ciphertext string) (string, error)
+	GenerateQR(accountName string) (string, []byte, error)
+	EncryptData(plaintext string) (string, error)
+	DecryptData(ciphertext string) (string, error)
 	CheckPassword(pass string, hashB64 string, saltB64 string) (bool, error)
 	NewSessionID() domain.SessionID
+	NewUserID() domain.UserID
 	ValidatePassCode(keyURL string, passcode string) (bool, error)
 	GenerateHello() (string, error)
 	CheckHello(toCheck string) (bool, error)
+	CreateJWTToken(userID domain.UserID) (domain.JWTToken, error)
+	ParseJWTToken(jwtToken domain.JWTToken) (domain.UserID, error)
 }

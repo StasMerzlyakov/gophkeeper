@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	"github.com/StasMerzlyakov/gophkeeper/internal/server/usecases"
 	"github.com/pquerna/otp"
@@ -20,7 +21,11 @@ var testOKSaltFn = func(p []byte) (n int, err error) {
 }
 
 func TestRegistrationHelper(t *testing.T) {
-	helper := usecases.NewRegistrationHelper(testOKSaltFn)
+	srvConf := &config.ServerConf{
+		DomainName:          "issuer",
+		ServerEncryptionKey: "N1PCdw3M2B1TfJhoaY2mL736p2vCUc47",
+	}
+	helper := usecases.NewRegistrationHelper(srvConf, testOKSaltFn)
 	t.Run("hash_password", func(t *testing.T) {
 
 		pass := "12345678"
@@ -50,23 +55,21 @@ func TestRegistrationHelper(t *testing.T) {
 	})
 
 	t.Run("generate_qr", func(t *testing.T) {
-		issuer := "issuer"
 		accountName := "accountName"
 
-		key, png, err := helper.GenerateQR(issuer, accountName)
+		key, png, err := helper.GenerateQR(accountName)
 		require.NoError(t, err)
 		require.NotEmpty(t, key)
 		require.NotNil(t, png)
 	})
 
 	t.Run("encrypt_decrypt", func(t *testing.T) {
-		secretKey := "N1PCdw3M2B1TfJhoaY2mL736p2vCUc47"
 		plainText := "testTestTest123"
-		cipherText, err := helper.EncryptData(secretKey, plainText)
+		cipherText, err := helper.EncryptData(plainText)
 		require.NoError(t, err)
 		require.True(t, len(cipherText) > 0)
 
-		text, err := helper.DecryptData(secretKey, cipherText)
+		text, err := helper.DecryptData(cipherText)
 		require.NoError(t, err)
 		require.Equal(t, plainText, text)
 	})
@@ -76,11 +79,15 @@ func TestRegistrationHelper(t *testing.T) {
 		require.True(t, len(sessID) > 0)
 	})
 
+	t.Run("user_id", func(t *testing.T) {
+		userID := helper.NewUserID()
+		require.True(t, len(userID) > 0)
+	})
+
 	t.Run("valudate_pass", func(t *testing.T) {
-		issuer := "issuer"
 		accountName := "accountName"
 
-		keyURL, _, err := helper.GenerateQR(issuer, accountName)
+		keyURL, _, err := helper.GenerateQR(accountName)
 
 		require.NoError(t, err)
 

@@ -21,7 +21,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := domain.CheckServerSecretKey(conf.ServerKey); err != nil {
+	if err := domain.CheckServerSecretKey(conf.ServerEncryptionKey); err != nil {
 		panic(err)
 	}
 

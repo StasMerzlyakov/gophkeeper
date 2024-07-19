@@ -57,12 +57,12 @@ func (reg *registrator) Register(ctx context.Context, data *domain.EMailData) (d
 		return "", fmt.Errorf("register err - %w", err)
 	}
 
-	key, image, err := reg.regHelper.GenerateQR(reg.conf.DomainName, data.EMail)
+	key, image, err := reg.regHelper.GenerateQR(data.EMail)
 	if err != nil {
 		return "", fmt.Errorf("register err - %w", err)
 	}
 
-	encryptedKey, err := reg.regHelper.EncryptData(reg.conf.ServerKey, key)
+	encryptedKey, err := reg.regHelper.EncryptData(key)
 	if err != nil {
 		return "", fmt.Errorf("register err - %w", err)
 	}
@@ -94,16 +94,16 @@ func (reg *registrator) PassOTP(ctx context.Context, currentID domain.SessionID,
 
 	regData, ok := data.(domain.RegistrationData)
 	if !ok {
-		err := fmt.Errorf("%w unexpected data by id %s", domain.ErrClientDataIncorrect, currentID)
+		err := fmt.Errorf("%w unexpected data by id %s", domain.ErrAuthDataIncorrect, currentID)
 		return "", fmt.Errorf("passOTP err - %w", err)
 	}
 
 	if regData.State != domain.RegistrationStateInit {
-		err := fmt.Errorf("%w - wrong registartionState by id %s", domain.ErrClientDataIncorrect, currentID)
+		err := fmt.Errorf("%w - wrong registartionState by id %s", domain.ErrAuthDataIncorrect, currentID)
 		return "", fmt.Errorf("passOTP err - %w", err)
 	}
 
-	otpKeyUrl, err := reg.regHelper.DecryptData(reg.conf.ServerKey, regData.EncryptedOTPKey)
+	otpKeyUrl, err := reg.regHelper.DecryptData(regData.EncryptedOTPKey)
 	if err != nil {
 		return "", fmt.Errorf("passOTP err - %w", err)
 	}
@@ -114,7 +114,7 @@ func (reg *registrator) PassOTP(ctx context.Context, currentID domain.SessionID,
 	}
 
 	if !ok {
-		err := fmt.Errorf("%w - wrong otp pass", domain.ErrClientDataIncorrect)
+		err := fmt.Errorf("%w - wrong otp pass", domain.ErrAuthDataIncorrect)
 		return "", fmt.Errorf("passOTP err - %w", err)
 	}
 
@@ -153,7 +153,10 @@ func (reg *registrator) InitMasterKey(ctx context.Context, currentID domain.Sess
 		return fmt.Errorf("initMasterKey err - %w", err)
 	}
 
+	userID := reg.regHelper.NewUserID()
+
 	fullData := &domain.FullRegistrationData{
+		UserID:             userID,
 		EMail:              regData.EMail,
 		PasswordHash:       regData.PasswordHash,
 		PasswordSalt:       regData.PasswordSalt,

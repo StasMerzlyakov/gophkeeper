@@ -13,6 +13,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	pasVld "github.com/wagslane/go-password-validator"
@@ -53,7 +54,7 @@ type SaltFn func(b []byte) (n int, err error)
 func HashPassword(pass string, saltFn SaltFn) (*HashData, error) {
 	salt := make([]byte, SaltSize)
 	if _, err := saltFn(salt); err != nil {
-		return nil, fmt.Errorf("%w - salt generation error %s", ErrInternalServer, err.Error())
+		return nil, fmt.Errorf("%w - salt generation error %s", ErrServerInternal, err.Error())
 	}
 
 	saltB64 := base64.URLEncoding.EncodeToString(salt)
@@ -103,7 +104,7 @@ func CheckPassword(pass string, hashB64 string, saltB64 string) (bool, error) {
 	hex := h.Sum(nil)
 
 	if !bytes.Equal(hash, hex) {
-		return false, fmt.Errorf("%w - authentification failed", ErrWrongLoginPassword)
+		return false, fmt.Errorf("%w - authentification failed", ErrAuthDataIncorrect)
 	}
 
 	return true, nil
@@ -112,18 +113,18 @@ func CheckPassword(pass string, hashB64 string, saltB64 string) (bool, error) {
 func EncryptData(secretKey string, plaintext string, saltFn SaltFn) (string, error) {
 	aes, err := aes.NewCipher([]byte(secretKey))
 	if err != nil {
-		return "", fmt.Errorf("%w - encrypt NewCipher error %s", ErrInternalServer, err.Error())
+		return "", fmt.Errorf("%w - encrypt NewCipher error %s", ErrServerInternal, err.Error())
 	}
 
 	gcm, err := cipher.NewGCM(aes)
 	if err != nil {
-		return "", fmt.Errorf("%w - encrypt NewGCM error %s", ErrInternalServer, err.Error())
+		return "", fmt.Errorf("%w - encrypt NewGCM error %s", ErrServerInternal, err.Error())
 	}
 
 	nonce := make([]byte, gcm.NonceSize())
 	_, err = saltFn(nonce)
 	if err != nil {
-		return "", fmt.Errorf("%w - encrypt salt generation %s", ErrInternalServer, err.Error())
+		return "", fmt.Errorf("%w - encrypt salt generation %s", ErrServerInternal, err.Error())
 	}
 
 	ciphertext := gcm.Seal(nonce, nonce, []byte(plaintext), nil)
@@ -134,12 +135,12 @@ func EncryptData(secretKey string, plaintext string, saltFn SaltFn) (string, err
 func DecryptData(secretKey string, ciphertext string) (string, error) {
 	aes, err := aes.NewCipher([]byte(secretKey))
 	if err != nil {
-		return "", fmt.Errorf("%w - decrypt newCipher error %s", ErrInternalServer, err.Error())
+		return "", fmt.Errorf("%w - decrypt newCipher error %s", ErrServerInternal, err.Error())
 	}
 
 	gcm, err := cipher.NewGCM(aes)
 	if err != nil {
-		return "", fmt.Errorf("%w - decrypt NewGCM error %s", ErrInternalServer, err.Error())
+		return "", fmt.Errorf("%w - decrypt NewGCM error %s", ErrServerInternal, err.Error())
 	}
 
 	nonceSize := gcm.NonceSize()
@@ -147,7 +148,7 @@ func DecryptData(secretKey string, ciphertext string) (string, error) {
 
 	plaintext, err := gcm.Open(nil, []byte(nonce), []byte(ciphertext), nil)
 	if err != nil {
-		return "", fmt.Errorf("%w - decrypt gcm open err %s", ErrInternalServer, err.Error())
+		return "", fmt.Errorf("%w - decrypt gcm open err %s", ErrServerInternal, err.Error())
 	}
 
 	return string(plaintext), nil
@@ -163,16 +164,16 @@ func GenerateQR(issuer string, accountName string) (string, []byte, error) {
 	})
 
 	if err != nil {
-		return "", nil, fmt.Errorf("%w GenerateQR TOTP gererate err - %s", ErrInternalServer, err.Error())
+		return "", nil, fmt.Errorf("%w GenerateQR TOTP gererate err - %s", ErrServerInternal, err.Error())
 	}
 
 	var buf bytes.Buffer
 	img, err := key.Image(450, 450)
 	if err != nil {
-		return "", nil, fmt.Errorf("%w GenerateQR TOTP image generation err - %s", ErrInternalServer, err.Error())
+		return "", nil, fmt.Errorf("%w GenerateQR TOTP image generation err - %s", ErrServerInternal, err.Error())
 	}
 	if err = png.Encode(&buf, img); err != nil {
-		return "", nil, fmt.Errorf("%w GenerateQR png.Encode err - %s", ErrInternalServer, err.Error())
+		return "", nil, fmt.Errorf("%w GenerateQR png.Encode err - %s", ErrServerInternal, err.Error())
 	}
 
 	keyURL := key.URL()
@@ -200,7 +201,7 @@ func GenerateHello(saltFn SaltFn) (string, error) {
 	salt := make([]byte, SaltSize)
 	_, err := saltFn(salt)
 	if err != nil {
-		return "", fmt.Errorf("%w GenerateHelloWorld generate salt err - %s", ErrInternalServer, err.Error())
+		return "", fmt.Errorf("%w GenerateHelloWorld generate salt err - %s", ErrServerInternal, err.Error())
 	}
 
 	var bytesToGen bytes.Buffer
@@ -213,13 +214,43 @@ func GenerateHello(saltFn SaltFn) (string, error) {
 func CheckHello(toCheck string) (bool, error) {
 	bytes, err := base64.RawStdEncoding.DecodeString(toCheck)
 	if err != nil {
-		return false, fmt.Errorf("%w CheckHelloWorld decode err %s", ErrInternalServer, err.Error())
+		return false, fmt.Errorf("%w CheckHelloWorld decode err %s", ErrServerInternal, err.Error())
 	}
 
 	if len(bytes) <= SaltSize {
-		return false, fmt.Errorf("%w CheckHelloWorld decode err - unexpected input size", ErrInternalServer)
+		return false, fmt.Errorf("%w CheckHelloWorld decode err - unexpected input size", ErrServerInternal)
 	}
 
 	bytes = bytes[SaltSize:]
 	return string(bytes) == HelloWorld, nil
+}
+
+func CreateJWTToken(tokenSecret []byte, tokenExp time.Duration, userID UserID) (JWTToken, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenExp)),
+		},
+		UserID: userID,
+	})
+
+	tokenString, err := token.SignedString(tokenSecret)
+	if err != nil {
+		return "", fmt.Errorf("%w: can't sign token %v", ErrServerInternal, err.Error())
+	}
+
+	return JWTToken(tokenString), nil
+}
+
+func ParseJWTToken(tokenSecret []byte, token JWTToken) (UserID, error) {
+	claims := &Claims{}
+
+	_, err := jwt.ParseWithClaims(string(token), claims, func(t *jwt.Token) (interface{}, error) {
+		return tokenSecret, nil
+	})
+
+	if err != nil {
+		return "", fmt.Errorf("%w: authorization failed - %s", ErrAuthDataIncorrect, err.Error())
+	}
+
+	return claims.UserID, nil
 }

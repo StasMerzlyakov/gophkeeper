@@ -265,34 +265,49 @@ func (mr *MockRegistrationHelperMockRecorder) CheckPassword(arg0, arg1, arg2 int
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckPassword", reflect.TypeOf((*MockRegistrationHelper)(nil).CheckPassword), arg0, arg1, arg2)
 }
 
-// DecryptData mocks base method.
-func (m *MockRegistrationHelper) DecryptData(arg0, arg1 string) (string, error) {
+// CreateJWTToken mocks base method.
+func (m *MockRegistrationHelper) CreateJWTToken(arg0 domain.UserID) (domain.JWTToken, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DecryptData", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreateJWTToken", arg0)
+	ret0, _ := ret[0].(domain.JWTToken)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateJWTToken indicates an expected call of CreateJWTToken.
+func (mr *MockRegistrationHelperMockRecorder) CreateJWTToken(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateJWTToken", reflect.TypeOf((*MockRegistrationHelper)(nil).CreateJWTToken), arg0)
+}
+
+// DecryptData mocks base method.
+func (m *MockRegistrationHelper) DecryptData(arg0 string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DecryptData", arg0)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // DecryptData indicates an expected call of DecryptData.
-func (mr *MockRegistrationHelperMockRecorder) DecryptData(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRegistrationHelperMockRecorder) DecryptData(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DecryptData", reflect.TypeOf((*MockRegistrationHelper)(nil).DecryptData), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DecryptData", reflect.TypeOf((*MockRegistrationHelper)(nil).DecryptData), arg0)
 }
 
 // EncryptData mocks base method.
-func (m *MockRegistrationHelper) EncryptData(arg0, arg1 string) (string, error) {
+func (m *MockRegistrationHelper) EncryptData(arg0 string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EncryptData", arg0, arg1)
+	ret := m.ctrl.Call(m, "EncryptData", arg0)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // EncryptData indicates an expected call of EncryptData.
-func (mr *MockRegistrationHelperMockRecorder) EncryptData(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRegistrationHelperMockRecorder) EncryptData(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EncryptData", reflect.TypeOf((*MockRegistrationHelper)(nil).EncryptData), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EncryptData", reflect.TypeOf((*MockRegistrationHelper)(nil).EncryptData), arg0)
 }
 
 // GenerateHello mocks base method.
@@ -311,9 +326,9 @@ func (mr *MockRegistrationHelperMockRecorder) GenerateHello() *gomock.Call {
 }
 
 // GenerateQR mocks base method.
-func (m *MockRegistrationHelper) GenerateQR(arg0, arg1 string) (string, []byte, error) {
+func (m *MockRegistrationHelper) GenerateQR(arg0 string) (string, []byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GenerateQR", arg0, arg1)
+	ret := m.ctrl.Call(m, "GenerateQR", arg0)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].([]byte)
 	ret2, _ := ret[2].(error)
@@ -321,9 +336,9 @@ func (m *MockRegistrationHelper) GenerateQR(arg0, arg1 string) (string, []byte, 
 }
 
 // GenerateQR indicates an expected call of GenerateQR.
-func (mr *MockRegistrationHelperMockRecorder) GenerateQR(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRegistrationHelperMockRecorder) GenerateQR(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateQR", reflect.TypeOf((*MockRegistrationHelper)(nil).GenerateQR), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateQR", reflect.TypeOf((*MockRegistrationHelper)(nil).GenerateQR), arg0)
 }
 
 // HashPassword mocks base method.
@@ -353,6 +368,35 @@ func (m *MockRegistrationHelper) NewSessionID() domain.SessionID {
 func (mr *MockRegistrationHelperMockRecorder) NewSessionID() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewSessionID", reflect.TypeOf((*MockRegistrationHelper)(nil).NewSessionID))
+}
+
+// NewUserID mocks base method.
+func (m *MockRegistrationHelper) NewUserID() domain.UserID {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NewUserID")
+	ret0, _ := ret[0].(domain.UserID)
+	return ret0
+}
+
+// NewUserID indicates an expected call of NewUserID.
+func (mr *MockRegistrationHelperMockRecorder) NewUserID() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewUserID", reflect.TypeOf((*MockRegistrationHelper)(nil).NewUserID))
+}
+
+// ParseJWTToken mocks base method.
+func (m *MockRegistrationHelper) ParseJWTToken(arg0 domain.JWTToken) (domain.UserID, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ParseJWTToken", arg0)
+	ret0, _ := ret[0].(domain.UserID)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ParseJWTToken indicates an expected call of ParseJWTToken.
+func (mr *MockRegistrationHelperMockRecorder) ParseJWTToken(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseJWTToken", reflect.TypeOf((*MockRegistrationHelper)(nil).ParseJWTToken), arg0)
 }
 
 // ValidatePassCode mocks base method.

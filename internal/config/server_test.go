@@ -24,12 +24,12 @@ func TestLoadServConf(t *testing.T) {
 		assert.Equal(t, config.ServerDefaultTokenSecret, conf.TokenSecret)
 		assert.Equal(t, config.ServerDefaultAuthStageTimeout, conf.AuthStageTimeout)
 
-		assert.Equal(t, config.ServerDefaultServerKey, conf.ServerKey)
+		assert.Equal(t, config.ServerDefaultServerEncryptionKey, conf.ServerEncryptionKey)
 		assert.Equal(t, config.ServerDefaultDomainName, conf.DomainName)
 
 		assert.Equal(t, config.ServerDefaultSMTPHost, conf.SMTPHost)
 		assert.Equal(t, config.ServerDefaultSMTPPort, conf.SMTPPort)
-		assert.Equal(t, config.ServerDefaultSMTPServerEMail, conf.SMTPServerEMail)
+		assert.Equal(t, config.ServerDefaultServerEMail, conf.ServerEMail)
 	})
 
 	t.Run("env values", func(t *testing.T) {
@@ -41,12 +41,12 @@ func TestLoadServConf(t *testing.T) {
 		os.Setenv("JWT_SECRET", "pass")
 		os.Setenv("AUTH_STAGE_TIMEOUT", "4m")
 
-		os.Setenv("SERVER_KEY", "key")
+		os.Setenv("SERVER_ENCRYPTION_KEY", "key")
 		os.Setenv("DOMAIN_NAME", "example.com")
 
 		os.Setenv("SMTP_HOST", "127.0.0.1")
 		os.Setenv("SMTP_PORT", "26")
-		os.Setenv("SMTP_SERVER_EMAIL", "gopheer@localhost")
+		os.Setenv("SERVER_EMAIL", "gopheer@localhost")
 
 		conf, err := config.LoadServConf()
 		require.NoError(t, err)
@@ -58,12 +58,12 @@ func TestLoadServConf(t *testing.T) {
 		assert.Equal(t, 1*time.Hour, conf.TokenExp)
 		assert.Equal(t, "pass", conf.TokenSecret)
 		assert.Equal(t, 4*time.Minute, conf.AuthStageTimeout)
-		assert.Equal(t, "key", conf.ServerKey)
+		assert.Equal(t, "key", conf.ServerEncryptionKey)
 		assert.Equal(t, "example.com", conf.DomainName)
 
 		assert.Equal(t, "127.0.0.1", conf.SMTPHost)
 		assert.Equal(t, 26, conf.SMTPPort)
-		assert.Equal(t, "gopheer@localhost", conf.SMTPServerEMail)
+		assert.Equal(t, "gopheer@localhost", conf.ServerEMail)
 	})
 
 	t.Run("err", func(t *testing.T) {
