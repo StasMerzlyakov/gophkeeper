@@ -15,6 +15,7 @@ type StateFullStorage interface {
 	IsEMailAvailable(ctx context.Context, email string) (bool, error)
 	Registrate(ctx context.Context, data *domain.FullRegistrationData) error
 	GetLoginData(ctx context.Context, email string) (*domain.LoginData, error)
+	GetHelloData(ctx context.Context) (string, error)
 }
 
 type TemporaryStorage interface {

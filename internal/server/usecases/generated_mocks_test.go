@@ -35,6 +35,21 @@ func (m *MockStateFullStorage) EXPECT() *MockStateFullStorageMockRecorder {
 	return m.recorder
 }
 
+// GetHelloData mocks base method.
+func (m *MockStateFullStorage) GetHelloData(arg0 context.Context) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHelloData", arg0)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHelloData indicates an expected call of GetHelloData.
+func (mr *MockStateFullStorageMockRecorder) GetHelloData(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHelloData", reflect.TypeOf((*MockStateFullStorage)(nil).GetHelloData), arg0)
+}
+
 // GetLoginData mocks base method.
 func (m *MockStateFullStorage) GetLoginData(arg0 context.Context, arg1 string) (*domain.LoginData, error) {
 	m.ctrl.T.Helper()
