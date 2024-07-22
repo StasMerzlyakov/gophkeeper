@@ -30,6 +30,10 @@ func TestLoadServConf(t *testing.T) {
 		assert.Equal(t, config.ServerDefaultSMTPHost, conf.SMTPHost)
 		assert.Equal(t, config.ServerDefaultSMTPPort, conf.SMTPPort)
 		assert.Equal(t, config.ServerDefaultServerEMail, conf.ServerEMail)
+
+		assert.Equal(t, config.ServerDefaultMaxConns, conf.MaxConns)
+		assert.Equal(t, config.ServerDefaultMaxConnLifetime, conf.MaxConnLifetime)
+		assert.Equal(t, config.ServerDefaultMaxConnIdleTime, conf.MaxConnIdleTime)
 	})
 
 	t.Run("env values", func(t *testing.T) {
@@ -48,6 +52,11 @@ func TestLoadServConf(t *testing.T) {
 		os.Setenv("SMTP_PORT", "26")
 		os.Setenv("SERVER_EMAIL", "gopheer@localhost")
 
+		os.Setenv("DATABASE_URI", "db_uri")
+		os.Setenv("DATABASE_MAX_CONNS", "3")
+		os.Setenv("DATABASE_MAX_CONN_LIFE_TIME", "1m")
+		os.Setenv("DATABASE_MAX_CONN_IDLE_TIME", "2m")
+
 		conf, err := config.LoadServConf()
 		require.NoError(t, err)
 
@@ -64,6 +73,12 @@ func TestLoadServConf(t *testing.T) {
 		assert.Equal(t, "127.0.0.1", conf.SMTPHost)
 		assert.Equal(t, 26, conf.SMTPPort)
 		assert.Equal(t, "gopheer@localhost", conf.ServerEMail)
+
+		assert.Equal(t, "db_uri", conf.DatabaseURI)
+		assert.Equal(t, 3, conf.MaxConns)
+		assert.Equal(t, 1*time.Minute, conf.MaxConnLifetime)
+		assert.Equal(t, 2*time.Minute, conf.MaxConnIdleTime)
+
 	})
 
 	t.Run("err", func(t *testing.T) {

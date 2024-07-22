@@ -18,6 +18,9 @@ const (
 	ServerDefaultSMTPHost            = "localhost"
 	ServerDefaultSMTPPort            = 25
 	ServerDefaultServerEMail         = "localhost@localdomain"
+	ServerDefaultMaxConns            = 5
+	ServerDefaultMaxConnLifetime     = 5 * time.Minute
+	ServerDefaultMaxConnIdleTime     = 5 * time.Minute
 )
 
 type ServerConf struct {
@@ -32,6 +35,10 @@ type ServerConf struct {
 	SMTPHost            string        `env:"SMTP_HOST"`
 	SMTPPort            int           `env:"SMTP_PORT"`
 	ServerEMail         string        `env:"SERVER_EMAIL"`
+	DatabaseURI         string        `env:"DATABASE_URI"`
+	MaxConns            int           `env:"DATABASE_MAX_CONNS"`
+	MaxConnLifetime     time.Duration `env:"DATABASE_MAX_CONN_LIFE_TIME"`
+	MaxConnIdleTime     time.Duration `env:"DATABASE_MAX_CONN_IDLE_TIME"`
 }
 
 func defaultServConf() *ServerConf {
@@ -47,6 +54,9 @@ func defaultServConf() *ServerConf {
 		SMTPHost:            ServerDefaultSMTPHost,
 		SMTPPort:            ServerDefaultSMTPPort,
 		ServerEMail:         ServerDefaultServerEMail,
+		MaxConns:            ServerDefaultMaxConns,
+		MaxConnLifetime:     ServerDefaultMaxConnLifetime,
+		MaxConnIdleTime:     ServerDefaultMaxConnIdleTime,
 	}
 }
 
