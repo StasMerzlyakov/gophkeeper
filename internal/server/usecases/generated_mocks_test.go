@@ -385,20 +385,6 @@ func (mr *MockRegistrationHelperMockRecorder) NewSessionID() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewSessionID", reflect.TypeOf((*MockRegistrationHelper)(nil).NewSessionID))
 }
 
-// NewUserID mocks base method.
-func (m *MockRegistrationHelper) NewUserID() domain.UserID {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "NewUserID")
-	ret0, _ := ret[0].(domain.UserID)
-	return ret0
-}
-
-// NewUserID indicates an expected call of NewUserID.
-func (mr *MockRegistrationHelperMockRecorder) NewUserID() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewUserID", reflect.TypeOf((*MockRegistrationHelper)(nil).NewUserID))
-}
-
 // ParseJWTToken mocks base method.
 func (m *MockRegistrationHelper) ParseJWTToken(arg0 domain.JWTToken) (domain.UserID, error) {
 	m.ctrl.T.Helper()
