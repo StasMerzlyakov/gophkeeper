@@ -88,7 +88,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
-		sID, err := registrator.Register(ctx, data)
+		sID, err := registrator.Registrate(ctx, data)
 		assert.NoError(t, err)
 		assert.Equal(t, sessionID, sID)
 	})
@@ -121,7 +121,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
-		_, err := registrator.Register(ctx, data)
+		_, err := registrator.Registrate(ctx, data)
 		assert.ErrorIs(t, err, testErr)
 	})
 
@@ -154,7 +154,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
-		_, err := registrator.Register(ctx, data)
+		_, err := registrator.Registrate(ctx, data)
 		assert.ErrorIs(t, err, testErr)
 	})
 
@@ -193,7 +193,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
-		_, err := registrator.Register(ctx, data)
+		_, err := registrator.Registrate(ctx, data)
 		assert.ErrorIs(t, err, testErr)
 	})
 
@@ -235,7 +235,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
-		_, err := registrator.Register(ctx, data)
+		_, err := registrator.Registrate(ctx, data)
 		assert.ErrorIs(t, err, testErr)
 	})
 
@@ -293,7 +293,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 			TemporaryStorage(mockTempStorage)
 
 		ctx := context.Background()
-		_, err := registrator.Register(ctx, data)
+		_, err := registrator.Registrate(ctx, data)
 		assert.ErrorIs(t, err, testErr)
 	})
 
@@ -355,7 +355,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 			EMailSender(mockSender)
 
 		ctx := context.Background()
-		_, err := registrator.Register(ctx, data)
+		_, err := registrator.Registrate(ctx, data)
 		assert.ErrorIs(t, err, testErr)
 	})
 }

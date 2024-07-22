@@ -19,10 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	RegistrationService_CheckEMail_FullMethodName = "/proto.RegistrationService/CheckEMail"
-	RegistrationService_Register_FullMethodName   = "/proto.RegistrationService/Register"
-	RegistrationService_PassOTP_FullMethodName    = "/proto.RegistrationService/PassOTP"
-	RegistrationService_MasterKey_FullMethodName  = "/proto.RegistrationService/MasterKey"
+	RegistrationService_CheckEMail_FullMethodName   = "/proto.RegistrationService/CheckEMail"
+	RegistrationService_Registrate_FullMethodName   = "/proto.RegistrationService/Registrate"
+	RegistrationService_PassOTP_FullMethodName      = "/proto.RegistrationService/PassOTP"
+	RegistrationService_SetMasterKey_FullMethodName = "/proto.RegistrationService/SetMasterKey"
 )
 
 // RegistrationServiceClient is the client API for RegistrationService service.
@@ -30,9 +30,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RegistrationServiceClient interface {
 	CheckEMail(ctx context.Context, in *CheckEMailRequest, opts ...grpc.CallOption) (*CheckEMailResponse, error)
-	Register(ctx context.Context, in *RegistrationRequest, opts ...grpc.CallOption) (*RegistrationResponse, error)
+	Registrate(ctx context.Context, in *RegistrationRequest, opts ...grpc.CallOption) (*RegistrationResponse, error)
 	PassOTP(ctx context.Context, in *PassOTPRequest, opts ...grpc.CallOption) (*PassOTPResponse, error)
-	MasterKey(ctx context.Context, in *MasterKeyRequest, opts ...grpc.CallOption) (*MasterKeyResponse, error)
+	SetMasterKey(ctx context.Context, in *MasterKeyRequest, opts ...grpc.CallOption) (*MasterKeyResponse, error)
 }
 
 type registrationServiceClient struct {
@@ -53,10 +53,10 @@ func (c *registrationServiceClient) CheckEMail(ctx context.Context, in *CheckEMa
 	return out, nil
 }
 
-func (c *registrationServiceClient) Register(ctx context.Context, in *RegistrationRequest, opts ...grpc.CallOption) (*RegistrationResponse, error) {
+func (c *registrationServiceClient) Registrate(ctx context.Context, in *RegistrationRequest, opts ...grpc.CallOption) (*RegistrationResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RegistrationResponse)
-	err := c.cc.Invoke(ctx, RegistrationService_Register_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, RegistrationService_Registrate_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -73,10 +73,10 @@ func (c *registrationServiceClient) PassOTP(ctx context.Context, in *PassOTPRequ
 	return out, nil
 }
 
-func (c *registrationServiceClient) MasterKey(ctx context.Context, in *MasterKeyRequest, opts ...grpc.CallOption) (*MasterKeyResponse, error) {
+func (c *registrationServiceClient) SetMasterKey(ctx context.Context, in *MasterKeyRequest, opts ...grpc.CallOption) (*MasterKeyResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(MasterKeyResponse)
-	err := c.cc.Invoke(ctx, RegistrationService_MasterKey_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, RegistrationService_SetMasterKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -88,9 +88,9 @@ func (c *registrationServiceClient) MasterKey(ctx context.Context, in *MasterKey
 // for forward compatibility
 type RegistrationServiceServer interface {
 	CheckEMail(context.Context, *CheckEMailRequest) (*CheckEMailResponse, error)
-	Register(context.Context, *RegistrationRequest) (*RegistrationResponse, error)
+	Registrate(context.Context, *RegistrationRequest) (*RegistrationResponse, error)
 	PassOTP(context.Context, *PassOTPRequest) (*PassOTPResponse, error)
-	MasterKey(context.Context, *MasterKeyRequest) (*MasterKeyResponse, error)
+	SetMasterKey(context.Context, *MasterKeyRequest) (*MasterKeyResponse, error)
 	mustEmbedUnimplementedRegistrationServiceServer()
 }
 
@@ -101,14 +101,14 @@ type UnimplementedRegistrationServiceServer struct {
 func (UnimplementedRegistrationServiceServer) CheckEMail(context.Context, *CheckEMailRequest) (*CheckEMailResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckEMail not implemented")
 }
-func (UnimplementedRegistrationServiceServer) Register(context.Context, *RegistrationRequest) (*RegistrationResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
+func (UnimplementedRegistrationServiceServer) Registrate(context.Context, *RegistrationRequest) (*RegistrationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Registrate not implemented")
 }
 func (UnimplementedRegistrationServiceServer) PassOTP(context.Context, *PassOTPRequest) (*PassOTPResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PassOTP not implemented")
 }
-func (UnimplementedRegistrationServiceServer) MasterKey(context.Context, *MasterKeyRequest) (*MasterKeyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method MasterKey not implemented")
+func (UnimplementedRegistrationServiceServer) SetMasterKey(context.Context, *MasterKeyRequest) (*MasterKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetMasterKey not implemented")
 }
 func (UnimplementedRegistrationServiceServer) mustEmbedUnimplementedRegistrationServiceServer() {}
 
@@ -141,20 +141,20 @@ func _RegistrationService_CheckEMail_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RegistrationService_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RegistrationService_Registrate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RegistrationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RegistrationServiceServer).Register(ctx, in)
+		return srv.(RegistrationServiceServer).Registrate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RegistrationService_Register_FullMethodName,
+		FullMethod: RegistrationService_Registrate_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RegistrationServiceServer).Register(ctx, req.(*RegistrationRequest))
+		return srv.(RegistrationServiceServer).Registrate(ctx, req.(*RegistrationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -177,20 +177,20 @@ func _RegistrationService_PassOTP_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RegistrationService_MasterKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RegistrationService_SetMasterKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MasterKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RegistrationServiceServer).MasterKey(ctx, in)
+		return srv.(RegistrationServiceServer).SetMasterKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RegistrationService_MasterKey_FullMethodName,
+		FullMethod: RegistrationService_SetMasterKey_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RegistrationServiceServer).MasterKey(ctx, req.(*MasterKeyRequest))
+		return srv.(RegistrationServiceServer).SetMasterKey(ctx, req.(*MasterKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -207,16 +207,16 @@ var RegistrationService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _RegistrationService_CheckEMail_Handler,
 		},
 		{
-			MethodName: "Register",
-			Handler:    _RegistrationService_Register_Handler,
+			MethodName: "Registrate",
+			Handler:    _RegistrationService_Registrate_Handler,
 		},
 		{
 			MethodName: "PassOTP",
 			Handler:    _RegistrationService_PassOTP_Handler,
 		},
 		{
-			MethodName: "MasterKey",
-			Handler:    _RegistrationService_MasterKey_Handler,
+			MethodName: "SetMasterKey",
+			Handler:    _RegistrationService_SetMasterKey_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

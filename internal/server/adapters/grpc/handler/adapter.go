@@ -18,9 +18,27 @@ func NewGRPCHandler(conf *config.ServerConf) *grpcHandler {
 	}
 }
 
+func (gh *grpcHandler) RegHandler(regHandler *regHandler) *grpcHandler {
+	gh.regHandler = regHandler
+	return gh
+}
+
+func (gh *grpcHandler) DataAccessor(dataAccessor *dataAccessor) *grpcHandler {
+	gh.dataAccessor = dataAccessor
+	return gh
+}
+
+func (gh *grpcHandler) AuthService(authService *authService) *grpcHandler {
+	gh.authService = authService
+	return gh
+}
+
 type grpcHandler struct {
-	conf *config.ServerConf
-	s    *grpc.Server
+	conf         *config.ServerConf
+	s            *grpc.Server
+	regHandler   *regHandler
+	dataAccessor *dataAccessor
+	authService  *authService
 }
 
 func (grpcHandler *grpcHandler) loadTLSCredentials() (credentials.TransportCredentials, error) {
@@ -57,6 +75,9 @@ func (grpcHandler *grpcHandler) Start(srcCtx context.Context) error {
 	}
 
 	proto.RegisterPingerServer(grpcHandler.s, &pinger{})
+	proto.RegisterRegistrationServiceServer(grpcHandler.s, grpcHandler.regHandler)
+	proto.RegisterDataAccessorServer(grpcHandler.s, grpcHandler.dataAccessor)
+	proto.RegisterAuthServiceServer(grpcHandler.s, grpcHandler.authService)
 	return grpcHandler.s.Serve(listen)
 }
 

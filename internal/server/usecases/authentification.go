@@ -38,6 +38,7 @@ type auth struct {
 	conf        *config.ServerConf
 }
 
+// First part of the authentification process. Check login and password.
 func (auth *auth) Login(ctx context.Context, data *domain.EMailData) (domain.SessionID, error) {
 
 	loginData, err := auth.stflStorage.GetLoginData(ctx, data.EMail)
@@ -61,6 +62,7 @@ func (auth *auth) Login(ctx context.Context, data *domain.EMailData) (domain.Ses
 	return sessionID, nil
 }
 
+// Second part of the authentification process. Check OTP code.
 func (auth *auth) CheckOTP(ctx context.Context, currentID domain.SessionID, otpPass string) (domain.JWTToken, error) {
 
 	data, err := auth.tempStorage.LoadAndDelete(ctx, currentID)

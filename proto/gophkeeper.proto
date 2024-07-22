@@ -48,9 +48,9 @@ message CheckEMailResponse {
 
 service RegistrationService {
     rpc CheckEMail(CheckEMailRequest)  returns (CheckEMailResponse);
-    rpc Register(RegistrationRequest) returns (RegistrationResponse);
+    rpc Registrate(RegistrationRequest) returns (RegistrationResponse);
     rpc PassOTP(PassOTPRequest) returns (PassOTPResponse);
-    rpc MasterKey(MasterKeyRequest) returns (MasterKeyResponse);
+    rpc SetMasterKey(MasterKeyRequest) returns (MasterKeyResponse);
 };
 
 message LoginRequest {

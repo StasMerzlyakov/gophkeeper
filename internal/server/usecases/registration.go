@@ -57,7 +57,8 @@ func (reg *registrator) GetEMailStatus(ctx context.Context, email string) (domai
 	}
 }
 
-func (reg *registrator) Register(ctx context.Context, data *domain.EMailData) (domain.SessionID, error) {
+// First part of the registration process. Store email and password data. Generate and send email with OTP QR.
+func (reg *registrator) Registrate(ctx context.Context, data *domain.EMailData) (domain.SessionID, error) {
 
 	sessionID := reg.regHelper.NewSessionID()
 
@@ -98,6 +99,7 @@ func (reg *registrator) Register(ctx context.Context, data *domain.EMailData) (d
 	return sessionID, nil
 }
 
+// Second part of the registration process. Check OTP password.
 func (reg *registrator) PassOTP(ctx context.Context, currentID domain.SessionID, otpPass string) (domain.SessionID, error) {
 
 	data, err := reg.tempStorage.Load(ctx, currentID)
@@ -148,6 +150,7 @@ func (reg *registrator) PassOTP(ctx context.Context, currentID domain.SessionID,
 	return newSessionID, nil
 }
 
+// The last part of the registration process - store MasterKeyData.
 func (reg *registrator) InitMasterKey(ctx context.Context, currentID domain.SessionID, mKey *domain.MasterKeyData) error {
 
 	data, err := reg.tempStorage.LoadAndDelete(ctx, currentID)
