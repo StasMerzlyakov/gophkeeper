@@ -7,11 +7,15 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 )
 
-func NewDataAccessor(conf *config.ServerConf, stflStorage StateFullStorage) *dataAccessor {
+func NewDataAccessor(conf *config.ServerConf) *dataAccessor {
 	return &dataAccessor{
-		conf:        conf,
-		stflStorage: stflStorage,
+		conf: conf,
 	}
+}
+
+func (dAcc *dataAccessor) StateFullStorage(stflStorage StateFullStorage) *dataAccessor {
+	dAcc.stflStorage = stflStorage
+	return dAcc
 }
 
 type dataAccessor struct {

@@ -82,13 +82,10 @@ func TestRegistrator_Regisration(t *testing.T) {
 		mockSender := NewMockEMailSender(ctrl)
 		mockSender.EXPECT().Send(gomock.Any(), gomock.Eq(data.EMail), gomock.Eq(qr)).Times(1)
 
-		registrator := usecases.NewRegistrator(
-			conf,
-			nil,
-			mockTempStorage,
-			mockSender,
-			mockHelper,
-		)
+		registrator := usecases.NewRegistrator(conf).
+			TemporaryStorage(mockTempStorage).
+			EMailSender(mockSender).
+			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
 		sID, err := registrator.Register(ctx, data)
@@ -120,13 +117,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 			return false, testErr
 		})
 
-		registrator := usecases.NewRegistrator(
-			conf,
-			nil,
-			nil,
-			nil,
-			mockHelper,
-		)
+		registrator := usecases.NewRegistrator(conf).
+			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
 		_, err := registrator.Register(ctx, data)
@@ -158,13 +150,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 		mockHelper.EXPECT().HashPassword(gomock.Eq(data.Password)).Times(1).Return(nil, testErr)
 
-		registrator := usecases.NewRegistrator(
-			conf,
-			nil,
-			nil,
-			nil,
-			mockHelper,
-		)
+		registrator := usecases.NewRegistrator(conf).
+			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
 		_, err := registrator.Register(ctx, data)
@@ -202,13 +189,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 		testErr := errors.New("generate qr err")
 		mockHelper.EXPECT().GenerateQR(gomock.Eq(data.EMail)).Times(1).Return("", nil, testErr)
 
-		registrator := usecases.NewRegistrator(
-			conf,
-			nil,
-			nil,
-			nil,
-			mockHelper,
-		)
+		registrator := usecases.NewRegistrator(conf).
+			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
 		_, err := registrator.Register(ctx, data)
@@ -249,13 +231,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 		testErr := errors.New("encrypt data err")
 		mockHelper.EXPECT().EncryptData(gomock.Eq(qrKey)).Times(1).Return("", testErr)
 
-		registrator := usecases.NewRegistrator(
-			conf,
-			nil,
-			nil,
-			nil,
-			mockHelper,
-		)
+		registrator := usecases.NewRegistrator(conf).
+			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
 		_, err := registrator.Register(ctx, data)
@@ -311,13 +288,9 @@ func TestRegistrator_Regisration(t *testing.T) {
 				return testErr
 			})
 
-		registrator := usecases.NewRegistrator(
-			conf,
-			nil,
-			mockTempStorage,
-			nil,
-			mockHelper,
-		)
+		registrator := usecases.NewRegistrator(conf).
+			RegistrationHelper(mockHelper).
+			TemporaryStorage(mockTempStorage)
 
 		ctx := context.Background()
 		_, err := registrator.Register(ctx, data)
@@ -376,13 +349,11 @@ func TestRegistrator_Regisration(t *testing.T) {
 		testErr := errors.New("send qr err")
 		mockSender.EXPECT().Send(gomock.Any(), gomock.Eq(data.EMail), gomock.Eq(qr)).Times(1).Return(testErr)
 
-		registrator := usecases.NewRegistrator(
-			conf,
-			nil,
-			mockTempStorage,
-			mockSender,
-			mockHelper,
-		)
+		registrator := usecases.NewRegistrator(conf).
+			RegistrationHelper(mockHelper).
+			TemporaryStorage(mockTempStorage).
+			EMailSender(mockSender)
+
 		ctx := context.Background()
 		_, err := registrator.Register(ctx, data)
 		assert.ErrorIs(t, err, testErr)
@@ -399,13 +370,8 @@ func TestRegistrator_GetEMailStatus(t *testing.T) {
 		mockStorage := NewMockStateFullStorage(ctrl)
 		mockStorage.EXPECT().IsEMailAvailable(gomock.Any(), gomock.Eq(email)).Times(1).Return(true, nil)
 
-		registrator := usecases.NewRegistrator(
-			nil,
-			mockStorage,
-			nil,
-			nil,
-			nil,
-		)
+		registrator := usecases.NewRegistrator(nil).
+			StateFullStorage(mockStorage)
 
 		ctx := context.Background()
 		st, err := registrator.GetEMailStatus(ctx, email)
@@ -418,13 +384,8 @@ func TestRegistrator_GetEMailStatus(t *testing.T) {
 		mockStorage := NewMockStateFullStorage(ctrl)
 		mockStorage.EXPECT().IsEMailAvailable(gomock.Any(), gomock.Eq(email)).Times(1).Return(false, nil)
 
-		registrator := usecases.NewRegistrator(
-			nil,
-			mockStorage,
-			nil,
-			nil,
-			nil,
-		)
+		registrator := usecases.NewRegistrator(nil).
+			StateFullStorage(mockStorage)
 
 		ctx := context.Background()
 		st, err := registrator.GetEMailStatus(ctx, email)
@@ -438,13 +399,8 @@ func TestRegistrator_GetEMailStatus(t *testing.T) {
 		testErr := errors.New("test err")
 		mockStorage.EXPECT().IsEMailAvailable(gomock.Any(), gomock.Eq(email)).Times(1).Return(false, testErr)
 
-		registrator := usecases.NewRegistrator(
-			nil,
-			mockStorage,
-			nil,
-			nil,
-			nil,
-		)
+		registrator := usecases.NewRegistrator(nil).
+			StateFullStorage(mockStorage)
 
 		ctx := context.Background()
 		st, err := registrator.GetEMailStatus(ctx, email)
@@ -508,13 +464,9 @@ func TestRegistrator_PassOTP(t *testing.T) {
 				return nil
 			})
 
-		registrator := usecases.NewRegistrator(
-			conf,
-			nil,
-			mockTempStorage,
-			nil,
-			mockHelper,
-		)
+		registrator := usecases.NewRegistrator(conf).
+			RegistrationHelper(mockHelper).
+			TemporaryStorage(mockTempStorage)
 
 		ctx := context.Background()
 		nId, err := registrator.PassOTP(ctx, domain.SessionID(currentID), otpPass)
@@ -545,13 +497,8 @@ func TestRegistrator_PassOTP(t *testing.T) {
 			data, testErr,
 		)
 
-		registrator := usecases.NewRegistrator(
-			conf,
-			nil,
-			mockTempStorage,
-			nil,
-			nil,
-		)
+		registrator := usecases.NewRegistrator(conf).
+			TemporaryStorage(mockTempStorage)
 
 		ctx := context.Background()
 		_, err := registrator.PassOTP(ctx, domain.SessionID(currentID), otpPass)
@@ -581,13 +528,8 @@ func TestRegistrator_PassOTP(t *testing.T) {
 			data, nil,
 		)
 
-		registrator := usecases.NewRegistrator(
-			conf,
-			nil,
-			mockTempStorage,
-			nil,
-			nil,
-		)
+		registrator := usecases.NewRegistrator(conf).
+			TemporaryStorage(mockTempStorage)
 
 		ctx := context.Background()
 		_, err := registrator.PassOTP(ctx, domain.SessionID(currentID), otpPass)
@@ -624,13 +566,9 @@ func TestRegistrator_PassOTP(t *testing.T) {
 			"", testErr,
 		)
 
-		registrator := usecases.NewRegistrator(
-			conf,
-			nil,
-			mockTempStorage,
-			nil,
-			mockHelper,
-		)
+		registrator := usecases.NewRegistrator(conf).
+			RegistrationHelper(mockHelper).
+			TemporaryStorage(mockTempStorage)
 
 		ctx := context.Background()
 		_, err := registrator.PassOTP(ctx, domain.SessionID(currentID), otpPass)
@@ -668,13 +606,9 @@ func TestRegistrator_PassOTP(t *testing.T) {
 		testErr := errors.New("test_err")
 		mockHelper.EXPECT().ValidatePassCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(false, testErr)
 
-		registrator := usecases.NewRegistrator(
-			conf,
-			nil,
-			mockTempStorage,
-			nil,
-			mockHelper,
-		)
+		registrator := usecases.NewRegistrator(conf).
+			RegistrationHelper(mockHelper).
+			TemporaryStorage(mockTempStorage)
 
 		ctx := context.Background()
 		_, err := registrator.PassOTP(ctx, domain.SessionID(currentID), otpPass)
@@ -711,13 +645,9 @@ func TestRegistrator_PassOTP(t *testing.T) {
 
 		mockHelper.EXPECT().ValidatePassCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(false, nil)
 
-		registrator := usecases.NewRegistrator(
-			conf,
-			nil,
-			mockTempStorage,
-			nil,
-			mockHelper,
-		)
+		registrator := usecases.NewRegistrator(conf).
+			RegistrationHelper(mockHelper).
+			TemporaryStorage(mockTempStorage)
 
 		ctx := context.Background()
 		_, err := registrator.PassOTP(ctx, domain.SessionID(currentID), otpPass)
@@ -761,13 +691,9 @@ func TestRegistrator_PassOTP(t *testing.T) {
 		mockTempStorage.EXPECT().DeleteAndCreate(gomock.Any(), gomock.Eq(currentID), gomock.Eq(newSessionID), gomock.Any()).Times(1).
 			Return(testErr)
 
-		registrator := usecases.NewRegistrator(
-			conf,
-			nil,
-			mockTempStorage,
-			nil,
-			mockHelper,
-		)
+		registrator := usecases.NewRegistrator(conf).
+			RegistrationHelper(mockHelper).
+			TemporaryStorage(mockTempStorage)
 
 		ctx := context.Background()
 		_, err := registrator.PassOTP(ctx, domain.SessionID(currentID), otpPass)
@@ -830,13 +756,10 @@ func TestRegistration_InitMasterKey(t *testing.T) {
 
 		mockHelper.EXPECT().NewUserID().Times(1).Return(userID)
 
-		registrator := usecases.NewRegistrator(
-			nil,
-			mockStflStorage,
-			mockTempStorage,
-			nil,
-			mockHelper,
-		)
+		registrator := usecases.NewRegistrator(nil).
+			StateFullStorage(mockStflStorage).
+			TemporaryStorage(mockTempStorage).
+			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
 		err := registrator.InitMasterKey(ctx, currentID, keyData)
@@ -865,13 +788,7 @@ func TestRegistration_InitMasterKey(t *testing.T) {
 			return nil, testErr
 		})
 
-		registrator := usecases.NewRegistrator(
-			nil,
-			nil,
-			mockTempStorage,
-			nil,
-			nil,
-		)
+		registrator := usecases.NewRegistrator(nil).TemporaryStorage(mockTempStorage)
 
 		ctx := context.Background()
 		err := registrator.InitMasterKey(ctx, currentID, keyData)
@@ -899,13 +816,7 @@ func TestRegistration_InitMasterKey(t *testing.T) {
 			return "asdasd", nil
 		})
 
-		registrator := usecases.NewRegistrator(
-			nil,
-			nil,
-			mockTempStorage,
-			nil,
-			nil,
-		)
+		registrator := usecases.NewRegistrator(nil).TemporaryStorage(mockTempStorage)
 
 		ctx := context.Background()
 		err := registrator.InitMasterKey(ctx, currentID, keyData)
@@ -942,13 +853,7 @@ func TestRegistration_InitMasterKey(t *testing.T) {
 			return data, nil
 		})
 
-		registrator := usecases.NewRegistrator(
-			nil,
-			nil,
-			mockTempStorage,
-			nil,
-			nil,
-		)
+		registrator := usecases.NewRegistrator(nil).TemporaryStorage(mockTempStorage)
 
 		ctx := context.Background()
 		err := registrator.InitMasterKey(ctx, currentID, keyData)
@@ -997,13 +902,7 @@ func TestRegistration_InitMasterKey(t *testing.T) {
 
 		mockHelper.EXPECT().NewUserID().Times(1).Return(userID)
 
-		registrator := usecases.NewRegistrator(
-			nil,
-			mockStflStorage,
-			mockTempStorage,
-			nil,
-			mockHelper,
-		)
+		registrator := usecases.NewRegistrator(nil).TemporaryStorage(mockTempStorage).StateFullStorage(mockStflStorage).RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
 		err := registrator.InitMasterKey(ctx, currentID, keyData)

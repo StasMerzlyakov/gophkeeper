@@ -20,7 +20,7 @@ func TestDataAccessor_GetHelloData(t *testing.T) {
 		mockStorage := NewMockStateFullStorage(ctrl)
 		encryptedKey := "encryptedKey"
 		mockStorage.EXPECT().GetHelloData(gomock.Any()).Times(1).Return(encryptedKey, nil)
-		da := usecases.NewDataAccessor(nil, mockStorage)
+		da := usecases.NewDataAccessor(nil).StateFullStorage(mockStorage)
 
 		res, err := da.GetHelloData(context.Background())
 		require.NoError(t, err)
@@ -33,7 +33,7 @@ func TestDataAccessor_GetHelloData(t *testing.T) {
 
 		testErr := errors.New("testErr")
 		mockStorage.EXPECT().GetHelloData(gomock.Any()).Times(1).Return("", testErr)
-		da := usecases.NewDataAccessor(nil, mockStorage)
+		da := usecases.NewDataAccessor(nil).StateFullStorage(mockStorage)
 
 		_, err := da.GetHelloData(context.Background())
 		require.ErrorIs(t, err, testErr)

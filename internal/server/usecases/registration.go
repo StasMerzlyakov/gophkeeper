@@ -9,20 +9,32 @@ import (
 )
 
 // TODO Add WithFn
-func NewRegistrator(conf *config.ServerConf,
-	stflStorage StateFullStorage,
-	tempStorage TemporaryStorage,
-	emailSender EMailSender,
-	regHelper RegistrationHelper,
-) *registrator {
+func NewRegistrator(conf *config.ServerConf) *registrator {
 
-	return &registrator{
-		conf:        conf,
-		stflStorage: stflStorage,
-		tempStorage: tempStorage,
-		emailSender: emailSender,
-		regHelper:   regHelper,
+	reg := &registrator{
+		conf: conf,
 	}
+	return reg
+}
+
+func (reg *registrator) StateFullStorage(stflStorage StateFullStorage) *registrator {
+	reg.stflStorage = stflStorage
+	return reg
+}
+
+func (reg *registrator) TemporaryStorage(tempStorage TemporaryStorage) *registrator {
+	reg.tempStorage = tempStorage
+	return reg
+}
+
+func (reg *registrator) EMailSender(emailSender EMailSender) *registrator {
+	reg.emailSender = emailSender
+	return reg
+}
+
+func (reg *registrator) RegistrationHelper(regHelper RegistrationHelper) *registrator {
+	reg.regHelper = regHelper
+	return reg
 }
 
 type registrator struct {

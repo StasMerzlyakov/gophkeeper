@@ -58,7 +58,7 @@ func TestAuthentification_Login(t *testing.T) {
 				return nil
 			})
 
-		auth := usecases.NewAuth(nil, mockStflStorage, mockTempStorage, mockHelper)
+		auth := usecases.NewAuth(nil).RegistrationHelper(mockHelper).StateFullStorage(mockStflStorage).TemporaryStorage(mockTempStorage)
 		sID, err := auth.Login(context.Background(), data)
 		require.NoError(t, err)
 		assert.Equal(t, sessionID, sID)
@@ -75,7 +75,7 @@ func TestAuthentification_Login(t *testing.T) {
 		testErr := errors.New("testErr")
 		mockStflStorage.EXPECT().GetLoginData(gomock.Any(), gomock.Eq(data.EMail)).Times(1).Return(nil, testErr)
 
-		auth := usecases.NewAuth(nil, mockStflStorage, nil, nil)
+		auth := usecases.NewAuth(nil).StateFullStorage(mockStflStorage)
 		_, err := auth.Login(context.Background(), data)
 		require.ErrorIs(t, err, testErr)
 	})
@@ -105,7 +105,7 @@ func TestAuthentification_Login(t *testing.T) {
 			gomock.Eq(loginData.PasswordSalt)).Times(1).
 			Return(false, testErr)
 
-		auth := usecases.NewAuth(nil, mockStflStorage, nil, mockHelper)
+		auth := usecases.NewAuth(nil).StateFullStorage(mockStflStorage).RegistrationHelper(mockHelper)
 		_, err := auth.Login(context.Background(), data)
 		require.ErrorIs(t, err, testErr)
 	})
@@ -134,7 +134,7 @@ func TestAuthentification_Login(t *testing.T) {
 			gomock.Eq(loginData.PasswordSalt)).Times(1).
 			Return(false, nil)
 
-		auth := usecases.NewAuth(nil, mockStflStorage, nil, mockHelper)
+		auth := usecases.NewAuth(nil).StateFullStorage(mockStflStorage).RegistrationHelper(mockHelper)
 		_, err := auth.Login(context.Background(), data)
 		require.ErrorIs(t, err, domain.ErrAuthDataIncorrect)
 	})
@@ -170,7 +170,7 @@ func TestAuthentification_Login(t *testing.T) {
 		testErr := errors.New("testErr")
 		mockTempStorage.EXPECT().Create(gomock.Any(), gomock.Eq(sessionID), gomock.Any()).Times(1).Return(testErr)
 
-		auth := usecases.NewAuth(nil, mockStflStorage, mockTempStorage, mockHelper)
+		auth := usecases.NewAuth(nil).StateFullStorage(mockStflStorage).RegistrationHelper(mockHelper).TemporaryStorage(mockTempStorage)
 
 		_, err := auth.Login(context.Background(), data)
 		require.ErrorIs(t, err, testErr)
@@ -217,7 +217,7 @@ func TestCheckOTP(t *testing.T) {
 		jwtTok := domain.JWTToken("jwtTok")
 		mockHelper.EXPECT().CreateJWTToken(gomock.Eq(userID)).Times(1).Return(jwtTok, nil)
 
-		auth := usecases.NewAuth(conf, nil, mockTempStorage, mockHelper)
+		auth := usecases.NewAuth(conf).RegistrationHelper(mockHelper).TemporaryStorage(mockTempStorage)
 
 		ctx := context.Background()
 		jTok, err := auth.CheckOTP(ctx, currentID, otpPass)
@@ -240,7 +240,7 @@ func TestCheckOTP(t *testing.T) {
 			nil, testEx,
 		)
 
-		auth := usecases.NewAuth(conf, nil, mockTempStorage, nil)
+		auth := usecases.NewAuth(conf).TemporaryStorage(mockTempStorage)
 
 		ctx := context.Background()
 		_, err := auth.CheckOTP(ctx, currentID, otpPass)
@@ -263,7 +263,7 @@ func TestCheckOTP(t *testing.T) {
 			data, nil,
 		)
 
-		auth := usecases.NewAuth(conf, nil, mockTempStorage, nil)
+		auth := usecases.NewAuth(conf).TemporaryStorage(mockTempStorage)
 
 		ctx := context.Background()
 		_, err := auth.CheckOTP(ctx, currentID, otpPass)
@@ -303,7 +303,7 @@ func TestCheckOTP(t *testing.T) {
 		testErr := errors.New("testErr")
 		mockHelper.EXPECT().ValidatePassCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(false, testErr)
 
-		auth := usecases.NewAuth(conf, nil, mockTempStorage, mockHelper)
+		auth := usecases.NewAuth(conf).TemporaryStorage(mockTempStorage).RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
 		_, err := auth.CheckOTP(ctx, currentID, otpPass)
@@ -342,7 +342,7 @@ func TestCheckOTP(t *testing.T) {
 
 		mockHelper.EXPECT().ValidatePassCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(false, nil)
 
-		auth := usecases.NewAuth(conf, nil, mockTempStorage, mockHelper)
+		auth := usecases.NewAuth(conf).TemporaryStorage(mockTempStorage).RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
 		_, err := auth.CheckOTP(ctx, currentID, otpPass)
@@ -384,7 +384,7 @@ func TestCheckOTP(t *testing.T) {
 		testErr := errors.New("testErr")
 		mockHelper.EXPECT().CreateJWTToken(gomock.Eq(userID)).Times(1).Return(domain.JWTToken(""), testErr)
 
-		auth := usecases.NewAuth(conf, nil, mockTempStorage, mockHelper)
+		auth := usecases.NewAuth(conf).TemporaryStorage(mockTempStorage).RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
 		_, err := auth.CheckOTP(ctx, currentID, otpPass)

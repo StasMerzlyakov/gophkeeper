@@ -8,16 +8,27 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
-func NewAuth(conf *config.ServerConf,
-	stflStorage StateFullStorage,
-	tempStorage TemporaryStorage,
-	regHelper RegistrationHelper) *auth {
-	return &auth{
-		conf:        conf,
-		stflStorage: stflStorage,
-		tempStorage: tempStorage,
-		regHelper:   regHelper,
+func NewAuth(conf *config.ServerConf) *auth {
+	auth := &auth{
+		conf: conf,
 	}
+
+	return auth
+}
+
+func (ath *auth) StateFullStorage(stflStorage StateFullStorage) *auth {
+	ath.stflStorage = stflStorage
+	return ath
+}
+
+func (ath *auth) TemporaryStorage(tempStorage TemporaryStorage) *auth {
+	ath.tempStorage = tempStorage
+	return ath
+}
+
+func (ath *auth) RegistrationHelper(regHelper RegistrationHelper) *auth {
+	ath.regHelper = regHelper
+	return ath
 }
 
 type auth struct {
