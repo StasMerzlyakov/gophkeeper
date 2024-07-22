@@ -23,7 +23,7 @@ const (
 	TOTPPeriod    = 30
 	TOTPDigits    = otp.DigitsSix
 	TOTPAlgorithm = otp.AlgorithmSHA512
-	HelloWorld    = "hello from GophKeeper!!!"
+	HelloWorld    = "Hello from GophKeeper!!!"
 	SaltSize      = 16
 )
 
@@ -57,13 +57,13 @@ func HashPassword(pass string, saltFn SaltFn) (*HashData, error) {
 		return nil, fmt.Errorf("%w - salt generation error %s", ErrServerInternal, err.Error())
 	}
 
-	saltB64 := base64.URLEncoding.EncodeToString(salt)
+	saltB64 := base64.StdEncoding.EncodeToString(salt)
 
 	h := sha256.New()
 	h.Write(salt)
 	h.Write([]byte(pass))
 	hex := h.Sum(nil)
-	hexB64 := base64.URLEncoding.EncodeToString(hex)
+	hexB64 := base64.StdEncoding.EncodeToString(hex)
 
 	return &HashData{
 		Hash: hexB64,
@@ -88,12 +88,12 @@ func CheckServerSecretKey(pass string) error {
 }
 
 func CheckPassword(pass string, hashB64 string, saltB64 string) (bool, error) {
-	hash, err := base64.URLEncoding.DecodeString(hashB64)
+	hash, err := base64.StdEncoding.DecodeString(hashB64)
 	if err != nil {
 		return false, fmt.Errorf("%w - hash decoding error %s", ErrClientDataIncorrect, err.Error())
 	}
 
-	salt, err := base64.URLEncoding.DecodeString(saltB64)
+	salt, err := base64.StdEncoding.DecodeString(saltB64)
 	if err != nil {
 		return false, fmt.Errorf("%w - salt decoding error %s", ErrClientDataIncorrect, err.Error())
 	}
@@ -207,12 +207,12 @@ func GenerateHello(saltFn SaltFn) (string, error) {
 	var bytesToGen bytes.Buffer
 	bytesToGen.Write(salt)
 	bytesToGen.Write([]byte(HelloWorld))
-	return base64.RawURLEncoding.EncodeToString(bytesToGen.Bytes()), nil
+	return base64.StdEncoding.EncodeToString(bytesToGen.Bytes()), nil
 
 }
 
 func CheckHello(toCheck string) (bool, error) {
-	bytes, err := base64.RawStdEncoding.DecodeString(toCheck)
+	bytes, err := base64.StdEncoding.DecodeString(toCheck)
 	if err != nil {
 		return false, fmt.Errorf("%w CheckHelloWorld decode err %s", ErrServerInternal, err.Error())
 	}
@@ -249,7 +249,7 @@ func ParseJWTToken(tokenSecret []byte, token JWTToken) (UserID, error) {
 	})
 
 	if err != nil {
-		return "", fmt.Errorf("%w: authorization failed - %s", ErrAuthDataIncorrect, err.Error())
+		return -1, fmt.Errorf("%w: authorization failed - %s", ErrAuthDataIncorrect, err.Error())
 	}
 
 	return claims.UserID, nil

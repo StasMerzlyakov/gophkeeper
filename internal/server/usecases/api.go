@@ -43,7 +43,6 @@ type RegistrationHelper interface {
 	DecryptData(ciphertext string) (string, error)
 	CheckPassword(pass string, hashB64 string, saltB64 string) (bool, error)
 	NewSessionID() domain.SessionID
-	NewUserID() domain.UserID
 	ValidatePassCode(keyURL string, passcode string) (bool, error)
 	GenerateHello() (string, error)
 	CheckHello(toCheck string) (bool, error)

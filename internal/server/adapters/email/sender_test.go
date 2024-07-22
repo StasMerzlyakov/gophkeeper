@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/server/adapters/email"
@@ -46,6 +47,8 @@ func TestSendMail(t *testing.T) {
 
 	err = emailSender.Send(ctx, clientEmail, qr)
 	require.NoError(t, err)
+
+	time.Sleep(2 * time.Second)
 
 	msgs := mockServer.Messages()
 	require.True(t, len(msgs) == 1)

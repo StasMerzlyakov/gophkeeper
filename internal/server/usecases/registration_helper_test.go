@@ -34,7 +34,7 @@ func TestRegistrationHelper(t *testing.T) {
 
 		require.NotNil(t, hash)
 
-		assert.Equal(t, "In-BZhwpWKZH_S1QtMWcAOONZcrO9jVDaMDoJqgOfWM=", hash.Hash)
+		assert.Equal(t, "In+BZhwpWKZH/S1QtMWcAOONZcrO9jVDaMDoJqgOfWM=", hash.Hash)
 		assert.Equal(t, "AAECAwQFBgcICQoLDA0ODw==", hash.Salt)
 
 		ok, err := helper.CheckPassword(pass, hash.Hash, hash.Salt)
@@ -77,11 +77,6 @@ func TestRegistrationHelper(t *testing.T) {
 	t.Run("session_id", func(t *testing.T) {
 		sessID := helper.NewSessionID()
 		require.True(t, len(sessID) > 0)
-	})
-
-	t.Run("user_id", func(t *testing.T) {
-		userID := helper.NewUserID()
-		require.True(t, len(userID) > 0)
 	})
 
 	t.Run("valudate_pass", func(t *testing.T) {

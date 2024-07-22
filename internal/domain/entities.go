@@ -23,7 +23,7 @@ type MasterKey struct {
 type SessionID string
 
 // UserID is used to identify user in jwt token
-type UserID string
+type UserID int64
 
 // AuthorizationData struct is used for pass jwt token to client
 type AuthorizationData struct {
@@ -56,7 +56,6 @@ type RegistrationData struct {
 
 // FullRegistrationData stuct contains all registration data for user creation in StateFullStorage
 type FullRegistrationData struct {
-	UserID             UserID
 	EMail              string
 	PasswordHash       string
 	PasswordSalt       string

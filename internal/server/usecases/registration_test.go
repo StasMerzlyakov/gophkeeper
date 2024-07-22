@@ -737,13 +737,11 @@ func TestRegistration_InitMasterKey(t *testing.T) {
 		})
 
 		mockStflStorage := NewMockStateFullStorage(ctrl)
-		userID := domain.UserID("userID")
 
 		mockStflStorage.EXPECT().Registrate(gomock.Any(), gomock.Any()).Times(1).
 			DoAndReturn(func(ctx context.Context, fullData *domain.FullRegistrationData) error {
 				assert.Equal(t, data.EncryptedOTPKey, fullData.EncryptedOTPKey)
 				assert.Equal(t, data.EMail, fullData.EMail)
-				assert.Equal(t, userID, fullData.UserID)
 				assert.Equal(t, data.PasswordHash, fullData.PasswordHash)
 				assert.Equal(t, data.PasswordSalt, fullData.PasswordSalt)
 				assert.Equal(t, keyData.EncryptedMasterKey, fullData.EncryptedMasterKey)
@@ -752,14 +750,9 @@ func TestRegistration_InitMasterKey(t *testing.T) {
 				return nil
 			})
 
-		mockHelper := NewMockRegistrationHelper(ctrl)
-
-		mockHelper.EXPECT().NewUserID().Times(1).Return(userID)
-
 		registrator := usecases.NewRegistrator(nil).
 			StateFullStorage(mockStflStorage).
-			TemporaryStorage(mockTempStorage).
-			RegistrationHelper(mockHelper)
+			TemporaryStorage(mockTempStorage)
 
 		ctx := context.Background()
 		err := registrator.InitMasterKey(ctx, currentID, keyData)
@@ -898,9 +891,6 @@ func TestRegistration_InitMasterKey(t *testing.T) {
 			})
 
 		mockHelper := NewMockRegistrationHelper(ctrl)
-		userID := domain.UserID("asdasd")
-
-		mockHelper.EXPECT().NewUserID().Times(1).Return(userID)
 
 		registrator := usecases.NewRegistrator(nil).TemporaryStorage(mockTempStorage).StateFullStorage(mockStflStorage).RegistrationHelper(mockHelper)
 

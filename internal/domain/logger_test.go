@@ -2,6 +2,7 @@ package domain_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
@@ -73,7 +74,7 @@ func TestEnrichContextRequestID(t *testing.T) {
 
 func TestEnrichContextUserID(t *testing.T) {
 
-	userID := domain.UserID(uuid.NewString())
+	userID := domain.UserID(1)
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -92,7 +93,8 @@ func TestEnrichContextUserID(t *testing.T) {
 					k := keysAndValues[id+1]
 					id, ok := k.(string)
 					require.True(t, ok, "userID is not string")
-					require.Equal(t, string(userID), id, "unexpecred userID value")
+					expected := fmt.Sprintf("%v", userID)
+					require.Equal(t, expected, id, "unexpecred userID value")
 					userIDChecked = true
 				}
 			}
@@ -121,7 +123,7 @@ func TestEnrichWithUserID(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("ok", func(t *testing.T) {
-		userID := domain.UserID(uuid.NewString())
+		userID := domain.UserID(1)
 		extCtx := domain.EnrichWithUserID(ctx, userID)
 
 		userIDCtx, err := domain.GetUserID(extCtx)

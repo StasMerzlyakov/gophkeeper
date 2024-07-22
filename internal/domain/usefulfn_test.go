@@ -88,7 +88,7 @@ func TestPasswordOperation(t *testing.T) {
 
 		require.NotNil(t, hash)
 
-		assert.Equal(t, "In-BZhwpWKZH_S1QtMWcAOONZcrO9jVDaMDoJqgOfWM=", hash.Hash)
+		assert.Equal(t, "In+BZhwpWKZH/S1QtMWcAOONZcrO9jVDaMDoJqgOfWM=", hash.Hash)
 		assert.Equal(t, "AAECAwQFBgcICQoLDA0ODw==", hash.Salt)
 
 		ok, err := domain.CheckPassword(pass, hash.Hash, hash.Salt)
@@ -105,19 +105,19 @@ func TestPasswordOperation(t *testing.T) {
 	})
 
 	t.Run("errHashDecode", func(t *testing.T) {
-		ok, err := domain.CheckPassword("", "In-BZhwpWKZH_S1QtMWcAOONZcrO9jVDaMDoJqgOfWM", "")
+		ok, err := domain.CheckPassword("", "In+BZhwpWKZH/S1QtMWcAOONZcrO9jVDaMDoJqgOfWM", "")
 		require.False(t, ok)
 		assert.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 	})
 
 	t.Run("errHashDecode", func(t *testing.T) {
-		ok, err := domain.CheckPassword("", "In-BZhwpWKZH_S1QtMWcAOONZcrO9jVDaMDoJqgOfWM=", "AAECAwQFBgcICQoLDA0ODw=")
+		ok, err := domain.CheckPassword("", "In+BZhwpWKZH/S1QtMWcAOONZcrO9jVDaMDoJqgOfWM=", "AAECAwQFBgcICQoLDA0ODw=")
 		require.False(t, ok)
 		assert.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 	})
 
 	t.Run("password incorrect", func(t *testing.T) {
-		ok, err := domain.CheckPassword("123456789", "In-BZhwpWKZH_S1QtMWcAOONZcrO9jVDaMDoJqgOfWM=", "AAECAwQFBgcICQoLDA0ODw==")
+		ok, err := domain.CheckPassword("123456789", "In+BZhwpWKZH/S1QtMWcAOONZcrO9jVDaMDoJqgOfWM=", "AAECAwQFBgcICQoLDA0ODw==")
 		require.ErrorIs(t, err, domain.ErrAuthDataIncorrect)
 		assert.False(t, ok)
 	})
@@ -278,7 +278,7 @@ func TestHelloWorld(t *testing.T) {
 	})
 
 	t.Run("false", func(t *testing.T) {
-		ok, err := domain.CheckHello("9COumBoRUEFVXbFYg5LM1GhlbGxvIGZyb20gR29waEtlRXBlciEhIQ")
+		ok, err := domain.CheckHello("jFG4UOPJEJoS+tm3Z5cGZ2hlbGxvIGZyb20gR29waEtlZXBlciEhIQ==")
 		require.NoError(t, err)
 		require.False(t, ok)
 	})
@@ -303,7 +303,7 @@ func TestJWT(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		tokenSecret := "tokenSecret"
 		tokenDuration := 2 * time.Second
-		userID := domain.UserID("userID")
+		userID := domain.UserID(1)
 
 		jwtTok, err := domain.CreateJWTToken([]byte(tokenSecret), tokenDuration, userID)
 		require.NoError(t, err)
@@ -317,7 +317,7 @@ func TestJWT(t *testing.T) {
 	t.Run("timeout", func(t *testing.T) {
 		tokenSecret := "tokenSecret"
 		tokenDuration := 1 * time.Second
-		userID := domain.UserID("userID")
+		userID := domain.UserID(1)
 
 		jwtTok, err := domain.CreateJWTToken([]byte(tokenSecret), tokenDuration, userID)
 		require.NoError(t, err)
@@ -332,7 +332,7 @@ func TestJWT(t *testing.T) {
 	t.Run("wrong_secret", func(t *testing.T) {
 		tokenSecret := "tokenSecret"
 		tokenDuration := 1 * time.Second
-		userID := domain.UserID("userID")
+		userID := domain.UserID(1)
 
 		jwtTok, err := domain.CreateJWTToken([]byte(tokenSecret), tokenDuration, userID)
 		require.NoError(t, err)

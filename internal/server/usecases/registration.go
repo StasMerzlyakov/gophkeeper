@@ -166,10 +166,7 @@ func (reg *registrator) InitMasterKey(ctx context.Context, currentID domain.Sess
 		return fmt.Errorf("initMasterKey err - %w", err)
 	}
 
-	userID := reg.regHelper.NewUserID()
-
 	fullData := &domain.FullRegistrationData{
-		UserID:             userID,
 		EMail:              regData.EMail,
 		PasswordHash:       regData.PasswordHash,
 		PasswordSalt:       regData.PasswordSalt,

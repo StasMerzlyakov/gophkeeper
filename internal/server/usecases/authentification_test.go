@@ -28,7 +28,7 @@ func TestAuthentification_Login(t *testing.T) {
 
 		mockStflStorage := NewMockStateFullStorage(ctrl)
 		loginData := &domain.LoginData{
-			UserID:          "userID",
+			UserID:          1,
 			EncryptedOTPKey: "encryptedOTPKey",
 			EMail:           "test@email",
 			PasswordHash:    "Hash",
@@ -88,7 +88,7 @@ func TestAuthentification_Login(t *testing.T) {
 
 		mockStflStorage := NewMockStateFullStorage(ctrl)
 		loginData := &domain.LoginData{
-			UserID:          "userID",
+			UserID:          1,
 			EncryptedOTPKey: "encryptedOTPKey",
 			EMail:           "test@email",
 			PasswordHash:    "Hash",
@@ -118,7 +118,7 @@ func TestAuthentification_Login(t *testing.T) {
 
 		mockStflStorage := NewMockStateFullStorage(ctrl)
 		loginData := &domain.LoginData{
-			UserID:          "userID",
+			UserID:          1,
 			EncryptedOTPKey: "encryptedOTPKey",
 			EMail:           "test@email",
 			PasswordHash:    "Hash",
@@ -149,7 +149,7 @@ func TestAuthentification_Login(t *testing.T) {
 
 		mockStflStorage := NewMockStateFullStorage(ctrl)
 		loginData := &domain.LoginData{
-			UserID:          "userID",
+			UserID:          1,
 			EncryptedOTPKey: "encryptedOTPKey",
 			EMail:           "test@email",
 			PasswordHash:    "Hash",
@@ -191,7 +191,7 @@ func TestCheckOTP(t *testing.T) {
 		decryptedOTPKey := "otp_key"
 		otpPass := "123345"
 
-		userID := domain.UserID("userID")
+		userID := domain.UserID(1)
 
 		mockTempStorage := NewMockTemporaryStorage(ctrl)
 
@@ -279,7 +279,7 @@ func TestCheckOTP(t *testing.T) {
 		decryptedOTPKey := "otp_key"
 		otpPass := "123345"
 
-		userID := domain.UserID("userID")
+		userID := domain.UserID(1)
 
 		mockTempStorage := NewMockTemporaryStorage(ctrl)
 
@@ -319,7 +319,7 @@ func TestCheckOTP(t *testing.T) {
 		decryptedOTPKey := "otp_key"
 		otpPass := "123345"
 
-		userID := domain.UserID("userID")
+		userID := domain.UserID(1)
 
 		mockTempStorage := NewMockTemporaryStorage(ctrl)
 
@@ -358,7 +358,7 @@ func TestCheckOTP(t *testing.T) {
 		decryptedOTPKey := "otp_key"
 		otpPass := "123345"
 
-		userID := domain.UserID("userID")
+		userID := domain.UserID(1)
 
 		mockTempStorage := NewMockTemporaryStorage(ctrl)
 

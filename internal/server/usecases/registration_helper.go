@@ -47,10 +47,6 @@ func (rg *regHelper) NewSessionID() domain.SessionID {
 	return domain.SessionID(uuid.NewString())
 }
 
-func (rg *regHelper) NewUserID() domain.UserID {
-	return domain.UserID(uuid.NewString())
-}
-
 func (rg *regHelper) ValidatePassCode(keyURL string, passcode string) (bool, error) {
 	return domain.ValidatePassCode(keyURL, passcode)
 }

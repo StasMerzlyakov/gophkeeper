@@ -57,11 +57,11 @@ func GetUserID(ctx context.Context) (UserID, error) {
 	if v := ctx.Value(UserIDKey); v != nil {
 		requestID, ok := v.(UserID)
 		if !ok {
-			return UserID(""), fmt.Errorf("%w: unexpected userID type", ErrServerInternal)
+			return UserID(-1), fmt.Errorf("%w: unexpected userID type", ErrServerInternal)
 		}
 		return requestID, nil
 	}
-	return UserID(""), fmt.Errorf("%w: can't extract userID", ErrNotAuthorized)
+	return UserID(-1), fmt.Errorf("%w: can't extract userID", ErrNotAuthorized)
 }
 
 func EnrichWithRequestIDLogger(ctx context.Context, requestID uuid.UUID, logger Logger) context.Context {
@@ -98,28 +98,28 @@ func (l *requestIDLogger) Errorw(msg string, keysAndValues ...any) {
 func EnrichWithUserIDLogger(ctx context.Context, userID UserID, logger Logger) context.Context {
 	requestIDLogger := &userIDLogger{
 		internalLogger: logger,
-		userID:         string(userID),
+		userID:         int64(userID),
 	}
 	resultCtx := context.WithValue(ctx, LoggerKey, requestIDLogger)
 	return resultCtx
 }
 
 type userIDLogger struct {
-	userID         string
+	userID         int64
 	internalLogger Logger
 }
 
 func (l *userIDLogger) Debugw(msg string, keysAndValues ...any) {
-	keysAndValues = append(keysAndValues, LoggerKeyUserID, l.userID)
+	keysAndValues = append(keysAndValues, LoggerKeyUserID, fmt.Sprintf("%v", l.userID))
 	l.internalLogger.Debugw(msg, keysAndValues...)
 }
 
 func (l *userIDLogger) Infow(msg string, keysAndValues ...any) {
-	keysAndValues = append(keysAndValues, LoggerKeyUserID, l.userID)
+	keysAndValues = append(keysAndValues, LoggerKeyUserID, fmt.Sprintf("%v", l.userID))
 	l.internalLogger.Infow(msg, keysAndValues...)
 }
 
 func (l *userIDLogger) Errorw(msg string, keysAndValues ...any) {
-	keysAndValues = append(keysAndValues, LoggerKeyUserID, l.userID)
+	keysAndValues = append(keysAndValues, LoggerKeyUserID, fmt.Sprintf("%v", l.userID))
 	l.internalLogger.Infow(msg, keysAndValues...)
 }
