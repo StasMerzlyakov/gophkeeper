@@ -20,6 +20,10 @@ import (
 )
 
 const (
+	AuthorizationMetadataTokenName = "authorization"
+)
+
+const (
 	TOTPPeriod    = 30
 	TOTPDigits    = otp.DigitsSix
 	TOTPAlgorithm = otp.AlgorithmSHA512
