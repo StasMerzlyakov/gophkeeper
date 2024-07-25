@@ -65,11 +65,24 @@ type FullRegistrationData struct {
 	HelloEncrypted     string
 }
 
-// MasterKeyData struct used in registration process
+// UnencryptedMasterKeyData struct is used in registration process on client side
+type UnencryptedMasterKeyData struct {
+	MasterKeyPassword string
+	MasterKeyHint     string
+}
+
+// MasterKeyData struct is used in registration process
 type MasterKeyData struct {
 	EncryptedMasterKey string
 	MasterKeyHint      string
 	HelloEncrypted     string
+}
+
+// HelloData struct is used in authorization process
+type HelloData struct {
+	EncryptedMasterKey string
+	HelloEncrypted     string
+	MasterKeyHint      string
 }
 
 type AuthorizationState string

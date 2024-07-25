@@ -36,10 +36,10 @@ func (m *MockStateFullStorage) EXPECT() *MockStateFullStorageMockRecorder {
 }
 
 // GetHelloData mocks base method.
-func (m *MockStateFullStorage) GetHelloData(arg0 context.Context) (string, error) {
+func (m *MockStateFullStorage) GetHelloData(arg0 context.Context) (*domain.HelloData, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetHelloData", arg0)
-	ret0, _ := ret[0].(string)
+	ret0, _ := ret[0].(*domain.HelloData)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

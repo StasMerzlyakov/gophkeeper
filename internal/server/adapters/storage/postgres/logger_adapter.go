@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"log"
+	"sort"
 
 	"github.com/jackc/pgx/v5/tracelog"
 )
@@ -19,12 +20,19 @@ type loggerAdapter struct {
 
 func (la *loggerAdapter) Log(ctx context.Context, level tracelog.LogLevel, msg string, data map[string]any) {
 
-	keyAndValues := make([]any, 2*len(data))
+	pl := make(pairList, len(data))
 	i := 0
 	for k, v := range data {
-		keyAndValues[i] = k
-		keyAndValues[i+1] = v
-		i += 2
+		pl[i] = pair{k, v}
+		i++
+	}
+	sort.Sort(pl)
+
+	keyAndValues := make([]any, 2*len(data))
+
+	for i, pair := range pl {
+		keyAndValues[2*i] = pair.Key
+		keyAndValues[2*i+1] = pair.Value
 	}
 
 	switch level {
@@ -38,3 +46,13 @@ func (la *loggerAdapter) Log(ctx context.Context, level tracelog.LogLevel, msg s
 		log.Printf("invalid level %d", la)
 	}
 }
+
+type pair struct {
+	Key   string
+	Value any
+}
+type pairList []pair
+
+func (p pairList) Len() int           { return len(p) }
+func (p pairList) Less(i, j int) bool { return p[i].Key < p[j].Key }
+func (p pairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }

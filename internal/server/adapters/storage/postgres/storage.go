@@ -44,9 +44,7 @@ func initializePGXConf(ctx context.Context, conf *config.ServerConf) *storage {
 	pConf.MaxConnIdleTime = conf.MaxConnIdleTime
 
 	pConf.ConnConfig.Tracer = &tracelog.TraceLog{
-		Logger: &loggerAdapter{
-			logger: logger,
-		},
+		Logger:   NewLogAdapter(logger),
 		LogLevel: tracelog.LogLevelError,
 	}
 

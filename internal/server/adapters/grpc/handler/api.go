@@ -16,7 +16,7 @@ type Registrator interface {
 }
 
 type DataAccessor interface {
-	GetHelloData(ctx context.Context) (string, error)
+	GetHelloData(ctx context.Context) (*domain.HelloData, error)
 }
 
 type AuthService interface {

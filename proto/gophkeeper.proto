@@ -64,6 +64,7 @@ message LoginResponse {
 
 message AuthResponse {
     string token = 1;
+    string masterKeyPassHint = 2;
 }
 
 service AuthService {
@@ -83,6 +84,8 @@ message HelloRequest{}
 
 message HelloResponse{
     string helloEncrypted = 1;
+    string encryptedMasterKey = 2;
+    string masterKeyPassHint = 3;
 }
 
 service DataAccessor {

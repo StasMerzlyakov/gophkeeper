@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
+	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
 func NewDataAccessor(conf *config.ServerConf) *dataAccessor {
@@ -23,7 +24,7 @@ type dataAccessor struct {
 	stflStorage StateFullStorage
 }
 
-func (da *dataAccessor) GetHelloData(ctx context.Context) (string, error) {
+func (da *dataAccessor) GetHelloData(ctx context.Context) (*domain.HelloData, error) {
 	res, err := da.stflStorage.GetHelloData(ctx)
 	if err != nil {
 		return res, fmt.Errorf("getHelloData err %w", err)

@@ -1,6 +1,7 @@
 package domain_test
 
 import (
+	"bytes"
 	"crypto/rand"
 	"errors"
 	"testing"
@@ -16,6 +17,67 @@ import (
 func TestGetAction(t *testing.T) {
 	val := domain.GetAction(1)
 	require.Equal(t, "domain_test.TestGetAction", val)
+}
+
+func TestValidateAuthPassword(t *testing.T) {
+	testData := []struct {
+		name string
+		pass string
+		res  bool
+	}{
+		{
+
+			"ok",
+			"IK0exasdF!",
+			true,
+		},
+		{
+
+			"bad",
+			"123",
+			false,
+		},
+	}
+
+	for _, test := range testData {
+		t.Run(test.name, func(t *testing.T) {
+			ok := domain.ValidateAuthPassword(test.pass)
+			assert.Equal(t, test.res, ok)
+		})
+	}
+}
+
+func TestValidateEncryptionPassword(t *testing.T) {
+	testData := []struct {
+		name string
+		pass string
+		res  bool
+	}{
+		{
+			"ok",
+			"289!asdKeqvas!~",
+			true,
+		},
+		{
+
+			"bad",
+			"IK0exasdF!",
+			false,
+		},
+		{
+
+			"bad2",
+			"123",
+			false,
+		},
+	}
+
+	for _, test := range testData {
+		t.Run(test.name, func(t *testing.T) {
+			ok := domain.ValidateEncryptionPassword(test.pass)
+			assert.Equal(t, test.res, ok)
+		})
+	}
 }
 
 func TestCheckEMailData(t *testing.T) {
@@ -344,4 +406,25 @@ func TestJWT(t *testing.T) {
 		_, err = domain.ParseJWTToken([]byte(tokenSecret), jwtTok)
 		require.ErrorIs(t, err, domain.ErrAuthDataIncorrect)
 	})
+}
+
+func TestEncryotAES256(t *testing.T) {
+	passphrase := domain.Random32ByteString()
+
+	randomText := "hello world"
+
+	encrypted, err := domain.EncryptAES256([]byte(randomText), passphrase)
+	require.NoError(t, err)
+
+	data, err := domain.DecryptAES256(encrypted, passphrase)
+	require.NoError(t, err)
+
+	require.True(t, bytes.Equal([]byte(randomText), data))
+
+	// check iv
+	encrypted2, err := domain.EncryptAES256([]byte(randomText), passphrase)
+	require.NoError(t, err)
+
+	require.False(t, bytes.Equal([]byte(encrypted), []byte(encrypted2)))
+
 }

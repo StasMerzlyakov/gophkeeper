@@ -24,7 +24,8 @@ func (da *dataAccessor) Hello(ctx context.Context, req *proto.HelloRequest) (*pr
 	}
 
 	resp := &proto.HelloResponse{
-		HelloEncrypted: dd,
+		HelloEncrypted:     dd.HelloEncrypted,
+		EncryptedMasterKey: dd.EncryptedMasterKey,
 	}
 
 	return resp, nil

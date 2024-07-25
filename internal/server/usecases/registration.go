@@ -8,9 +8,7 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
-// TODO Add WithFn
 func NewRegistrator(conf *config.ServerConf) *registrator {
-
 	reg := &registrator{
 		conf: conf,
 	}

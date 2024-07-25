@@ -41,7 +41,7 @@ func TestLoggerAdapter(t *testing.T) {
 		})
 	})
 
-	t.Run("debug_fn", func(t *testing.T) {
+	t.Run("info_fn", func(t *testing.T) {
 
 		mockLoger := NewMockLogger(ctrl)
 		mockLoger.EXPECT().Infow(gomock.Any(), gomock.Any()).Times(1).
@@ -63,7 +63,7 @@ func TestLoggerAdapter(t *testing.T) {
 		})
 	})
 
-	t.Run("debug_fn", func(t *testing.T) {
+	t.Run("error_fn", func(t *testing.T) {
 
 		mockLoger := NewMockLogger(ctrl)
 		mockLoger.EXPECT().Errorw(gomock.Any(), gomock.Any()).Times(1).

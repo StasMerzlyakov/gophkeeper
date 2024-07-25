@@ -75,9 +75,12 @@ func TestStorageOperations(t *testing.T) {
 	require.ErrorIs(t, err, domain.ErrServerInternal)
 
 	ctxWithID := domain.EnrichWithUserID(ctx, lData.UserID)
-	helloStr, err := storage.GetHelloData(ctxWithID)
+	helloData, err := storage.GetHelloData(ctxWithID)
 	require.NoError(t, err)
-	require.Equal(t, regData.HelloEncrypted, helloStr)
+	require.Equal(t, regData.HelloEncrypted, helloData.HelloEncrypted)
+	require.Equal(t, regData.EncryptedMasterKey, helloData.EncryptedMasterKey)
+
+	require.Equal(t, regData.MasterKeyHint, helloData.MasterKeyHint)
 
 	ctxWithID2 := domain.EnrichWithUserID(ctx, -1)
 	_, err = storage.GetHelloData(ctxWithID2)

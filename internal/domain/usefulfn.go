@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"image/png"
+	"io"
 	"net/mail"
 	"path/filepath"
 	"runtime"
@@ -51,6 +54,93 @@ func CheckEMailData(data *EMailData) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func ValidateAuthPassword(pass string) bool {
+	if err := pasVld.Validate(pass, minAccountPassEntropyBits); err != nil {
+		return false
+	}
+	return true
+}
+
+// Minimal client data encryption password complexity level
+// https://github.com/wagslane/go-password-validator
+const minEncryptionPassEntropyBits = 80
+
+func ValidateEncryptionPassword(pass string) bool {
+	if err := pasVld.Validate(pass, minEncryptionPassEntropyBits); err != nil {
+		return false
+	}
+	return true
+}
+
+func Random32ByteString() string {
+	//needs a randomly generated 32 character string. Exactly 32 characters. The string is 22 characters, but it's encoded to 32.
+	b := make([]byte, 22)
+	_, err := rand.Read(b)
+
+	if err != nil {
+		panic(err)
+	}
+	return base64.StdEncoding.EncodeToString(b)
+}
+
+func EncryptAES256(data []byte, passphrase string) (string, error) {
+	if len(passphrase) < 32 {
+		return "", errors.New("passphrase must be 32 bytes")
+	} else if len(passphrase) > 32 {
+		// Use the first 32 bytes.
+		passphrase = passphrase[:32]
+	}
+
+	block, err := aes.NewCipher([]byte(passphrase))
+	if err != nil {
+		return "", err
+	}
+
+	ciphertext := make([]byte, aes.BlockSize+len(data))
+	iv := ciphertext[:aes.BlockSize]
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+		return "", err
+	}
+
+	stream := cipher.NewCFBEncrypter(block, iv)
+	stream.XORKeyStream(ciphertext[aes.BlockSize:], data)
+
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
+}
+
+func DecryptAES256(ciphertext string, passphrase string) ([]byte, error) {
+	if len(passphrase) < 32 {
+		return nil, errors.New("passphrase must be 32 bytes")
+	} else if len(passphrase) > 32 {
+		// Use the first 32 bytes.
+		passphrase = passphrase[:32]
+	}
+
+	key := []byte(passphrase)
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	ciphertextBytes, err := base64.StdEncoding.DecodeString(ciphertext)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(ciphertextBytes) < aes.BlockSize {
+		return nil, errors.New("ciphertext too short")
+	}
+
+	iv := ciphertextBytes[:aes.BlockSize]
+	ciphertextBytes = ciphertextBytes[aes.BlockSize:]
+
+	stream := cipher.NewCFBDecrypter(block, iv)
+
+	stream.XORKeyStream(ciphertextBytes, ciphertextBytes)
+
+	return ciphertextBytes, nil
 }
 
 type SaltFn func(b []byte) (n int, err error)
@@ -215,8 +305,8 @@ func GenerateHello(saltFn SaltFn) (string, error) {
 
 }
 
-func CheckHello(toCheck string) (bool, error) {
-	bytes, err := base64.StdEncoding.DecodeString(toCheck)
+func CheckHello(chk string) (bool, error) {
+	bytes, err := base64.StdEncoding.DecodeString(chk)
 	if err != nil {
 		return false, fmt.Errorf("%w CheckHelloWorld decode err %s", ErrServerInternal, err.Error())
 	}

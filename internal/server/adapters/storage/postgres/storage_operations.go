@@ -46,17 +46,18 @@ func (st *storage) GetLoginData(ctx context.Context, email string) (*domain.Logi
 	}
 }
 
-func (st *storage) GetHelloData(ctx context.Context) (string, error) {
+func (st *storage) GetHelloData(ctx context.Context) (*domain.HelloData, error) {
 	userID, err := domain.GetUserID(ctx)
 	if err != nil {
-		return "", fmt.Errorf("%w userID is not set", domain.ErrServerInternal)
+		return nil, fmt.Errorf("%w userID is not set", domain.ErrServerInternal)
 	}
 
-	var helloData string
-	err = st.pPool.QueryRow(ctx, "select hello_encrypted from user_info where userId = $1", userID).Scan(&helloData)
+	var helloData domain.HelloData
+	err = st.pPool.QueryRow(ctx, "select hello_encrypted, master_key, master_hint from user_info where userId = $1", userID).
+		Scan(&helloData.HelloEncrypted, &helloData.EncryptedMasterKey, &helloData.MasterKeyHint)
 	if err != nil {
-		return "", fmt.Errorf("%w - %s", domain.ErrServerInternal, err.Error())
+		return nil, fmt.Errorf("%w - %s", domain.ErrServerInternal, err.Error())
 	} else {
-		return helloData, nil
+		return &helloData, nil
 	}
 }
