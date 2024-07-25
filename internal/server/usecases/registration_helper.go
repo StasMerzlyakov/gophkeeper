@@ -35,8 +35,8 @@ func (rg *regHelper) EncryptData(plaintext string) (string, error) {
 	return domain.EncryptData(rg.conf.ServerEncryptionKey, plaintext, rg.salfFn)
 }
 
-func (rg *regHelper) CheckPassword(pass string, hashB64 string, saltB64 string) (bool, error) {
-	return domain.CheckPassword(pass, hashB64, saltB64)
+func (rg *regHelper) ValidateAccountPass(pass string, hashB64 string, saltB64 string) (bool, error) {
+	return domain.ValidateAccountPass(pass, hashB64, saltB64)
 }
 
 func (rg *regHelper) DecryptData(ciphertext string) (string, error) {

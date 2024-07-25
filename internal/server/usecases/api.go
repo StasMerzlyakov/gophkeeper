@@ -41,11 +41,10 @@ type RegistrationHelper interface {
 	GenerateQR(accountName string) (string, []byte, error)
 	EncryptData(plaintext string) (string, error)
 	DecryptData(ciphertext string) (string, error)
-	CheckPassword(pass string, hashB64 string, saltB64 string) (bool, error)
+	ValidateAccountPass(pass string, hashB64 string, saltB64 string) (bool, error)
 	NewSessionID() domain.SessionID
 	ValidatePassCode(keyURL string, passcode string) (bool, error)
 	GenerateHello() (string, error)
-	CheckHello(toCheck string) (bool, error)
 	CreateJWTToken(userID domain.UserID) (domain.JWTToken, error)
 	ParseJWTToken(jwtToken domain.JWTToken) (domain.UserID, error)
 }

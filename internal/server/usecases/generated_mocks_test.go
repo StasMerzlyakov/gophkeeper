@@ -250,36 +250,6 @@ func (mr *MockRegistrationHelperMockRecorder) CheckEMailData(arg0 interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckEMailData", reflect.TypeOf((*MockRegistrationHelper)(nil).CheckEMailData), arg0)
 }
 
-// CheckHello mocks base method.
-func (m *MockRegistrationHelper) CheckHello(arg0 string) (bool, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckHello", arg0)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CheckHello indicates an expected call of CheckHello.
-func (mr *MockRegistrationHelperMockRecorder) CheckHello(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckHello", reflect.TypeOf((*MockRegistrationHelper)(nil).CheckHello), arg0)
-}
-
-// CheckPassword mocks base method.
-func (m *MockRegistrationHelper) CheckPassword(arg0, arg1, arg2 string) (bool, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckPassword", arg0, arg1, arg2)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CheckPassword indicates an expected call of CheckPassword.
-func (mr *MockRegistrationHelperMockRecorder) CheckPassword(arg0, arg1, arg2 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckPassword", reflect.TypeOf((*MockRegistrationHelper)(nil).CheckPassword), arg0, arg1, arg2)
-}
-
 // CreateJWTToken mocks base method.
 func (m *MockRegistrationHelper) CreateJWTToken(arg0 domain.UserID) (domain.JWTToken, error) {
 	m.ctrl.T.Helper()
@@ -398,6 +368,21 @@ func (m *MockRegistrationHelper) ParseJWTToken(arg0 domain.JWTToken) (domain.Use
 func (mr *MockRegistrationHelperMockRecorder) ParseJWTToken(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseJWTToken", reflect.TypeOf((*MockRegistrationHelper)(nil).ParseJWTToken), arg0)
+}
+
+// ValidateAccountPass mocks base method.
+func (m *MockRegistrationHelper) ValidateAccountPass(arg0, arg1, arg2 string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ValidateAccountPass", arg0, arg1, arg2)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ValidateAccountPass indicates an expected call of ValidateAccountPass.
+func (mr *MockRegistrationHelperMockRecorder) ValidateAccountPass(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateAccountPass", reflect.TypeOf((*MockRegistrationHelper)(nil).ValidateAccountPass), arg0, arg1, arg2)
 }
 
 // ValidatePassCode mocks base method.

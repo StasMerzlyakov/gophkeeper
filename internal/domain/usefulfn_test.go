@@ -41,7 +41,7 @@ func TestValidateAuthPassword(t *testing.T) {
 
 	for _, test := range testData {
 		t.Run(test.name, func(t *testing.T) {
-			ok := domain.ValidateAuthPassword(test.pass)
+			ok := domain.CheckAuthPasswordComplexityLevel(test.pass)
 			assert.Equal(t, test.res, ok)
 		})
 	}
@@ -153,7 +153,7 @@ func TestPasswordOperation(t *testing.T) {
 		assert.Equal(t, "In+BZhwpWKZH/S1QtMWcAOONZcrO9jVDaMDoJqgOfWM=", hash.Hash)
 		assert.Equal(t, "AAECAwQFBgcICQoLDA0ODw==", hash.Salt)
 
-		ok, err := domain.CheckPassword(pass, hash.Hash, hash.Salt)
+		ok, err := domain.ValidateAccountPass(pass, hash.Hash, hash.Salt)
 		require.NoError(t, err)
 		assert.True(t, ok)
 	})
@@ -167,19 +167,19 @@ func TestPasswordOperation(t *testing.T) {
 	})
 
 	t.Run("errHashDecode", func(t *testing.T) {
-		ok, err := domain.CheckPassword("", "In+BZhwpWKZH/S1QtMWcAOONZcrO9jVDaMDoJqgOfWM", "")
+		ok, err := domain.ValidateAccountPass("", "In+BZhwpWKZH/S1QtMWcAOONZcrO9jVDaMDoJqgOfWM", "")
 		require.False(t, ok)
 		assert.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 	})
 
 	t.Run("errHashDecode", func(t *testing.T) {
-		ok, err := domain.CheckPassword("", "In+BZhwpWKZH/S1QtMWcAOONZcrO9jVDaMDoJqgOfWM=", "AAECAwQFBgcICQoLDA0ODw=")
+		ok, err := domain.ValidateAccountPass("", "In+BZhwpWKZH/S1QtMWcAOONZcrO9jVDaMDoJqgOfWM=", "AAECAwQFBgcICQoLDA0ODw=")
 		require.False(t, ok)
 		assert.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 	})
 
 	t.Run("password incorrect", func(t *testing.T) {
-		ok, err := domain.CheckPassword("123456789", "In+BZhwpWKZH/S1QtMWcAOONZcrO9jVDaMDoJqgOfWM=", "AAECAwQFBgcICQoLDA0ODw==")
+		ok, err := domain.ValidateAccountPass("123456789", "In+BZhwpWKZH/S1QtMWcAOONZcrO9jVDaMDoJqgOfWM=", "AAECAwQFBgcICQoLDA0ODw==")
 		require.ErrorIs(t, err, domain.ErrAuthDataIncorrect)
 		assert.False(t, ok)
 	})
@@ -188,19 +188,19 @@ func TestPasswordOperation(t *testing.T) {
 func TestCheckServerSecretKey(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		secretKey := "N1PCdw3M2B1TfJhoaY2mL736p2vCUc47"
-		err := domain.CheckServerSecretKey(secretKey)
+		err := domain.CheckServerSecretKeyComplexityLevel(secretKey)
 		require.NoError(t, err)
 	})
 
 	t.Run("wong length", func(t *testing.T) {
 		secretKey := "N1PCdw3M2B1TfJhoaY2mL736p2vC"
-		err := domain.CheckServerSecretKey(secretKey)
+		err := domain.CheckServerSecretKeyComplexityLevel(secretKey)
 		require.Error(t, err)
 	})
 
 	t.Run("simple pass", func(t *testing.T) {
 		secretKey := "12341234123412341234123412341234"
-		err := domain.CheckServerSecretKey(secretKey)
+		err := domain.CheckServerSecretKeyComplexityLevel(secretKey)
 		require.Error(t, err)
 	})
 }

@@ -40,7 +40,7 @@ func TestAuthentification_Login(t *testing.T) {
 		mockHelper := NewMockRegistrationHelper(ctrl)
 		mockHelper.EXPECT().NewSessionID().Times(1).Return(sessionID)
 
-		mockHelper.EXPECT().CheckPassword(gomock.Eq(data.Password),
+		mockHelper.EXPECT().ValidateAccountPass(gomock.Eq(data.Password),
 			gomock.Eq(loginData.PasswordHash),
 			gomock.Eq(loginData.PasswordSalt)).Times(1).
 			Return(true, nil)
@@ -100,7 +100,7 @@ func TestAuthentification_Login(t *testing.T) {
 		mockHelper := NewMockRegistrationHelper(ctrl)
 
 		testErr := errors.New("testErr")
-		mockHelper.EXPECT().CheckPassword(gomock.Eq(data.Password),
+		mockHelper.EXPECT().ValidateAccountPass(gomock.Eq(data.Password),
 			gomock.Eq(loginData.PasswordHash),
 			gomock.Eq(loginData.PasswordSalt)).Times(1).
 			Return(false, testErr)
@@ -129,7 +129,7 @@ func TestAuthentification_Login(t *testing.T) {
 
 		mockHelper := NewMockRegistrationHelper(ctrl)
 
-		mockHelper.EXPECT().CheckPassword(gomock.Eq(data.Password),
+		mockHelper.EXPECT().ValidateAccountPass(gomock.Eq(data.Password),
 			gomock.Eq(loginData.PasswordHash),
 			gomock.Eq(loginData.PasswordSalt)).Times(1).
 			Return(false, nil)
@@ -161,7 +161,7 @@ func TestAuthentification_Login(t *testing.T) {
 		mockHelper := NewMockRegistrationHelper(ctrl)
 		mockHelper.EXPECT().NewSessionID().Times(1).Return(sessionID)
 
-		mockHelper.EXPECT().CheckPassword(gomock.Eq(data.Password),
+		mockHelper.EXPECT().ValidateAccountPass(gomock.Eq(data.Password),
 			gomock.Eq(loginData.PasswordHash),
 			gomock.Eq(loginData.PasswordSalt)).Times(1).
 			Return(true, nil)

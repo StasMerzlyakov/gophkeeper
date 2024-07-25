@@ -46,9 +46,9 @@ func (auth *auth) Login(ctx context.Context, data *domain.EMailData) (domain.Ses
 		return "", fmt.Errorf("login - GetLoginData err %w", err)
 	}
 
-	ok, err := auth.regHelper.CheckPassword(data.Password, loginData.PasswordHash, loginData.PasswordSalt)
+	ok, err := auth.regHelper.ValidateAccountPass(data.Password, loginData.PasswordHash, loginData.PasswordSalt)
 	if err != nil {
-		return "", fmt.Errorf("login - CheckPassword err %w", err)
+		return "", fmt.Errorf("login - ValidateAccountPass err %w", err)
 	}
 
 	if !ok {

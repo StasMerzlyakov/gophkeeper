@@ -56,7 +56,8 @@ func CheckEMailData(data *EMailData) (bool, error) {
 	return true, nil
 }
 
-func ValidateAuthPassword(pass string) bool {
+// CheckAuthPasswordComplexityLevel used to check auth pass
+func CheckAuthPasswordComplexityLevel(pass string) bool {
 	if err := pasVld.Validate(pass, minAccountPassEntropyBits); err != nil {
 		return false
 	}
@@ -85,6 +86,8 @@ func Random32ByteString() string {
 	return base64.StdEncoding.EncodeToString(b)
 }
 
+// EncryptAES256 encrypt data on password
+// https://www.codemio.com/2023/05/advanced-golang-tutorials-aes-256.html
 func EncryptAES256(data []byte, passphrase string) (string, error) {
 	if len(passphrase) < 32 {
 		return "", errors.New("passphrase must be 32 bytes")
@@ -110,6 +113,7 @@ func EncryptAES256(data []byte, passphrase string) (string, error) {
 	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
+// DecryptAES256 data on password
 func DecryptAES256(ciphertext string, passphrase string) ([]byte, error) {
 	if len(passphrase) < 32 {
 		return nil, errors.New("passphrase must be 32 bytes")
@@ -145,6 +149,7 @@ func DecryptAES256(ciphertext string, passphrase string) ([]byte, error) {
 
 type SaltFn func(b []byte) (n int, err error)
 
+// HashPassword has user password
 func HashPassword(pass string, saltFn SaltFn) (*HashData, error) {
 	salt := make([]byte, SaltSize)
 	if _, err := saltFn(salt); err != nil {
@@ -169,7 +174,8 @@ func HashPassword(pass string, saltFn SaltFn) (*HashData, error) {
 // https://github.com/wagslane/go-password-validator
 const minSecretKeyPassEntropyBits = 120
 
-func CheckServerSecretKey(pass string) error {
+// CheckServerSecretKeyComplexityLevel check server secret key complexity level
+func CheckServerSecretKeyComplexityLevel(pass string) error {
 	if len(pass) != 2*aes.BlockSize {
 		return fmt.Errorf("wrong secret key length, expected %d", 2*aes.BlockSize)
 	}
@@ -181,7 +187,8 @@ func CheckServerSecretKey(pass string) error {
 	return nil
 }
 
-func CheckPassword(pass string, hashB64 string, saltB64 string) (bool, error) {
+// ValidateAccountPass check server secret key complexity level
+func ValidateAccountPass(pass string, hashB64 string, saltB64 string) (bool, error) {
 	hash, err := base64.StdEncoding.DecodeString(hashB64)
 	if err != nil {
 		return false, fmt.Errorf("%w - hash decoding error %s", ErrClientDataIncorrect, err.Error())

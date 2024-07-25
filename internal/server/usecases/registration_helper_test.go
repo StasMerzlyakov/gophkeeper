@@ -37,7 +37,7 @@ func TestRegistrationHelper(t *testing.T) {
 		assert.Equal(t, "In+BZhwpWKZH/S1QtMWcAOONZcrO9jVDaMDoJqgOfWM=", hash.Hash)
 		assert.Equal(t, "AAECAwQFBgcICQoLDA0ODw==", hash.Salt)
 
-		ok, err := helper.CheckPassword(pass, hash.Hash, hash.Salt)
+		ok, err := helper.ValidateAccountPass(pass, hash.Hash, hash.Salt)
 		require.NoError(t, err)
 		assert.True(t, ok)
 	})
