@@ -1,7 +1,10 @@
 package config_test
 
 import (
+	"flag"
+	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -10,10 +13,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const TestFileDirectory = "../../testdata"
+
+const errorHandling = flag.ErrorHandling(4) // хак для игнорирования флагов запуска тестов
+
 func TestLoadServConf(t *testing.T) {
 
 	t.Run("default values", func(t *testing.T) {
-		conf, err := config.LoadServConf()
+		flagSet := flag.NewFlagSet(t.Name(), errorHandling)
+		conf, err := config.LoadServConf(flagSet)
 		require.NoError(t, err)
 
 		assert.Equal(t, config.ServerDefaultPort, conf.Port)
@@ -37,27 +45,55 @@ func TestLoadServConf(t *testing.T) {
 	})
 
 	t.Run("env values", func(t *testing.T) {
-		os.Setenv("PORT", ":9191")
-		os.Setenv("TLS_KEY", "test.key")
-		os.Setenv("TLS_CERT", "test.cert")
+		defer os.Clearenv()
+		err := os.Setenv("PORT", ":9191")
+		require.NoError(t, err)
 
-		os.Setenv("JWT_EXP", "1h")
-		os.Setenv("JWT_SECRET", "pass")
-		os.Setenv("AUTH_STAGE_TIMEOUT", "4m")
+		err = os.Setenv("TLS_KEY", "test.key")
+		require.NoError(t, err)
 
-		os.Setenv("SERVER_ENCRYPTION_KEY", "key")
-		os.Setenv("DOMAIN_NAME", "example.com")
+		err = os.Setenv("TLS_CERT", "test.cert")
+		require.NoError(t, err)
 
-		os.Setenv("SMTP_HOST", "127.0.0.1")
-		os.Setenv("SMTP_PORT", "26")
-		os.Setenv("SERVER_EMAIL", "gopheer@localhost")
+		err = os.Setenv("JWT_EXP", "1h")
+		require.NoError(t, err)
 
-		os.Setenv("DATABASE_URI", "db_uri")
-		os.Setenv("DATABASE_MAX_CONNS", "3")
-		os.Setenv("DATABASE_MAX_CONN_LIFE_TIME", "1m")
-		os.Setenv("DATABASE_MAX_CONN_IDLE_TIME", "2m")
+		err = os.Setenv("JWT_SECRET", "pass")
+		require.NoError(t, err)
 
-		conf, err := config.LoadServConf()
+		err = os.Setenv("AUTH_STAGE_TIMEOUT", "4m")
+		require.NoError(t, err)
+
+		err = os.Setenv("SERVER_ENCRYPTION_KEY", "key")
+		require.NoError(t, err)
+
+		err = os.Setenv("DOMAIN_NAME", "example.com")
+		require.NoError(t, err)
+
+		err = os.Setenv("SMTP_HOST", "127.0.0.1")
+		require.NoError(t, err)
+
+		err = os.Setenv("SMTP_PORT", "26")
+		require.NoError(t, err)
+
+		err = os.Setenv("SERVER_EMAIL", "gopheer@localhost")
+		require.NoError(t, err)
+
+		err = os.Setenv("DATABASE_URI", "db_uri")
+		require.NoError(t, err)
+
+		err = os.Setenv("DATABASE_MAX_CONNS", "3")
+		require.NoError(t, err)
+
+		err = os.Setenv("DATABASE_MAX_CONN_LIFE_TIME", "1m")
+		require.NoError(t, err)
+
+		err = os.Setenv("DATABASE_MAX_CONN_IDLE_TIME", "2m")
+		require.NoError(t, err)
+
+		flagSet := flag.NewFlagSet(t.Name(), errorHandling)
+		conf, err := config.LoadServConf(flagSet)
+
 		require.NoError(t, err)
 
 		assert.Equal(t, ":9191", conf.Port)
@@ -78,14 +114,78 @@ func TestLoadServConf(t *testing.T) {
 		assert.Equal(t, 3, conf.MaxConns)
 		assert.Equal(t, 1*time.Minute, conf.MaxConnLifetime)
 		assert.Equal(t, 2*time.Minute, conf.MaxConnIdleTime)
+	})
 
+	t.Run("env rewrite", func(t *testing.T) {
+		err := os.Setenv("PORT", ":9191")
+		require.NoError(t, err)
+
+		defer os.Clearenv()
+		testConfPath := filepath.Join(TestFileDirectory, "serverConf.json")
+
+		currentArgs := os.Args[:]
+		defer func() {
+			os.Args = currentArgs
+		}()
+
+		os.Args = []string{t.Name(), fmt.Sprintf("-config=%v", testConfPath)}
+		flagSet := flag.NewFlagSet(t.Name(), errorHandling)
+		conf, err := config.LoadServConf(flagSet)
+
+		require.NoError(t, err)
+
+		assert.Equal(t, ":9191", conf.Port)
 	})
 
 	t.Run("err", func(t *testing.T) {
-		os.Setenv("SMTP_PORT", "26asdasd")
+		err := os.Setenv("SMTP_PORT", "26asdasd")
+		require.NoError(t, err)
 
-		conf, err := config.LoadServConf()
+		defer os.Clearenv()
+
+		flagSet := flag.NewFlagSet(t.Name(), errorHandling)
+		conf, err := config.LoadServConf(flagSet)
+
 		require.Nil(t, conf)
 		require.Error(t, err)
 	})
+}
+
+func TestFlag1(t *testing.T) {
+	testConfPath := filepath.Join(TestFileDirectory, "serverConf.json")
+
+	currentArgs := os.Args[:]
+	defer func() {
+		os.Args = currentArgs
+	}()
+
+	os.Args = []string{t.Name(), fmt.Sprintf("-config=%v", testConfPath)}
+	flagSet := flag.NewFlagSet(t.Name(), errorHandling)
+	conf, err := config.LoadServConf(flagSet)
+
+	require.NoError(t, err)
+
+	assert.Equal(t, ":9192", conf.Port)
+}
+
+func TestFlag2(t *testing.T) {
+
+	err := os.Setenv("PORT", ":9191")
+	require.NoError(t, err)
+
+	defer os.Clearenv()
+	testConfPath := filepath.Join(TestFileDirectory, "serverConf.json")
+
+	currentArgs := os.Args[:]
+	defer func() {
+		os.Args = currentArgs
+	}()
+
+	os.Args = []string{t.Name(), fmt.Sprintf("-config=%v", testConfPath)}
+	flagSet := flag.NewFlagSet(t.Name(), errorHandling)
+	conf, err := config.LoadServConf(flagSet)
+
+	require.NoError(t, err)
+
+	assert.Equal(t, ":9191", conf.Port)
 }

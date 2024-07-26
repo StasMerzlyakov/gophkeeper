@@ -72,7 +72,9 @@ func (h *handler) JWTToken() string {
 }
 
 func (h *handler) Stop() {
-	h.conn.Close()
+	if err := h.conn.Close(); err != nil {
+		panic(err)
+	}
 }
 
 func (h *handler) CheckEMail(ctx context.Context, email string) (domain.EMailStatus, error) {
@@ -190,7 +192,11 @@ func loadTLSCredentials(caFile string) (credentials.TransportCredentials, error)
 		return nil, err
 	}
 
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			panic(err)
+		}
+	}()
 
 	pemServerCA, err := io.ReadAll(file)
 	if err != nil {

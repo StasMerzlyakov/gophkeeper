@@ -82,7 +82,7 @@ func (st *storage) init(ctx context.Context, logger domain.Logger) error {
 	}()
 
 	if _, err = tx.Exec(ctx, `
-	create table user_info (
+	create table if not exists user_info (
 		userId bigserial,
 		email text not null,
 		pass_hash text not null,
@@ -96,7 +96,7 @@ func (st *storage) init(ctx context.Context, logger domain.Logger) error {
 		panic(err)
 	}
 
-	if _, err = tx.Exec(ctx, `create unique index idx_user_info_email on user_info(email);`); err != nil {
+	if _, err = tx.Exec(ctx, `create unique index if not exists idx_user_info_email on user_info(email);`); err != nil {
 		panic(err)
 	}
 

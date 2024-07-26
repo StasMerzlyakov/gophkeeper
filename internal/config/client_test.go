@@ -20,8 +20,12 @@ func TestClientConf(t *testing.T) {
 	})
 
 	t.Run("env values", func(t *testing.T) {
-		os.Setenv("SERVER_ADDRESS", "http://test")
-		os.Setenv("CA_CERT", "ca.cert")
+		err := os.Setenv("SERVER_ADDRESS", "http://test")
+
+		require.NoError(t, err)
+
+		err = os.Setenv("CA_CERT", "ca.cert")
+		require.NoError(t, err)
 
 		conf, err := config.LoadClientConf()
 		require.NoError(t, err)

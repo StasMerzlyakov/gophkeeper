@@ -172,9 +172,6 @@ const minSecretKeyPassEntropyBits = 120
 
 // CheckServerSecretKeyComplexityLevel check server secret key complexity level
 func CheckServerSecretKeyComplexityLevel(pass string) error {
-	if len(pass) != 2*aes.BlockSize {
-		return fmt.Errorf("wrong secret key length, expected %d", 2*aes.BlockSize)
-	}
 
 	if err := pasVld.Validate(pass, minSecretKeyPassEntropyBits); err != nil {
 		return fmt.Errorf("secret key too simple %w", err)

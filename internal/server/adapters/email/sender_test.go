@@ -20,13 +20,16 @@ func TestSendMail(t *testing.T) {
 	hostAddress, portNumber := "127.0.0.1", mockServer.PortNumber()
 
 	serverEmail := "gookeeper@localdomain.ru"
-	clientEmail := "st.merzlyakov@yandex.ru"
+	clientEmail := "user1@yandex.ru"
 
 	qrFile := filepath.Join(TestDataDirectory, "QR.png")
 
 	fl, err := os.Open(qrFile)
 	require.NoError(t, err)
-	defer fl.Close()
+	defer func() {
+		err := fl.Close()
+		require.NoError(t, err)
+	}()
 
 	qr, err := io.ReadAll(fl)
 	require.NoError(t, err)
@@ -38,19 +41,24 @@ func TestSendMail(t *testing.T) {
 	}
 
 	emailSender := email.NewSender(conf)
+	defer func() {
+		_ = emailSender.Close() // It is possible connection already closed on error
+	}()
 
 	ctx := context.Background()
 
 	err = emailSender.Connect(ctx)
 	require.NoError(t, err)
-	defer emailSender.Close()
 
 	err = emailSender.Send(ctx, clientEmail, qr)
 	require.NoError(t, err)
 
+	err = emailSender.Close()
+	require.NoError(t, err)
+
 	time.Sleep(2 * time.Second)
 
-	msgs := mockServer.Messages()
+	msgs := mockServer.MessagesAndPurge()
 	require.True(t, len(msgs) == 1)
 }
 
@@ -65,7 +73,11 @@ func TestSendMailErr(t *testing.T) {
 
 	fl, err := os.Open(qrFile)
 	require.NoError(t, err)
-	defer fl.Close()
+
+	defer func() {
+		err := fl.Close()
+		require.NoError(t, err)
+	}()
 
 	qr, err := io.ReadAll(fl)
 	require.NoError(t, err)
@@ -82,7 +94,10 @@ func TestSendMailErr(t *testing.T) {
 
 	err = emailSender.Connect(ctx)
 	require.NoError(t, err)
-	defer emailSender.Close()
+	defer func() {
+		err := emailSender.Close()
+		require.NoError(t, err)
+	}()
 
 	err = emailSender.Send(ctx, clientEmail, qr)
 	require.Error(t, err)

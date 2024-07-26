@@ -16,7 +16,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/jingyugao/rowserrcheck/passes/rowserr"
@@ -69,14 +68,14 @@ func main() {
 	var analyzers []*analysis.Analyzer
 	var cfg ConfigData
 
-	ex, err := os.Executable()
+	/*ex, err := os.Executable()
 	if err != nil {
 		panic(err)
 	}
 
 	exPath := filepath.Dir(ex)
 	confFilePath := filepath.Join(exPath, ConfigX)
-	fmt.Println(confFilePath)
+	fmt.Println(confFilePath)*/
 
 	data, err := os.ReadFile(ConfigX)
 	if err != nil {

@@ -26,10 +26,14 @@ func TestRegistrator_Regisration(t *testing.T) {
 	qrFilePath := filepath.Join(TestDataDirectory, "QR.png")
 	qrFile, err := os.Open(qrFilePath)
 	require.NoError(t, err)
-	defer qrFile.Close()
+
+	defer func() {
+		err := qrFile.Close()
+		require.NoError(t, err)
+	}()
+
 	qr, err := io.ReadAll(qrFile)
 	require.NoError(t, err)
-	qrFile.Close()
 
 	t.Run("ok", func(t *testing.T) {
 		conf := &config.ServerConf{

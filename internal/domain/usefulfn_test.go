@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
@@ -220,10 +221,10 @@ func TestCheckServerSecretKey(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("wong length", func(t *testing.T) {
-		secretKey := "N1PCdw3M2B1TfJhoaY2mL736p2vC"
+	t.Run("default_ok", func(t *testing.T) {
+		secretKey := config.ServerDefaultServerEncryptionKey
 		err := domain.CheckServerSecretKeyComplexityLevel(secretKey)
-		require.Error(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("simple pass", func(t *testing.T) {

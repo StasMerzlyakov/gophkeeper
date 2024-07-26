@@ -104,7 +104,11 @@ func getFreePort() (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer l.Close()
+	defer func() {
+		if err := l.Close(); err != nil {
+			panic(err)
+		}
+	}()
 	return l.Addr().(*net.TCPAddr).Port, nil
 }
 
@@ -115,7 +119,12 @@ func loadTLSCredentials(caFile string) (credentials.TransportCredentials, error)
 		return nil, err
 	}
 
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			panic(err)
+		}
+
+	}()
 
 	pemServerCA, err := io.ReadAll(file)
 	if err != nil {

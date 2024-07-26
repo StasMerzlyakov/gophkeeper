@@ -16,6 +16,7 @@ func NewSender(conf *config.ServerConf) *sender {
 	server := mail.NewSMTPClient()
 	server.Host = conf.SMTPHost
 	server.Port = conf.SMTPPort
+	server.KeepAlive = true
 
 	return &sender{
 		conf:   conf,
@@ -38,8 +39,9 @@ func (snd *sender) Connect(ctx context.Context) error {
 	return snd.connectErr
 }
 
-func (snd *sender) Close() {
-	snd.client.Close()
+func (snd *sender) Close() error {
+	// quit sends the QUIT command and closes the connection to the server.
+	return snd.client.Quit()
 }
 
 const htmlBody = `<html>
