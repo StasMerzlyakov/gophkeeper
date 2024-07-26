@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     container: golangci-lint-sbk:v1.59.0
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Vet tests
         run: |
           go vet ./...
