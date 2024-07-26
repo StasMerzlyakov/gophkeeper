@@ -27,28 +27,28 @@ func (rg *regHelper) HashPassword(pass string) (*domain.HashData, error) {
 	return domain.HashPassword(pass, rg.salfFn)
 }
 
-func (rg *regHelper) GenerateQR(accountName string) (string, []byte, error) {
-	return domain.GenerateQR(rg.conf.DomainName, accountName)
+func (rg *regHelper) GenerateQR(userEmail string) (string, []byte, error) {
+	return domain.GenerateQR(rg.conf.DomainName, userEmail)
 }
 
-func (rg *regHelper) EncryptData(plaintext string) (string, error) {
-	return domain.EncryptData(rg.conf.ServerEncryptionKey, plaintext, rg.salfFn)
+func (rg *regHelper) EncryptOTPKey(plaintext string) (string, error) {
+	return domain.EncryptOTPKey(rg.conf.ServerEncryptionKey, plaintext, rg.salfFn)
 }
 
 func (rg *regHelper) ValidateAccountPass(pass string, hashB64 string, saltB64 string) (bool, error) {
 	return domain.ValidateAccountPass(pass, hashB64, saltB64)
 }
 
-func (rg *regHelper) DecryptData(ciphertext string) (string, error) {
-	return domain.DecryptData(rg.conf.ServerEncryptionKey, ciphertext)
+func (rg *regHelper) DecryptOTPKey(ciphertext string) (string, error) {
+	return domain.DecryptOTPKey(rg.conf.ServerEncryptionKey, ciphertext)
 }
 
 func (rg *regHelper) NewSessionID() domain.SessionID {
 	return domain.SessionID(uuid.NewString())
 }
 
-func (rg *regHelper) ValidatePassCode(keyURL string, passcode string) (bool, error) {
-	return domain.ValidatePassCode(keyURL, passcode)
+func (rg *regHelper) ValidateOTPCode(keyURL string, passcode string) (bool, error) {
+	return domain.ValidateOTPCode(keyURL, passcode)
 }
 
 func (rg *regHelper) GenerateHello() (string, error) {

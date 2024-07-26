@@ -76,12 +76,12 @@ func (auth *auth) CheckOTP(ctx context.Context, currentID domain.SessionID, otpP
 		return "", fmt.Errorf("checkOTP err - %w", err)
 	}
 
-	otpKeyUrl, err := auth.regHelper.DecryptData(authData.EncryptedOTPKey)
+	otpKey, err := auth.regHelper.DecryptOTPKey(authData.EncryptedOTPKey)
 	if err != nil {
 		return "", fmt.Errorf("checkOTP err - %w", err)
 	}
 
-	ok, err = auth.regHelper.ValidatePassCode(otpKeyUrl, otpPass)
+	ok, err = auth.regHelper.ValidateOTPCode(otpKey, otpPass)
 	if err != nil {
 		return "", fmt.Errorf("checkOTP err - %w", err)
 	}

@@ -55,21 +55,21 @@ func TestRegistrationHelper(t *testing.T) {
 	})
 
 	t.Run("generate_qr", func(t *testing.T) {
-		accountName := "accountName"
+		userEmail := "userEmail"
 
-		key, png, err := helper.GenerateQR(accountName)
+		key, png, err := helper.GenerateQR(userEmail)
 		require.NoError(t, err)
 		require.NotEmpty(t, key)
 		require.NotNil(t, png)
 	})
 
-	t.Run("encrypt_decrypt", func(t *testing.T) {
+	t.Run("encrypt_decrypt_otp", func(t *testing.T) {
 		plainText := "testTestTest123"
-		cipherText, err := helper.EncryptData(plainText)
+		cipherText, err := helper.EncryptOTPKey(plainText)
 		require.NoError(t, err)
 		require.True(t, len(cipherText) > 0)
 
-		text, err := helper.DecryptData(cipherText)
+		text, err := helper.DecryptOTPKey(cipherText)
 		require.NoError(t, err)
 		require.Equal(t, plainText, text)
 	})
@@ -80,9 +80,9 @@ func TestRegistrationHelper(t *testing.T) {
 	})
 
 	t.Run("valudate_pass", func(t *testing.T) {
-		accountName := "accountName"
+		userEmail := "userEmail"
 
-		keyURL, _, err := helper.GenerateQR(accountName)
+		keyURL, _, err := helper.GenerateQR(userEmail)
 
 		require.NoError(t, err)
 
@@ -97,7 +97,7 @@ func TestRegistrationHelper(t *testing.T) {
 		passcode, err := totp.GenerateCodeCustom(key.Secret(), time.Now(), validOpts)
 		require.NoError(t, err)
 
-		ok, err := helper.ValidatePassCode(keyURL, passcode)
+		ok, err := helper.ValidateOTPCode(keyURL, passcode)
 		require.NoError(t, err)
 
 		assert.True(t, ok)

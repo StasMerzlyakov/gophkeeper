@@ -19,7 +19,7 @@ func TestGetAction(t *testing.T) {
 	require.Equal(t, "domain_test.TestGetAction", val)
 }
 
-func TestValidateAuthPassword(t *testing.T) {
+func TestCheckAuthPasswordComplexityLevel(t *testing.T) {
 	testData := []struct {
 		name string
 		pass string
@@ -47,7 +47,7 @@ func TestValidateAuthPassword(t *testing.T) {
 	}
 }
 
-func TestValidateEncryptionPassword(t *testing.T) {
+func TestCheckMasterKeyPasswordComplexityLevel(t *testing.T) {
 	testData := []struct {
 		name string
 		pass string
@@ -74,8 +74,36 @@ func TestValidateEncryptionPassword(t *testing.T) {
 
 	for _, test := range testData {
 		t.Run(test.name, func(t *testing.T) {
-			ok := domain.ValidateEncryptionPassword(test.pass)
+			ok := domain.CheckMasterKeyPasswordComplexityLevel(test.pass)
 			assert.Equal(t, test.res, ok)
+		})
+	}
+}
+
+func TestParseEMail(t *testing.T) {
+	testData := []struct {
+		name  string
+		email string
+		ok    bool
+	}{
+		{
+
+			"ok",
+			"test@gmail.com",
+			true,
+		},
+		{
+
+			"email bad",
+			"test",
+			false,
+		},
+	}
+
+	for _, test := range testData {
+		t.Run(test.name, func(t *testing.T) {
+			res := domain.ParseEMail(test.email)
+			assert.Equal(t, test.ok, res)
 		})
 	}
 }
@@ -210,11 +238,11 @@ func TestEncryptDecrypt(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		secretKey := "N1PCdw3M2B1TfJhoaY2mL736p2vCUc47"
 		plainText := "testTestTest123"
-		cipherText, err := domain.EncryptData(secretKey, plainText, testOKSaltFn)
+		cipherText, err := domain.EncryptOTPKey(secretKey, plainText, testOKSaltFn)
 		require.NoError(t, err)
 		require.True(t, len(cipherText) > 0)
 
-		text, err := domain.DecryptData(secretKey, cipherText)
+		text, err := domain.DecryptOTPKey(secretKey, cipherText)
 		require.NoError(t, err)
 		require.Equal(t, plainText, text)
 	})
@@ -222,7 +250,7 @@ func TestEncryptDecrypt(t *testing.T) {
 	t.Run("wrong pass encr", func(t *testing.T) {
 		secretKey := "N1PCdw3M2B1TfJhoaY2mL736p2vCUc4"
 		plainText := "testTestTest123"
-		cipherText, err := domain.EncryptData(secretKey, plainText, testOKSaltFn)
+		cipherText, err := domain.EncryptOTPKey(secretKey, plainText, testOKSaltFn)
 		require.ErrorIs(t, err, domain.ErrServerInternal)
 		assert.True(t, len(cipherText) == 0)
 	})
@@ -230,11 +258,11 @@ func TestEncryptDecrypt(t *testing.T) {
 	t.Run("wrong pass decr", func(t *testing.T) {
 		secretKey := "N1PCdw3M2B1TfJhoaY2mL736p2vCUc47"
 		plainText := "testTestTest123"
-		cipherText, err := domain.EncryptData(secretKey, plainText, testOKSaltFn)
+		cipherText, err := domain.EncryptOTPKey(secretKey, plainText, testOKSaltFn)
 		require.NoError(t, err)
 		require.True(t, len(cipherText) > 0)
 
-		text, err := domain.DecryptData(secretKey[2:], cipherText)
+		text, err := domain.DecryptOTPKey(secretKey[2:], cipherText)
 		require.ErrorIs(t, err, domain.ErrServerInternal)
 		assert.True(t, len(text) == 0)
 	})
@@ -242,7 +270,7 @@ func TestEncryptDecrypt(t *testing.T) {
 	t.Run("err", func(t *testing.T) {
 		secretKey := "N1PCdw3M2B1TfJhoaY2mL736p2vCUc47"
 		plainText := "testTestTest123"
-		cipherText, err := domain.EncryptData(secretKey, plainText, testErrSaltFn)
+		cipherText, err := domain.EncryptOTPKey(secretKey, plainText, testErrSaltFn)
 		assert.True(t, len(cipherText) == 0)
 		require.ErrorIs(t, err, domain.ErrServerInternal)
 	})
@@ -301,14 +329,14 @@ func TestValidate(t *testing.T) {
 		passcode, err := totp.GenerateCodeCustom(key.Secret(), time.Now(), validOpts)
 		require.NoError(t, err)
 
-		ok, err := domain.ValidatePassCode(key.URL(), passcode)
+		ok, err := domain.ValidateOTPCode(key.URL(), passcode)
 		require.NoError(t, err)
 
 		assert.True(t, ok)
 	})
 
 	t.Run("err", func(t *testing.T) {
-		_, err := domain.ValidatePassCode(":\\", "12345")
+		_, err := domain.ValidateOTPCode(":\\", "12345")
 		require.Error(t, err)
 	})
 
@@ -408,21 +436,21 @@ func TestJWT(t *testing.T) {
 	})
 }
 
-func TestEncryotAES256(t *testing.T) {
+func TestEncryptionText(t *testing.T) {
 	passphrase := domain.Random32ByteString()
 
 	randomText := "hello world"
 
-	encrypted, err := domain.EncryptAES256([]byte(randomText), passphrase)
+	encrypted, err := domain.EncryptShortData([]byte(randomText), passphrase)
 	require.NoError(t, err)
 
-	data, err := domain.DecryptAES256(encrypted, passphrase)
+	data, err := domain.DecryptShortData(encrypted, passphrase)
 	require.NoError(t, err)
 
 	require.True(t, bytes.Equal([]byte(randomText), data))
 
 	// check iv
-	encrypted2, err := domain.EncryptAES256([]byte(randomText), passphrase)
+	encrypted2, err := domain.EncryptShortData([]byte(randomText), passphrase)
 	require.NoError(t, err)
 
 	require.False(t, bytes.Equal([]byte(encrypted), []byte(encrypted2)))

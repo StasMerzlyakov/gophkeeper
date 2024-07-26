@@ -26,11 +26,11 @@ type RegView interface {
 
 type RegHelper interface {
 	ParseEMail(address string) bool
-	ValidateAuthPassword(pass string) bool
-	ValidateEncryptionPassword(pass string) bool
-	EncryptData(secretKey string, plaintext string) (string, error)
+	CheckAuthPasswordComplexityLevel(pass string) bool
+	CheckMasterKeyPasswordComplexityLevel(pass string) bool
+	EncryptMasterKey(masterKeyPass string, masterKey string) (string, error)
 	GenerateHello() (string, error)
-	EncryptAES256(data []byte, passphrase string) (string, error)
+	EncryptShortData(data []byte, masterKey string) (string, error)
 	Random32ByteString() string
 }
 
@@ -50,7 +50,7 @@ type LoginView interface {
 }
 
 type LoginHelper interface {
-	DecryptData(secretKey string, ciphertext string) (string, error)
-	DecryptAES256(ciphertext string, passphrase string) ([]byte, error)
+	DecryptMasterKey(masterKeyPass string, encryptedMasterKey string) (string, error)
+	DecryptShortData(ciphertext string, masterKey string) ([]byte, error)
 	CheckHello(chk string) (bool, error)
 }

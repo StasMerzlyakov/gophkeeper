@@ -61,7 +61,7 @@ func (reg *registrator) Registrate(ctx context.Context, data *domain.EMailData) 
 	timedCtx, fn := context.WithTimeout(ctx, reg.conf.InterationTimeout)
 	defer fn()
 
-	if !reg.helper.ValidateAuthPassword(data.Password) {
+	if !reg.helper.CheckAuthPasswordComplexityLevel(data.Password) {
 		reg.view.ShowError(fmt.Errorf("%w - password too slow", domain.ErrClientDataIncorrect))
 		return
 	}
@@ -89,13 +89,13 @@ func (reg *registrator) InitMasterKey(ctx context.Context, mKey *domain.Unencryp
 	timedCtx, fn := context.WithTimeout(ctx, reg.conf.InterationTimeout)
 	defer fn()
 
-	if !reg.helper.ValidateEncryptionPassword(mKey.MasterKeyPassword) {
+	if !reg.helper.CheckMasterKeyPasswordComplexityLevel(mKey.MasterKeyPassword) {
 		reg.view.ShowError(fmt.Errorf("%w - master key too slow", domain.ErrClientDataIncorrect))
 		return
 	}
 
 	masterKey := reg.helper.Random32ByteString()
-	encryptedMasterKey, err := reg.helper.EncryptData(mKey.MasterKeyPassword, masterKey)
+	encryptedMasterKey, err := reg.helper.EncryptMasterKey(mKey.MasterKeyPassword, masterKey)
 	if err != nil {
 		reg.view.ShowError(err)
 		return
@@ -107,7 +107,7 @@ func (reg *registrator) InitMasterKey(ctx context.Context, mKey *domain.Unencryp
 		return
 	}
 
-	helloEncr, err := reg.helper.EncryptAES256([]byte(helloStr), masterKey)
+	helloEncr, err := reg.helper.EncryptShortData([]byte(helloStr), masterKey)
 	if err != nil {
 		reg.view.ShowError(err)
 		return

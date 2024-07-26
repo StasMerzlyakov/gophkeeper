@@ -208,11 +208,11 @@ func TestCheckOTP(t *testing.T) {
 		)
 
 		mockHelper := NewMockRegistrationHelper(ctrl)
-		mockHelper.EXPECT().DecryptData(gomock.Eq(encryptedOTPKey)).Times(1).Return(
+		mockHelper.EXPECT().DecryptOTPKey(gomock.Eq(encryptedOTPKey)).Times(1).Return(
 			decryptedOTPKey, nil,
 		)
 
-		mockHelper.EXPECT().ValidatePassCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(true, nil)
+		mockHelper.EXPECT().ValidateOTPCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(true, nil)
 
 		jwtTok := domain.JWTToken("jwtTok")
 		mockHelper.EXPECT().CreateJWTToken(gomock.Eq(userID)).Times(1).Return(jwtTok, nil)
@@ -296,12 +296,12 @@ func TestCheckOTP(t *testing.T) {
 		)
 
 		mockHelper := NewMockRegistrationHelper(ctrl)
-		mockHelper.EXPECT().DecryptData(gomock.Eq(encryptedOTPKey)).Times(1).Return(
+		mockHelper.EXPECT().DecryptOTPKey(gomock.Eq(encryptedOTPKey)).Times(1).Return(
 			decryptedOTPKey, nil,
 		)
 
 		testErr := errors.New("testErr")
-		mockHelper.EXPECT().ValidatePassCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(false, testErr)
+		mockHelper.EXPECT().ValidateOTPCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(false, testErr)
 
 		auth := usecases.NewAuth(conf).TemporaryStorage(mockTempStorage).RegistrationHelper(mockHelper)
 
@@ -336,11 +336,11 @@ func TestCheckOTP(t *testing.T) {
 		)
 
 		mockHelper := NewMockRegistrationHelper(ctrl)
-		mockHelper.EXPECT().DecryptData(gomock.Eq(encryptedOTPKey)).Times(1).Return(
+		mockHelper.EXPECT().DecryptOTPKey(gomock.Eq(encryptedOTPKey)).Times(1).Return(
 			decryptedOTPKey, nil,
 		)
 
-		mockHelper.EXPECT().ValidatePassCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(false, nil)
+		mockHelper.EXPECT().ValidateOTPCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(false, nil)
 
 		auth := usecases.NewAuth(conf).TemporaryStorage(mockTempStorage).RegistrationHelper(mockHelper)
 
@@ -375,11 +375,11 @@ func TestCheckOTP(t *testing.T) {
 		)
 
 		mockHelper := NewMockRegistrationHelper(ctrl)
-		mockHelper.EXPECT().DecryptData(gomock.Eq(encryptedOTPKey)).Times(1).Return(
+		mockHelper.EXPECT().DecryptOTPKey(gomock.Eq(encryptedOTPKey)).Times(1).Return(
 			decryptedOTPKey, nil,
 		)
 
-		mockHelper.EXPECT().ValidatePassCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(true, nil)
+		mockHelper.EXPECT().ValidateOTPCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(true, nil)
 
 		testErr := errors.New("testErr")
 		mockHelper.EXPECT().CreateJWTToken(gomock.Eq(userID)).Times(1).Return(domain.JWTToken(""), testErr)

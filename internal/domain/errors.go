@@ -9,4 +9,5 @@ var (
 	ErrDataNotExists         = errors.New("data not exists error")
 	ErrAuthDataIncorrect     = errors.New("wrong auth data")
 	ErrClientDataIncorrect   = errors.New("client data incorrect")
+	ErrClientInternal        = errors.New("client implementation error")
 )

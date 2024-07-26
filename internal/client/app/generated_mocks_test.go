@@ -210,34 +210,62 @@ func (m *MockRegHelper) EXPECT() *MockRegHelperMockRecorder {
 	return m.recorder
 }
 
-// EncryptAES256 mocks base method.
-func (m *MockRegHelper) EncryptAES256(arg0 []byte, arg1 string) (string, error) {
+// CheckAuthPasswordComplexityLevel mocks base method.
+func (m *MockRegHelper) CheckAuthPasswordComplexityLevel(arg0 string) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EncryptAES256", arg0, arg1)
+	ret := m.ctrl.Call(m, "CheckAuthPasswordComplexityLevel", arg0)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// CheckAuthPasswordComplexityLevel indicates an expected call of CheckAuthPasswordComplexityLevel.
+func (mr *MockRegHelperMockRecorder) CheckAuthPasswordComplexityLevel(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckAuthPasswordComplexityLevel", reflect.TypeOf((*MockRegHelper)(nil).CheckAuthPasswordComplexityLevel), arg0)
+}
+
+// CheckMasterKeyPasswordComplexityLevel mocks base method.
+func (m *MockRegHelper) CheckMasterKeyPasswordComplexityLevel(arg0 string) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckMasterKeyPasswordComplexityLevel", arg0)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// CheckMasterKeyPasswordComplexityLevel indicates an expected call of CheckMasterKeyPasswordComplexityLevel.
+func (mr *MockRegHelperMockRecorder) CheckMasterKeyPasswordComplexityLevel(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckMasterKeyPasswordComplexityLevel", reflect.TypeOf((*MockRegHelper)(nil).CheckMasterKeyPasswordComplexityLevel), arg0)
+}
+
+// EncryptMasterKey mocks base method.
+func (m *MockRegHelper) EncryptMasterKey(arg0, arg1 string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EncryptMasterKey", arg0, arg1)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// EncryptAES256 indicates an expected call of EncryptAES256.
-func (mr *MockRegHelperMockRecorder) EncryptAES256(arg0, arg1 interface{}) *gomock.Call {
+// EncryptMasterKey indicates an expected call of EncryptMasterKey.
+func (mr *MockRegHelperMockRecorder) EncryptMasterKey(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EncryptAES256", reflect.TypeOf((*MockRegHelper)(nil).EncryptAES256), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EncryptMasterKey", reflect.TypeOf((*MockRegHelper)(nil).EncryptMasterKey), arg0, arg1)
 }
 
-// EncryptData mocks base method.
-func (m *MockRegHelper) EncryptData(arg0, arg1 string) (string, error) {
+// EncryptShortData mocks base method.
+func (m *MockRegHelper) EncryptShortData(arg0 []byte, arg1 string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EncryptData", arg0, arg1)
+	ret := m.ctrl.Call(m, "EncryptShortData", arg0, arg1)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// EncryptData indicates an expected call of EncryptData.
-func (mr *MockRegHelperMockRecorder) EncryptData(arg0, arg1 interface{}) *gomock.Call {
+// EncryptShortData indicates an expected call of EncryptShortData.
+func (mr *MockRegHelperMockRecorder) EncryptShortData(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EncryptData", reflect.TypeOf((*MockRegHelper)(nil).EncryptData), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EncryptShortData", reflect.TypeOf((*MockRegHelper)(nil).EncryptShortData), arg0, arg1)
 }
 
 // GenerateHello mocks base method.
@@ -281,34 +309,6 @@ func (m *MockRegHelper) Random32ByteString() string {
 func (mr *MockRegHelperMockRecorder) Random32ByteString() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Random32ByteString", reflect.TypeOf((*MockRegHelper)(nil).Random32ByteString))
-}
-
-// ValidateAuthPassword mocks base method.
-func (m *MockRegHelper) ValidateAuthPassword(arg0 string) bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ValidateAuthPassword", arg0)
-	ret0, _ := ret[0].(bool)
-	return ret0
-}
-
-// ValidateAuthPassword indicates an expected call of ValidateAuthPassword.
-func (mr *MockRegHelperMockRecorder) ValidateAuthPassword(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateAuthPassword", reflect.TypeOf((*MockRegHelper)(nil).ValidateAuthPassword), arg0)
-}
-
-// ValidateEncryptionPassword mocks base method.
-func (m *MockRegHelper) ValidateEncryptionPassword(arg0 string) bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ValidateEncryptionPassword", arg0)
-	ret0, _ := ret[0].(bool)
-	return ret0
-}
-
-// ValidateEncryptionPassword indicates an expected call of ValidateEncryptionPassword.
-func (mr *MockRegHelperMockRecorder) ValidateEncryptionPassword(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateEncryptionPassword", reflect.TypeOf((*MockRegHelper)(nil).ValidateEncryptionPassword), arg0)
 }
 
 // MockLoginServer is a mock of LoginServer interface.
@@ -510,32 +510,32 @@ func (mr *MockLoginHelperMockRecorder) CheckHello(arg0 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckHello", reflect.TypeOf((*MockLoginHelper)(nil).CheckHello), arg0)
 }
 
-// DecryptAES256 mocks base method.
-func (m *MockLoginHelper) DecryptAES256(arg0, arg1 string) ([]byte, error) {
+// DecryptMasterKey mocks base method.
+func (m *MockLoginHelper) DecryptMasterKey(arg0, arg1 string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DecryptAES256", arg0, arg1)
-	ret0, _ := ret[0].([]byte)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DecryptAES256 indicates an expected call of DecryptAES256.
-func (mr *MockLoginHelperMockRecorder) DecryptAES256(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DecryptAES256", reflect.TypeOf((*MockLoginHelper)(nil).DecryptAES256), arg0, arg1)
-}
-
-// DecryptData mocks base method.
-func (m *MockLoginHelper) DecryptData(arg0, arg1 string) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DecryptData", arg0, arg1)
+	ret := m.ctrl.Call(m, "DecryptMasterKey", arg0, arg1)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// DecryptData indicates an expected call of DecryptData.
-func (mr *MockLoginHelperMockRecorder) DecryptData(arg0, arg1 interface{}) *gomock.Call {
+// DecryptMasterKey indicates an expected call of DecryptMasterKey.
+func (mr *MockLoginHelperMockRecorder) DecryptMasterKey(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DecryptData", reflect.TypeOf((*MockLoginHelper)(nil).DecryptData), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DecryptMasterKey", reflect.TypeOf((*MockLoginHelper)(nil).DecryptMasterKey), arg0, arg1)
+}
+
+// DecryptShortData mocks base method.
+func (m *MockLoginHelper) DecryptShortData(arg0, arg1 string) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DecryptShortData", arg0, arg1)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DecryptShortData indicates an expected call of DecryptShortData.
+func (mr *MockLoginHelperMockRecorder) DecryptShortData(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DecryptShortData", reflect.TypeOf((*MockLoginHelper)(nil).DecryptShortData), arg0, arg1)
 }

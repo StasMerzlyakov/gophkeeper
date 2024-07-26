@@ -44,8 +44,17 @@ func GetAction(depth int) string {
 // https://github.com/wagslane/go-password-validator
 const minAccountPassEntropyBits = 30
 
+// ParseEMail check email string format
+func ParseEMail(email string) bool {
+	if _, err := mail.ParseAddress(email); err != nil {
+		return false
+	}
+	return true
+}
+
+// CheckEMailData check email string format and password entropy
 func CheckEMailData(data *EMailData) (bool, error) {
-	if _, err := mail.ParseAddress(data.EMail); err != nil {
+	if !ParseEMail(data.EMail) {
 		return false, fmt.Errorf("%w - email %s parse error", ErrClientDataIncorrect, data.EMail)
 	}
 
@@ -66,10 +75,10 @@ func CheckAuthPasswordComplexityLevel(pass string) bool {
 
 // Minimal client data encryption password complexity level
 // https://github.com/wagslane/go-password-validator
-const minEncryptionPassEntropyBits = 80
+const minMasterPasswordKeyEntropyBits = 80
 
-func ValidateEncryptionPassword(pass string) bool {
-	if err := pasVld.Validate(pass, minEncryptionPassEntropyBits); err != nil {
+func CheckMasterKeyPasswordComplexityLevel(pass string) bool {
+	if err := pasVld.Validate(pass, minMasterPasswordKeyEntropyBits); err != nil {
 		return false
 	}
 	return true
@@ -86,17 +95,11 @@ func Random32ByteString() string {
 	return base64.StdEncoding.EncodeToString(b)
 }
 
-// EncryptAES256 encrypt data on password
+// EncryptShortData encrypt data on password
 // https://www.codemio.com/2023/05/advanced-golang-tutorials-aes-256.html
-func EncryptAES256(data []byte, passphrase string) (string, error) {
-	if len(passphrase) < 32 {
-		return "", errors.New("passphrase must be 32 bytes")
-	} else if len(passphrase) > 32 {
-		// Use the first 32 bytes.
-		passphrase = passphrase[:32]
-	}
+func EncryptShortData(data []byte, masterKey string) (string, error) {
 
-	block, err := aes.NewCipher([]byte(passphrase))
+	block, err := aes.NewCipher([]byte(masterKey))
 	if err != nil {
 		return "", err
 	}
@@ -113,16 +116,9 @@ func EncryptAES256(data []byte, passphrase string) (string, error) {
 	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
-// DecryptAES256 data on password
-func DecryptAES256(ciphertext string, passphrase string) ([]byte, error) {
-	if len(passphrase) < 32 {
-		return nil, errors.New("passphrase must be 32 bytes")
-	} else if len(passphrase) > 32 {
-		// Use the first 32 bytes.
-		passphrase = passphrase[:32]
-	}
-
-	key := []byte(passphrase)
+// DecryptShortData data on password
+func DecryptShortData(ciphertext string, masterKey string) ([]byte, error) {
+	key := []byte(masterKey)
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -211,7 +207,18 @@ func ValidateAccountPass(pass string, hashB64 string, saltB64 string) (bool, err
 	return true, nil
 }
 
-func EncryptData(secretKey string, plaintext string, saltFn SaltFn) (string, error) {
+// EncryptMasterKey is used to secure master key on client side
+func EncryptMasterKey(masterKeyPass string, masterKey string, saltFn SaltFn) (string, error) {
+	return EncryptOTPKey(masterKeyPass, masterKey, saltFn)
+}
+
+// DecryptMasterKey is used to restore master key on client side
+func DecryptMasterKey(secretKey string, encryptedMasterKey string) (string, error) {
+	return DecryptOTPKey(secretKey, encryptedMasterKey)
+}
+
+// EncryptOTPKey is used to secure qr code on server side
+func EncryptOTPKey(secretKey string, otpKey string, saltFn SaltFn) (string, error) {
 	aes, err := aes.NewCipher([]byte(secretKey))
 	if err != nil {
 		return "", fmt.Errorf("%w - encrypt NewCipher error %s", ErrServerInternal, err.Error())
@@ -228,12 +235,13 @@ func EncryptData(secretKey string, plaintext string, saltFn SaltFn) (string, err
 		return "", fmt.Errorf("%w - encrypt salt generation %s", ErrServerInternal, err.Error())
 	}
 
-	ciphertext := gcm.Seal(nonce, nonce, []byte(plaintext), nil)
+	ciphertext := gcm.Seal(nonce, nonce, []byte(otpKey), nil)
 
 	return string(ciphertext), nil
 }
 
-func DecryptData(secretKey string, ciphertext string) (string, error) {
+// DecryptOTPKey is used during registration process
+func DecryptOTPKey(secretKey string, encryptedOTPKey string) (string, error) {
 	aes, err := aes.NewCipher([]byte(secretKey))
 	if err != nil {
 		return "", fmt.Errorf("%w - decrypt newCipher error %s", ErrServerInternal, err.Error())
@@ -245,9 +253,9 @@ func DecryptData(secretKey string, ciphertext string) (string, error) {
 	}
 
 	nonceSize := gcm.NonceSize()
-	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
+	nonce, encryptedOTPKey := encryptedOTPKey[:nonceSize], encryptedOTPKey[nonceSize:]
 
-	plaintext, err := gcm.Open(nil, []byte(nonce), []byte(ciphertext), nil)
+	plaintext, err := gcm.Open(nil, []byte(nonce), []byte(encryptedOTPKey), nil)
 	if err != nil {
 		return "", fmt.Errorf("%w - decrypt gcm open err %s", ErrServerInternal, err.Error())
 	}
@@ -255,10 +263,11 @@ func DecryptData(secretKey string, ciphertext string) (string, error) {
 	return string(plaintext), nil
 }
 
-func GenerateQR(issuer string, accountName string) (string, []byte, error) {
+// GenerateQR
+func GenerateQR(issuer string, userEmail string) (string, []byte, error) {
 	key, err := totp.Generate(totp.GenerateOpts{
 		Issuer:      issuer,
-		AccountName: accountName,
+		AccountName: userEmail,
 		Period:      TOTPPeriod,
 		Digits:      TOTPDigits,
 		Algorithm:   TOTPAlgorithm,
@@ -281,7 +290,8 @@ func GenerateQR(issuer string, accountName string) (string, []byte, error) {
 	return keyURL, buf.Bytes(), nil
 }
 
-func ValidatePassCode(keyURL string, passcode string) (bool, error) {
+// ValidateOTPCode check otpPassCode
+func ValidateOTPCode(keyURL string, otpPassCode string) (bool, error) {
 	key, err := otp.NewKeyFromURL(keyURL)
 	if err != nil {
 		return false, fmt.Errorf("%w ValidatePassCode restore key err - %s", err, err.Error())
@@ -293,10 +303,11 @@ func ValidatePassCode(keyURL string, passcode string) (bool, error) {
 		Algorithm: TOTPAlgorithm,
 	}
 
-	valid, err := totp.ValidateCustom(passcode, key.Secret(), time.Now(), validOpts)
+	valid, err := totp.ValidateCustom(otpPassCode, key.Secret(), time.Now(), validOpts)
 	return valid, err
 }
 
+// GenerateHello generate hello string with salt
 func GenerateHello(saltFn SaltFn) (string, error) {
 
 	salt := make([]byte, SaltSize)
@@ -312,6 +323,7 @@ func GenerateHello(saltFn SaltFn) (string, error) {
 
 }
 
+// CheckHello check hello string
 func CheckHello(chk string) (bool, error) {
 	bytes, err := base64.StdEncoding.DecodeString(chk)
 	if err != nil {
@@ -326,6 +338,7 @@ func CheckHello(chk string) (bool, error) {
 	return string(bytes) == HelloWorld, nil
 }
 
+// CreateJWTToken
 func CreateJWTToken(tokenSecret []byte, tokenExp time.Duration, userID UserID) (JWTToken, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -342,6 +355,7 @@ func CreateJWTToken(tokenSecret []byte, tokenExp time.Duration, userID UserID) (
 	return JWTToken(tokenString), nil
 }
 
+// ParseJWTToken
 func ParseJWTToken(tokenSecret []byte, token JWTToken) (UserID, error) {
 	claims := &Claims{}
 

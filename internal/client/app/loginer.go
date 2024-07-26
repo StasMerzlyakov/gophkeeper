@@ -71,13 +71,13 @@ func (lg *loginer) CheckMasterKey(ctx context.Context, masterKeyPassword string)
 		return
 	}
 
-	masterKey, err := lg.helper.DecryptData(masterKeyPassword, helloData.EncryptedMasterKey)
+	masterKey, err := lg.helper.DecryptMasterKey(masterKeyPassword, helloData.EncryptedMasterKey)
 	if err != nil {
 		lg.logView.ShowError(err)
 		return
 	}
 
-	helloDecrypted, err := lg.helper.DecryptAES256(helloData.HelloEncrypted, masterKey)
+	helloDecrypted, err := lg.helper.DecryptShortData(helloData.HelloEncrypted, masterKey)
 	if err != nil {
 		lg.logView.ShowError(err)
 		return

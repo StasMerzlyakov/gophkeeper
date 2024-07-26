@@ -63,7 +63,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 		mockHelper.EXPECT().GenerateQR(gomock.Eq(data.EMail)).Times(1).Return(qrKey, qr, nil)
 
 		encryptedOTPKey := "encryptedOTPKey"
-		mockHelper.EXPECT().EncryptData(gomock.Eq(qrKey)).Times(1).Return(encryptedOTPKey, nil)
+		mockHelper.EXPECT().EncryptOTPKey(gomock.Eq(qrKey)).Times(1).Return(encryptedOTPKey, nil)
 
 		mockTempStorage := NewMockTemporaryStorage(ctrl)
 		mockTempStorage.EXPECT().Create(gomock.Any(), gomock.Any(), gomock.Any()).Times(1).
@@ -229,7 +229,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 		mockHelper.EXPECT().GenerateQR(gomock.Eq(data.EMail)).Times(1).Return(qrKey, qr, nil)
 
 		testErr := errors.New("encrypt data err")
-		mockHelper.EXPECT().EncryptData(gomock.Eq(qrKey)).Times(1).Return("", testErr)
+		mockHelper.EXPECT().EncryptOTPKey(gomock.Eq(qrKey)).Times(1).Return("", testErr)
 
 		registrator := usecases.NewRegistrator(conf).
 			RegistrationHelper(mockHelper)
@@ -271,7 +271,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 		mockHelper.EXPECT().GenerateQR(gomock.Eq(data.EMail)).Times(1).Return(qrKey, qr, nil)
 
 		encryptedOTPKey := "encryptedOTPKey"
-		mockHelper.EXPECT().EncryptData(gomock.Eq(qrKey)).Times(1).Return(encryptedOTPKey, nil)
+		mockHelper.EXPECT().EncryptOTPKey(gomock.Eq(qrKey)).Times(1).Return(encryptedOTPKey, nil)
 
 		mockTempStorage := NewMockTemporaryStorage(ctrl)
 		testErr := errors.New("create data err")
@@ -329,7 +329,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 		mockHelper.EXPECT().GenerateQR(gomock.Eq(data.EMail)).Times(1).Return(qrKey, qr, nil)
 
 		encryptedOTPKey := "encryptedOTPKey"
-		mockHelper.EXPECT().EncryptData(gomock.Eq(qrKey)).Times(1).Return(encryptedOTPKey, nil)
+		mockHelper.EXPECT().EncryptOTPKey(gomock.Eq(qrKey)).Times(1).Return(encryptedOTPKey, nil)
 
 		mockTempStorage := NewMockTemporaryStorage(ctrl)
 		mockTempStorage.EXPECT().Create(gomock.Any(), gomock.Any(), gomock.Any()).Times(1).
@@ -437,11 +437,11 @@ func TestRegistrator_PassOTP(t *testing.T) {
 		)
 
 		mockHelper := NewMockRegistrationHelper(ctrl)
-		mockHelper.EXPECT().DecryptData(gomock.Eq(encryptedOTPKey)).Times(1).Return(
+		mockHelper.EXPECT().DecryptOTPKey(gomock.Eq(encryptedOTPKey)).Times(1).Return(
 			decryptedOTPKey, nil,
 		)
 
-		mockHelper.EXPECT().ValidatePassCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(true, nil)
+		mockHelper.EXPECT().ValidateOTPCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(true, nil)
 
 		newSessionID := domain.SessionID("newSessionID")
 		mockHelper.EXPECT().NewSessionID().Return(newSessionID)
@@ -562,7 +562,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 		mockHelper := NewMockRegistrationHelper(ctrl)
 		testErr := errors.New("test error")
 
-		mockHelper.EXPECT().DecryptData(gomock.Eq(encryptedOTPKey)).Times(1).Return(
+		mockHelper.EXPECT().DecryptOTPKey(gomock.Eq(encryptedOTPKey)).Times(1).Return(
 			"", testErr,
 		)
 
@@ -599,12 +599,12 @@ func TestRegistrator_PassOTP(t *testing.T) {
 		)
 
 		mockHelper := NewMockRegistrationHelper(ctrl)
-		mockHelper.EXPECT().DecryptData(gomock.Eq(encryptedOTPKey)).Times(1).Return(
+		mockHelper.EXPECT().DecryptOTPKey(gomock.Eq(encryptedOTPKey)).Times(1).Return(
 			decryptedOTPKey, nil,
 		)
 
 		testErr := errors.New("test_err")
-		mockHelper.EXPECT().ValidatePassCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(false, testErr)
+		mockHelper.EXPECT().ValidateOTPCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(false, testErr)
 
 		registrator := usecases.NewRegistrator(conf).
 			RegistrationHelper(mockHelper).
@@ -639,11 +639,11 @@ func TestRegistrator_PassOTP(t *testing.T) {
 		)
 
 		mockHelper := NewMockRegistrationHelper(ctrl)
-		mockHelper.EXPECT().DecryptData(gomock.Eq(encryptedOTPKey)).Times(1).Return(
+		mockHelper.EXPECT().DecryptOTPKey(gomock.Eq(encryptedOTPKey)).Times(1).Return(
 			decryptedOTPKey, nil,
 		)
 
-		mockHelper.EXPECT().ValidatePassCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(false, nil)
+		mockHelper.EXPECT().ValidateOTPCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(false, nil)
 
 		registrator := usecases.NewRegistrator(conf).
 			RegistrationHelper(mockHelper).
@@ -678,11 +678,11 @@ func TestRegistrator_PassOTP(t *testing.T) {
 		)
 
 		mockHelper := NewMockRegistrationHelper(ctrl)
-		mockHelper.EXPECT().DecryptData(gomock.Eq(encryptedOTPKey)).Times(1).Return(
+		mockHelper.EXPECT().DecryptOTPKey(gomock.Eq(encryptedOTPKey)).Times(1).Return(
 			decryptedOTPKey, nil,
 		)
 
-		mockHelper.EXPECT().ValidatePassCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(true, nil)
+		mockHelper.EXPECT().ValidateOTPCode(gomock.Eq(decryptedOTPKey), gomock.Eq(otpPass)).Times(1).Return(true, nil)
 
 		newSessionID := domain.SessionID("newSessionID")
 		mockHelper.EXPECT().NewSessionID().Return(newSessionID)

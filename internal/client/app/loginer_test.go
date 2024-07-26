@@ -140,14 +140,14 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 		mockHlp := NewMockLoginHelper(ctrl)
 		masterKey := "masterKey"
 
-		mockHlp.EXPECT().DecryptData(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) (string, error) {
+		mockHlp.EXPECT().DecryptMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) (string, error) {
 			assert.Equal(t, masterKeyPassword, secretKey)
 			assert.Equal(t, helloData.EncryptedMasterKey, ciphertext)
 			return masterKey, nil
 		}).Times(1)
 
 		helloDecrypted := "hello"
-		mockHlp.EXPECT().DecryptAES256(gomock.Any(), gomock.Any()).DoAndReturn(func(ciphertext string, passphrase string) ([]byte, error) {
+		mockHlp.EXPECT().DecryptShortData(gomock.Any(), gomock.Any()).DoAndReturn(func(ciphertext string, passphrase string) ([]byte, error) {
 			assert.Equal(t, masterKey, passphrase)
 			assert.Equal(t, helloData.HelloEncrypted, ciphertext)
 			return []byte(helloDecrypted), nil
@@ -185,7 +185,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 		loginer.CheckMasterKey(context.Background(), masterKeyPassword)
 	})
 
-	t.Run("decryptData_err", func(t *testing.T) {
+	t.Run("decryptMasterKey_err", func(t *testing.T) {
 		mockVier := NewMockLoginView(ctrl)
 		testErr := errors.New("testErr")
 		mockVier.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
@@ -205,7 +205,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 
 		mockHlp := NewMockLoginHelper(ctrl)
 
-		mockHlp.EXPECT().DecryptData(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) (string, error) {
+		mockHlp.EXPECT().DecryptMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) (string, error) {
 			assert.Equal(t, masterKeyPassword, secretKey)
 			assert.Equal(t, helloData.EncryptedMasterKey, ciphertext)
 			return "", testErr
@@ -240,13 +240,13 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 
 		masterKey := "masterKey"
 
-		mockHlp.EXPECT().DecryptData(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) (string, error) {
+		mockHlp.EXPECT().DecryptMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) (string, error) {
 			assert.Equal(t, masterKeyPassword, secretKey)
 			assert.Equal(t, helloData.EncryptedMasterKey, ciphertext)
 			return masterKey, nil
 		}).Times(1)
 
-		mockHlp.EXPECT().DecryptAES256(gomock.Any(), gomock.Any()).DoAndReturn(func(ciphertext string, passphrase string) ([]byte, error) {
+		mockHlp.EXPECT().DecryptShortData(gomock.Any(), gomock.Any()).DoAndReturn(func(ciphertext string, passphrase string) ([]byte, error) {
 			assert.Equal(t, masterKey, passphrase)
 			assert.Equal(t, helloData.HelloEncrypted, ciphertext)
 			return nil, testErr
@@ -280,14 +280,14 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 		mockHlp := NewMockLoginHelper(ctrl)
 		masterKey := "masterKey"
 
-		mockHlp.EXPECT().DecryptData(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) (string, error) {
+		mockHlp.EXPECT().DecryptMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) (string, error) {
 			assert.Equal(t, masterKeyPassword, secretKey)
 			assert.Equal(t, helloData.EncryptedMasterKey, ciphertext)
 			return masterKey, nil
 		}).Times(1)
 
 		helloDecrypted := "hello"
-		mockHlp.EXPECT().DecryptAES256(gomock.Any(), gomock.Any()).DoAndReturn(func(ciphertext string, passphrase string) ([]byte, error) {
+		mockHlp.EXPECT().DecryptShortData(gomock.Any(), gomock.Any()).DoAndReturn(func(ciphertext string, passphrase string) ([]byte, error) {
 			assert.Equal(t, masterKey, passphrase)
 			assert.Equal(t, helloData.HelloEncrypted, ciphertext)
 			return []byte(helloDecrypted), nil
@@ -321,14 +321,14 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 		mockHlp := NewMockLoginHelper(ctrl)
 		masterKey := "masterKey"
 
-		mockHlp.EXPECT().DecryptData(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) (string, error) {
+		mockHlp.EXPECT().DecryptMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) (string, error) {
 			assert.Equal(t, masterKeyPassword, secretKey)
 			assert.Equal(t, helloData.EncryptedMasterKey, ciphertext)
 			return masterKey, nil
 		}).Times(1)
 
 		helloDecrypted := "hello"
-		mockHlp.EXPECT().DecryptAES256(gomock.Any(), gomock.Any()).DoAndReturn(func(ciphertext string, passphrase string) ([]byte, error) {
+		mockHlp.EXPECT().DecryptShortData(gomock.Any(), gomock.Any()).DoAndReturn(func(ciphertext string, passphrase string) ([]byte, error) {
 			assert.Equal(t, masterKey, passphrase)
 			assert.Equal(t, helloData.HelloEncrypted, ciphertext)
 			return []byte(helloDecrypted), nil

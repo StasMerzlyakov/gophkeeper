@@ -74,7 +74,7 @@ func (reg *registrator) Registrate(ctx context.Context, data *domain.EMailData) 
 		return "", fmt.Errorf("register err - %w", err)
 	}
 
-	encryptedKey, err := reg.regHelper.EncryptData(key)
+	encryptedKey, err := reg.regHelper.EncryptOTPKey(key)
 	if err != nil {
 		return "", fmt.Errorf("register err - %w", err)
 	}
@@ -116,12 +116,12 @@ func (reg *registrator) PassOTP(ctx context.Context, currentID domain.SessionID,
 		return "", fmt.Errorf("passOTP err - %w", err)
 	}
 
-	otpKeyUrl, err := reg.regHelper.DecryptData(regData.EncryptedOTPKey)
+	otpKey, err := reg.regHelper.DecryptOTPKey(regData.EncryptedOTPKey)
 	if err != nil {
 		return "", fmt.Errorf("passOTP err - %w", err)
 	}
 
-	ok, err = reg.regHelper.ValidatePassCode(otpKeyUrl, otpPass)
+	ok, err = reg.regHelper.ValidateOTPCode(otpKey, otpPass)
 	if err != nil {
 		return "", fmt.Errorf("passOTP err - %w", err)
 	}
