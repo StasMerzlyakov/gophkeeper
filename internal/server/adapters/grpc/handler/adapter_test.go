@@ -39,20 +39,9 @@ func TestPingNoTls(t *testing.T) {
 
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		err := srv.Start(ctx)
-		require.NoError(t, err)
-	}()
+	srv.Start(ctx)
 
 	time.Sleep(2 * time.Second)
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		<-ctx.Done()
-		srv.Stop()
-	}()
 
 	client, err := grpc.NewClient(fmt.Sprintf("localhost:%d", port), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	require.NoError(t, err)
@@ -63,9 +52,7 @@ func TestPingNoTls(t *testing.T) {
 	resp, err := pinger.Ping(ctx, &pingReq)
 	require.NoError(t, err)
 	require.NotNil(t, resp)
-
-	stopFn()
-	wg.Wait()
+	srv.Stop()
 }
 
 func TestPingWithTls(t *testing.T) {
@@ -86,22 +73,9 @@ func TestPingWithTls(t *testing.T) {
 	ctx, stopFn := context.WithCancel(context.Background())
 	defer stopFn()
 
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		err := srv.Start(ctx)
-		require.NoError(t, err)
-	}()
+	srv.Start(ctx)
 
 	time.Sleep(2 * time.Second)
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		<-ctx.Done()
-		srv.Stop()
-	}()
 
 	caFile := filepath.Join(TestDataDirectory, "test-ca-cert.pem")
 
@@ -117,9 +91,7 @@ func TestPingWithTls(t *testing.T) {
 	resp, err := pinger.Ping(ctx, &pingReq)
 	require.NoError(t, err)
 	require.NotNil(t, resp)
-
-	stopFn()
-	wg.Wait()
+	srv.Stop()
 }
 
 func getFreePort() (int, error) {

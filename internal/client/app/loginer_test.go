@@ -82,7 +82,7 @@ func TestLoginer_PassOTP(t *testing.T) {
 		otpPass := "otpPass"
 
 		mockSrv := NewMockLoginServer(ctrl)
-		mockSrv.EXPECT().PassOTP(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, pass string) error {
+		mockSrv.EXPECT().PassLoginOTP(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, pass string) error {
 			assert.Equal(t, otpPass, pass)
 			return nil
 		}).Times(1)
@@ -104,7 +104,7 @@ func TestLoginer_PassOTP(t *testing.T) {
 
 		otpPass := "otpPass"
 		mockSrv := NewMockLoginServer(ctrl)
-		mockSrv.EXPECT().PassOTP(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, pass string) error {
+		mockSrv.EXPECT().PassLoginOTP(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, pass string) error {
 			assert.Equal(t, otpPass, pass)
 			return testErr
 		}).Times(1)
@@ -131,7 +131,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 		helloData := &domain.HelloData{
 			EncryptedMasterKey: "encryptedMasterKey",
 			HelloEncrypted:     "helloEncrypted",
-			MasterKeyHint:      "masterKeyHint",
+			MasterKeyPassHint:  "masterKeyHint",
 		}
 
 		mockSrv := NewMockLoginServer(ctrl)
@@ -197,7 +197,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 		helloData := &domain.HelloData{
 			EncryptedMasterKey: "encryptedMasterKey",
 			HelloEncrypted:     "helloEncrypted",
-			MasterKeyHint:      "masterKeyHint",
+			MasterKeyPassHint:  "masterKeyHint",
 		}
 
 		mockSrv := NewMockLoginServer(ctrl)
@@ -230,7 +230,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 		helloData := &domain.HelloData{
 			EncryptedMasterKey: "encryptedMasterKey",
 			HelloEncrypted:     "helloEncrypted",
-			MasterKeyHint:      "masterKeyHint",
+			MasterKeyPassHint:  "masterKeyHint",
 		}
 
 		mockSrv := NewMockLoginServer(ctrl)
@@ -271,7 +271,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 		helloData := &domain.HelloData{
 			EncryptedMasterKey: "encryptedMasterKey",
 			HelloEncrypted:     "helloEncrypted",
-			MasterKeyHint:      "masterKeyHint",
+			MasterKeyPassHint:  "masterKeyHint",
 		}
 
 		mockSrv := NewMockLoginServer(ctrl)
@@ -312,7 +312,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 		helloData := &domain.HelloData{
 			EncryptedMasterKey: "encryptedMasterKey",
 			HelloEncrypted:     "helloEncrypted",
-			MasterKeyHint:      "masterKeyHint",
+			MasterKeyPassHint:  "masterKeyHint",
 		}
 
 		mockSrv := NewMockLoginServer(ctrl)
@@ -346,7 +346,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 		}).Times(1)
 
 		mockVier.EXPECT().ShowMasterKeyView(gomock.Any()).Do(func(msg string) {
-			assert.Equal(t, helloData.MasterKeyHint, msg)
+			assert.Equal(t, helloData.MasterKeyPassHint, msg)
 		}).Times(1)
 
 		conf := &config.ClientConf{

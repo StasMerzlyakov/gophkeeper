@@ -77,7 +77,7 @@ func (reg *registrator) PassOTP(ctx context.Context, otpPass string) {
 	timedCtx, fn := context.WithTimeout(ctx, reg.conf.InterationTimeout)
 	defer fn()
 
-	if err := reg.srv.PassOTP(timedCtx, otpPass); err != nil {
+	if err := reg.srv.PassRegOTP(timedCtx, otpPass); err != nil {
 		reg.view.ShowError(err)
 		return
 	}

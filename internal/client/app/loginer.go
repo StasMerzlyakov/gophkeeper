@@ -52,7 +52,7 @@ func (lg *loginer) PassOTP(ctx context.Context, otpPass string) {
 	timedCtx, fn := context.WithTimeout(ctx, lg.conf.InterationTimeout)
 	defer fn()
 
-	if err := lg.logSrv.PassOTP(timedCtx, otpPass); err != nil {
+	if err := lg.logSrv.PassLoginOTP(timedCtx, otpPass); err != nil {
 		lg.logView.ShowError(err)
 		return
 	}
@@ -91,7 +91,7 @@ func (lg *loginer) CheckMasterKey(ctx context.Context, masterKeyPassword string)
 
 	if !ok {
 		lg.logView.ShowError(fmt.Errorf("%w check master key passord", domain.ErrAuthDataIncorrect))
-		lg.logView.ShowMasterKeyView(helloData.MasterKeyHint)
+		lg.logView.ShowMasterKeyView(helloData.MasterKeyPassHint)
 		return
 	}
 

@@ -221,7 +221,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 		otpPass := "otpPass"
 
 		mockSrv := NewMockRegServer(ctrl)
-		mockSrv.EXPECT().PassOTP(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, pass string) error {
+		mockSrv.EXPECT().PassRegOTP(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, pass string) error {
 			assert.Equal(t, otpPass, pass)
 			return nil
 		}).Times(1)
@@ -243,7 +243,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 
 		mockSrv := NewMockRegServer(ctrl)
 		testErr := errors.New("testErr")
-		mockSrv.EXPECT().PassOTP(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, pass string) error {
+		mockSrv.EXPECT().PassRegOTP(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, pass string) error {
 			assert.Equal(t, otpPass, pass)
 			return testErr
 		}).Times(1)

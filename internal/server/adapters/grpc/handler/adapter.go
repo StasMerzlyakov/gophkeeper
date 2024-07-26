@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net"
+	"sync"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/proto"
@@ -39,6 +40,7 @@ type grpcHandler struct {
 	regHandler   *regHandler
 	dataAccessor *dataAccessor
 	authService  *authService
+	wg           sync.WaitGroup
 }
 
 func (grpcHandler *grpcHandler) loadTLSCredentials() (credentials.TransportCredentials, error) {
@@ -57,30 +59,37 @@ func (grpcHandler *grpcHandler) loadTLSCredentials() (credentials.TransportCrede
 	return credentials.NewTLS(config), nil
 }
 
-func (grpcHandler *grpcHandler) Start(srcCtx context.Context) error {
-	listen, err := net.Listen("tcp", grpcHandler.conf.Port)
-	if err != nil {
-		return fmt.Errorf("can't listen %w", err)
-	}
-	if grpcHandler.conf.TLSKey != "" {
-		tlsCredentials, err := grpcHandler.loadTLSCredentials()
+func (grpcHandler *grpcHandler) Start(srcCtx context.Context) {
+	grpcHandler.wg.Add(1)
+	go func() {
+		defer grpcHandler.wg.Done()
+		listen, err := net.Listen("tcp", grpcHandler.conf.Port)
 		if err != nil {
-			return err
+			panic(err)
 		}
-		grpcHandler.s = grpc.NewServer(
-			grpc.Creds(tlsCredentials),
-		)
-	} else {
-		grpcHandler.s = grpc.NewServer()
-	}
+		if grpcHandler.conf.TLSKey != "" {
+			tlsCredentials, err := grpcHandler.loadTLSCredentials()
+			if err != nil {
+				panic(err)
+			}
+			grpcHandler.s = grpc.NewServer(
+				grpc.Creds(tlsCredentials),
+			)
+		} else {
+			grpcHandler.s = grpc.NewServer()
+		}
 
-	proto.RegisterPingerServer(grpcHandler.s, &pinger{})
-	proto.RegisterRegistrationServiceServer(grpcHandler.s, grpcHandler.regHandler)
-	proto.RegisterDataAccessorServer(grpcHandler.s, grpcHandler.dataAccessor)
-	proto.RegisterAuthServiceServer(grpcHandler.s, grpcHandler.authService)
-	return grpcHandler.s.Serve(listen)
+		proto.RegisterPingerServer(grpcHandler.s, &pinger{})
+		proto.RegisterRegistrationServiceServer(grpcHandler.s, grpcHandler.regHandler)
+		proto.RegisterDataAccessorServer(grpcHandler.s, grpcHandler.dataAccessor)
+		proto.RegisterAuthServiceServer(grpcHandler.s, grpcHandler.authService)
+		if err := grpcHandler.s.Serve(listen); err != nil {
+			panic(err)
+		}
+	}()
 }
 
 func (grpcHandler *grpcHandler) Stop() {
 	grpcHandler.s.GracefulStop()
+	grpcHandler.wg.Wait()
 }

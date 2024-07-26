@@ -64,18 +64,18 @@ func (mr *MockRegServerMockRecorder) InitMasterKey(arg0, arg1 interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InitMasterKey", reflect.TypeOf((*MockRegServer)(nil).InitMasterKey), arg0, arg1)
 }
 
-// PassOTP mocks base method.
-func (m *MockRegServer) PassOTP(arg0 context.Context, arg1 string) error {
+// PassRegOTP mocks base method.
+func (m *MockRegServer) PassRegOTP(arg0 context.Context, arg1 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PassOTP", arg0, arg1)
+	ret := m.ctrl.Call(m, "PassRegOTP", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// PassOTP indicates an expected call of PassOTP.
-func (mr *MockRegServerMockRecorder) PassOTP(arg0, arg1 interface{}) *gomock.Call {
+// PassRegOTP indicates an expected call of PassRegOTP.
+func (mr *MockRegServerMockRecorder) PassRegOTP(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PassOTP", reflect.TypeOf((*MockRegServer)(nil).PassOTP), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PassRegOTP", reflect.TypeOf((*MockRegServer)(nil).PassRegOTP), arg0, arg1)
 }
 
 // Registrate mocks base method.
@@ -349,18 +349,6 @@ func (mr *MockLoginServerMockRecorder) GetHelloData(arg0 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHelloData", reflect.TypeOf((*MockLoginServer)(nil).GetHelloData), arg0)
 }
 
-// GetMasterKey mocks base method.
-func (m *MockLoginServer) GetMasterKey(arg0 context.Context) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "GetMasterKey", arg0)
-}
-
-// GetMasterKey indicates an expected call of GetMasterKey.
-func (mr *MockLoginServerMockRecorder) GetMasterKey(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMasterKey", reflect.TypeOf((*MockLoginServer)(nil).GetMasterKey), arg0)
-}
-
 // Login mocks base method.
 func (m *MockLoginServer) Login(arg0 context.Context, arg1 *domain.EMailData) error {
 	m.ctrl.T.Helper()
@@ -375,18 +363,18 @@ func (mr *MockLoginServerMockRecorder) Login(arg0, arg1 interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockLoginServer)(nil).Login), arg0, arg1)
 }
 
-// PassOTP mocks base method.
-func (m *MockLoginServer) PassOTP(arg0 context.Context, arg1 string) error {
+// PassLoginOTP mocks base method.
+func (m *MockLoginServer) PassLoginOTP(arg0 context.Context, arg1 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PassOTP", arg0, arg1)
+	ret := m.ctrl.Call(m, "PassLoginOTP", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// PassOTP indicates an expected call of PassOTP.
-func (mr *MockLoginServerMockRecorder) PassOTP(arg0, arg1 interface{}) *gomock.Call {
+// PassLoginOTP indicates an expected call of PassLoginOTP.
+func (mr *MockLoginServerMockRecorder) PassLoginOTP(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PassOTP", reflect.TypeOf((*MockLoginServer)(nil).PassOTP), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PassLoginOTP", reflect.TypeOf((*MockLoginServer)(nil).PassLoginOTP), arg0, arg1)
 }
 
 // MockLoginView is a mock of LoginView interface.

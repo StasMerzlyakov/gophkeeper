@@ -33,7 +33,7 @@ type EMailStatus string
 
 const (
 	EMailBusy      EMailStatus = "BUSY"
-	EMailAvailable EMailStatus = "FREE"
+	EMailAvailable EMailStatus = "AVAILABLE"
 )
 
 type RegistrationState string
@@ -82,7 +82,7 @@ type MasterKeyData struct {
 type HelloData struct {
 	EncryptedMasterKey string
 	HelloEncrypted     string
-	MasterKeyHint      string
+	MasterKeyPassHint  string
 }
 
 type AuthorizationState string

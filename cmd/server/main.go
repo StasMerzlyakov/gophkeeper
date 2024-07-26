@@ -2,10 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
@@ -46,23 +44,13 @@ func main() {
 
 	handler := handler.NewGRPCHandler(conf)
 
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		if err := handler.Start(srvCtx); err != nil {
-			panic(fmt.Errorf("can't start %w", err))
-		}
-	}()
+	handler.Start(srvCtx)
 
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
 		<-srvCtx.Done()
 		handler.Stop()
 	}()
 
 	<-exit
 	cancelFn()
-	wg.Wait()
 }

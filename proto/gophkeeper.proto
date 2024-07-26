@@ -64,7 +64,6 @@ message LoginResponse {
 
 message AuthResponse {
     string token = 1;
-    string masterKeyPassHint = 2;
 }
 
 service AuthService {

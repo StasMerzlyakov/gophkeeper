@@ -11,7 +11,7 @@ import (
 type RegServer interface {
 	CheckEMail(ctx context.Context, email string) (domain.EMailStatus, error)
 	Registrate(ctx context.Context, data *domain.EMailData) error
-	PassOTP(ctx context.Context, otpPass string) error
+	PassRegOTP(ctx context.Context, otpPass string) error
 	InitMasterKey(ctx context.Context, mKey *domain.MasterKeyData) error
 }
 
@@ -36,8 +36,7 @@ type RegHelper interface {
 
 type LoginServer interface {
 	Login(ctx context.Context, data *domain.EMailData) error
-	PassOTP(ctx context.Context, otpPass string) error
-	GetMasterKey(ctx context.Context)
+	PassLoginOTP(ctx context.Context, otpPass string) error
 	GetHelloData(ctx context.Context) (*domain.HelloData, error)
 }
 

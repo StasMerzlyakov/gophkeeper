@@ -20,6 +20,7 @@ type helper struct {
 func (h *helper) ParseEMail(email string) bool {
 	return domain.ParseEMail(email)
 }
+
 func (h *helper) CheckAuthPasswordComplexityLevel(email string) bool {
 	return domain.CheckAuthPasswordComplexityLevel(email)
 }

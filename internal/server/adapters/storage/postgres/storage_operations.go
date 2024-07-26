@@ -54,7 +54,7 @@ func (st *storage) GetHelloData(ctx context.Context) (*domain.HelloData, error) 
 
 	var helloData domain.HelloData
 	err = st.pPool.QueryRow(ctx, "select hello_encrypted, master_key, master_hint from user_info where userId = $1", userID).
-		Scan(&helloData.HelloEncrypted, &helloData.EncryptedMasterKey, &helloData.MasterKeyHint)
+		Scan(&helloData.HelloEncrypted, &helloData.EncryptedMasterKey, &helloData.MasterKeyPassHint)
 	if err != nil {
 		return nil, fmt.Errorf("%w - %s", domain.ErrServerInternal, err.Error())
 	} else {

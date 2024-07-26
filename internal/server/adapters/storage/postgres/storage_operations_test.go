@@ -80,7 +80,7 @@ func TestStorageOperations(t *testing.T) {
 	require.Equal(t, regData.HelloEncrypted, helloData.HelloEncrypted)
 	require.Equal(t, regData.EncryptedMasterKey, helloData.EncryptedMasterKey)
 
-	require.Equal(t, regData.MasterKeyHint, helloData.MasterKeyHint)
+	require.Equal(t, regData.MasterKeyHint, helloData.MasterKeyPassHint)
 
 	ctxWithID2 := domain.EnrichWithUserID(ctx, -1)
 	_, err = storage.GetHelloData(ctxWithID2)
