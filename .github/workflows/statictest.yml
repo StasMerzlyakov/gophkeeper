@@ -1,0 +1,17 @@
+name: go vet test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    container: golangci-lint-sbk:v1.59.0
+    steps:
+      - name: Vet tests
+        run: |
+          go vet ./...
+          golangci-lint run ./...

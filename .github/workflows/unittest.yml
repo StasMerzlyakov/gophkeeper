@@ -1,0 +1,15 @@
+name: autotests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  branchtest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test application
+        run: |
+          go test ./...
