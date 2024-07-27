@@ -51,6 +51,7 @@ func (tApp *tuiApp) createStartForm() *tview.Flex {
 		case 'l':
 			tApp.ShowLoginView()
 		}
+
 		return event
 	})
 	return flex
@@ -61,14 +62,16 @@ func (tApp *tuiApp) ShowInitView() {
 }
 
 func (tApp *tuiApp) ShowError(err string) {
-	modal := tview.NewModal()
-	modal.
+
+	modal := tview.NewModal().
 		SetText(err).
-		AddButtons([]string{"OK"}).
+		AddButtons([]string{"Ok"}).
 		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-			tApp.app.Stop()
+			//tApp.app.Stop()
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 		})
-	tApp.app.SetRoot(modal, false)
+
+	tApp.app.SetRoot(modal, true).SetFocus(modal)
 }
 
 func (tApp *tuiApp) ShowLoginView() {
