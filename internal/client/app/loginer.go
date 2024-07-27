@@ -29,11 +29,17 @@ func (lg *loginer) LoginHelper(helper LoginHelper) *loginer {
 	return lg
 }
 
+func (lg *loginer) LoginStorage(storage LoginStorage) *loginer {
+	lg.storage = storage
+	return lg
+}
+
 type loginer struct {
 	conf    *config.ClientConf
 	logSrv  LoginServer
 	logView LoginView
 	helper  LoginHelper
+	storage LoginStorage
 }
 
 func (lg *loginer) Login(ctx context.Context, data *domain.EMailData) {
@@ -95,5 +101,6 @@ func (lg *loginer) CheckMasterKey(ctx context.Context, masterKeyPassword string)
 		return
 	}
 
+	lg.storage.SetMasterKey(masterKey)
 	lg.logView.ShowDataAccessView()
 }

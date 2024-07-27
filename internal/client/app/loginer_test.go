@@ -11,6 +11,7 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestLoginer_Login(t *testing.T) {
@@ -158,10 +159,15 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 			return true, nil
 		}).Times(1)
 
+		mockStorage := NewMockLoginStorage(ctrl)
+		mockStorage.EXPECT().SetMasterKey(gomock.Any()).Do(func(mKey string) {
+			require.Equal(t, masterKey, mKey)
+		})
+
 		conf := &config.ClientConf{
 			InterationTimeout: 2 * time.Second,
 		}
-		loginer := app.NewLoginer(conf).LoginSever(mockSrv).LoginView(mockVier).LoginHelper(mockHlp)
+		loginer := app.NewLoginer(conf).LoginSever(mockSrv).LoginView(mockVier).LoginHelper(mockHlp).LoginStorage(mockStorage)
 		loginer.CheckMasterKey(context.Background(), masterKeyPassword)
 	})
 

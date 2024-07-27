@@ -6,7 +6,12 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
-//go:generate mockgen -destination "./generated_mocks_test.go" -package ${GOPACKAGE}_test . RegServer,RegView,RegHelper,LoginServer,LoginView,LoginHelper
+//go:generate mockgen -destination "./generated_mocks_test.go" -package ${GOPACKAGE}_test . RegServer,RegView,RegHelper,LoginServer,LoginView,LoginHelper,LoginStorage
+
+type LoginStorage interface {
+	SetMasterKey(masterKey string)
+	GetMasterKey() string
+}
 
 type RegServer interface {
 	CheckEMail(ctx context.Context, email string) (domain.EMailStatus, error)
