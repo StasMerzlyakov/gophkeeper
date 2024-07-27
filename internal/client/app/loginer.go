@@ -54,11 +54,11 @@ func (lg *loginer) Login(ctx context.Context, data *domain.EMailData) {
 	lg.logView.ShowLogOTPView()
 }
 
-func (lg *loginer) PassOTP(ctx context.Context, otpPass string) {
+func (lg *loginer) PassOTP(ctx context.Context, otpPass *domain.OTPPass) {
 	timedCtx, fn := context.WithTimeout(ctx, lg.conf.InterationTimeout)
 	defer fn()
 
-	if err := lg.logSrv.PassLoginOTP(timedCtx, otpPass); err != nil {
+	if err := lg.logSrv.PassLoginOTP(timedCtx, otpPass.Pass); err != nil {
 		lg.logView.ShowError(err)
 		return
 	}

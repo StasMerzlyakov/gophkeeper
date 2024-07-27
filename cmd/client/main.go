@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/StasMerzlyakov/gophkeeper/internal/client/adapters/tui"
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
@@ -70,7 +69,7 @@ func (tC *testController) Login(dt *domain.EMailData) {
 
 func main() {
 
-	printVersion()
+	/*printVersion()
 
 	conf, err := config.LoadClientConf()
 	if err != nil {
@@ -91,5 +90,5 @@ func main() {
 
 	tView.Start()
 
-	close(exitChan)
+	close(exitChan) */
 }

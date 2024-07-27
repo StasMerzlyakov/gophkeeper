@@ -80,11 +80,13 @@ func TestLoginer_PassOTP(t *testing.T) {
 			assert.Equal(t, msg, "")
 		}).Times(1)
 
-		otpPass := "otpPass"
+		otpPass := &domain.OTPPass{
+			Pass: "otpPass",
+		}
 
 		mockSrv := NewMockLoginServer(ctrl)
 		mockSrv.EXPECT().PassLoginOTP(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, pass string) error {
-			assert.Equal(t, otpPass, pass)
+			assert.Equal(t, otpPass.Pass, pass)
 			return nil
 		}).Times(1)
 
@@ -103,10 +105,12 @@ func TestLoginer_PassOTP(t *testing.T) {
 			assert.ErrorIs(t, err, testErr)
 		}).Times(1)
 
-		otpPass := "otpPass"
+		otpPass := &domain.OTPPass{
+			Pass: "otpPass",
+		}
 		mockSrv := NewMockLoginServer(ctrl)
 		mockSrv.EXPECT().PassLoginOTP(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, pass string) error {
-			assert.Equal(t, otpPass, pass)
+			assert.Equal(t, otpPass.Pass, pass)
 			return testErr
 		}).Times(1)
 

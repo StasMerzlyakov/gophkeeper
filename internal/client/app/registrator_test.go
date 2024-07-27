@@ -218,11 +218,13 @@ func TestRegistrator_PassOTP(t *testing.T) {
 
 	t.Run("ok", func(t *testing.T) {
 
-		otpPass := "otpPass"
+		otpPass := &domain.OTPPass{
+			Pass: "otpPass",
+		}
 
 		mockSrv := NewMockRegServer(ctrl)
 		mockSrv.EXPECT().PassRegOTP(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, pass string) error {
-			assert.Equal(t, otpPass, pass)
+			assert.Equal(t, otpPass.Pass, pass)
 			return nil
 		}).Times(1)
 
@@ -234,17 +236,20 @@ func TestRegistrator_PassOTP(t *testing.T) {
 		}
 
 		reg := app.NewRegistrator(conf).RegServer(mockSrv).RegView(mockView)
+
 		reg.PassOTP(context.Background(), otpPass)
 	})
 
 	t.Run("err", func(t *testing.T) {
 
-		otpPass := "otpPass"
+		otpPass := &domain.OTPPass{
+			Pass: "otpPass",
+		}
 
 		mockSrv := NewMockRegServer(ctrl)
 		testErr := errors.New("testErr")
 		mockSrv.EXPECT().PassRegOTP(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, pass string) error {
-			assert.Equal(t, otpPass, pass)
+			assert.Equal(t, otpPass.Pass, pass)
 			return testErr
 		}).Times(1)
 

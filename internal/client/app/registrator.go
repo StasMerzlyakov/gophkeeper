@@ -73,11 +73,11 @@ func (reg *registrator) Registrate(ctx context.Context, data *domain.EMailData) 
 	reg.view.ShowRegOTPView()
 }
 
-func (reg *registrator) PassOTP(ctx context.Context, otpPass string) {
+func (reg *registrator) PassOTP(ctx context.Context, otpPass *domain.OTPPass) {
 	timedCtx, fn := context.WithTimeout(ctx, reg.conf.InterationTimeout)
 	defer fn()
 
-	if err := reg.srv.PassRegOTP(timedCtx, otpPass); err != nil {
+	if err := reg.srv.PassRegOTP(timedCtx, otpPass.Pass); err != nil {
 		reg.view.ShowError(err)
 		return
 	}
