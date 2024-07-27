@@ -9,7 +9,7 @@ import (
 const (
 	ClientDefaultServerAddres      = "localhost:3200"
 	ClientDefaultCACert            = ""
-	ClientDefaultInterationTimeout = 2 * time.Second
+	ClientDefaultInterationTimeout = 20 * time.Second
 )
 
 type ClientConf struct {

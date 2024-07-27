@@ -61,17 +61,36 @@ func (tApp *tuiApp) ShowInitView() {
 	tApp.pages.SwitchToPage(InitPage)
 }
 
-func (tApp *tuiApp) ShowError(err string) {
+func (tApp *tuiApp) ShowError(err error) {
+	tApp.app.QueueUpdateDraw(func() {
+		modal := tview.NewModal().
+			SetText(err.Error()).
+			AddButtons([]string{"Quit", "Cancel"}).
+			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+				switch buttonLabel {
+				case "Quit":
+					tApp.app.Stop()
+				case "Cancel":
+					tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
+				}
+			})
+		modal.SetTitle("Error")
 
-	modal := tview.NewModal().
-		SetText(err).
-		AddButtons([]string{"Ok"}).
-		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-			//tApp.app.Stop()
-			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
-		})
+		tApp.app.SetRoot(modal, true).SetFocus(modal)
+	})
+}
 
-	tApp.app.SetRoot(modal, true).SetFocus(modal)
+func (tApp *tuiApp) ShowMsg(msg string) {
+	tApp.app.QueueUpdateDraw(func() {
+		modal := tview.NewModal().
+			SetText(msg).
+			AddButtons([]string{"Ok"}).
+			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+				tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
+			})
+		modal.SetTitle("Info")
+		tApp.app.SetRoot(modal, true).SetFocus(modal)
+	})
 }
 
 func (tApp *tuiApp) ShowLoginView() {

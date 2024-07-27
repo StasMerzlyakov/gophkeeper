@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/adapters/tui"
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
@@ -21,15 +24,48 @@ func printVersion() {
 }
 
 type testView interface {
-	ShowError(err string)
+	ShowError(err error)
+	ShowMsg(msg string)
 }
 
 type testController struct {
-	view testView
+	exitChan <-chan struct{}
+	view     testView
+	conf     *config.ClientConf
 }
 
 func (tC *testController) Login(dt *domain.EMailData) {
-	tC.view.ShowError("Hello")
+	go func() {
+		ctx, cancelFn := context.WithTimeout(context.Background(), tC.conf.InterationTimeout/2)
+		defer cancelFn()
+
+		chanDone := make(chan struct{})
+
+		go func() {
+			defer func() {
+				chanDone <- struct{}{}
+			}()
+
+			// function call with context
+			select {
+			case <-ctx.Done():
+				// cancel
+			case <-time.After(tC.conf.InterationTimeout):
+				tC.view.ShowMsg("Done")
+			}
+
+		}()
+
+		select {
+		case <-tC.exitChan:
+			// application stopped
+			return
+		case <-chanDone:
+			return
+		case <-ctx.Done():
+			tC.view.ShowError(errors.New("operation timeout"))
+		}
+	}()
 }
 
 func main() {
@@ -43,11 +79,17 @@ func main() {
 
 	tView := tui.NewApp(conf)
 
+	exitChan := make(chan struct{})
+
 	tCtrl := &testController{
-		view: tView,
+		view:     tView,
+		exitChan: exitChan,
+		conf:     conf,
 	}
 
 	tView.SetController(tCtrl)
 
 	tView.Start()
+
+	close(exitChan)
 }
