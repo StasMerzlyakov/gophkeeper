@@ -7,18 +7,18 @@
 ## Контекст
 В базе данных содержится только постоянная информация.
 
-## Принятое решение
+## Принятое решение  (Alt-D)
 ```plantuml
 @startuml
 class userInfo{
-    userId bigserial
-	email text not null
-	pass_hash text not null
-	pass_salt text not null
-	otp_key text not null
-	master_key text not null
-	master_hint text not null
-	hello_encrypted text not null
+    userId bigserial                   //  PK
+	email text not null                // email, уникальный
+	pass_hash text not null            // Хэш от пароля
+	pass_salt text not null            // Солья для вычисления хэша от пароля
+	otp_key text not null              // Зашифрованный на ServerSecret OTP пароль пользователя
+	master_key text not null           // Зашифрованный на MasterKeyPass ключи шифрования данных пользователя
+	master_hint text not null          // Напоминалка для пользователя для восстановления MasterKey
+	hello_encrypted text not null      // Зашифрованная на MasterKey 'Hello from GophKeeper!!!'. Используется для проверки правильности ввода MasterKeyPass
 	primary key(userId)
     unique (email)
 }
