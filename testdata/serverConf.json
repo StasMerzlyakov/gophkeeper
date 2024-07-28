@@ -1,3 +1,4 @@
 {
-    "port": ":9192"
+    "port": ":9192",
+    "authTimeout" : "45s"
 }

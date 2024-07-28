@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/stretchr/testify/assert"
@@ -43,7 +44,7 @@ func TestClientConf(t *testing.T) {
 
 	t.Run("config file", func(t *testing.T) {
 
-		testConfPath := filepath.Join(TestFileDirectory, "clientConf.json")
+		testConfPath := filepath.Join(TestFileDirectory, "clientConf2.json")
 
 		currentArgs := os.Args[:]
 		defer func() {
@@ -57,6 +58,7 @@ func TestClientConf(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, "localhost:9193", conf.ServerAddress)
+		assert.Equal(t, 3*time.Second, conf.InterationTimeout)
 	})
 
 	t.Run("env priority", func(t *testing.T) {
@@ -80,16 +82,6 @@ func TestClientConf(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, "http://test", conf.ServerAddress)
+		assert.Equal(t, 4*time.Second, conf.InterationTimeout)
 	})
-
-	/*
-		t.Run("err", func(t *testing.T) {
-			os.Setenv("SERVER_ADDRESS", "http://test")
-			os.Setenv("CA_CERT", "ca.cert")
-
-			conf, err := config.LoadClientConf()
-			require.Error(t, err)
-
-		}) */
-
 }

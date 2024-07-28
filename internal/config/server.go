@@ -28,21 +28,21 @@ const (
 )
 
 type ServerConf struct {
-	Port                string        `env:"PORT" json:"port"`
-	TLSKey              string        `env:"TLS_KEY" json:"tlsKey"`
-	TLSCert             string        `env:"TLS_CERT" json:"tlsCert"`
-	TokenExp            time.Duration `env:"JWT_EXP" json:"jwtExp"`
-	TokenSecret         string        `env:"JWT_SECRET" json:"jwtSecret"`
-	AuthStageTimeout    time.Duration `env:"AUTH_STAGE_TIMEOUT" json:"authTimeout"`
-	ServerEncryptionKey string        `env:"SERVER_ENCRYPTION_KEY" json:"serverSecret"`
-	DomainName          string        `env:"DOMAIN_NAME" json:"domainName"`
-	SMTPHost            string        `env:"SMTP_HOST" json:"smtpHost"`
-	SMTPPort            int           `env:"SMTP_PORT" json:"smtpPort"`
-	ServerEMail         string        `env:"SERVER_EMAIL" json:"serverEmail"`
-	DatabaseURI         string        `env:"DATABASE_URI" json:"dbDsn"`
-	MaxConns            int           `env:"DATABASE_MAX_CONNS" json:"dbMaxConns"`
-	MaxConnLifetime     time.Duration `env:"DATABASE_MAX_CONN_LIFE_TIME" json:"dbMaxConnLifeTime"`
-	MaxConnIdleTime     time.Duration `env:"DATABASE_MAX_CONN_IDLE_TIME" json:"dbMaxConnIdleTime"`
+	Port                string        `env:"PORT" json:"port,omitempty"`
+	TLSKey              string        `env:"TLS_KEY" json:"tlsKey,omitempty"`
+	TLSCert             string        `env:"TLS_CERT" json:"tlsCert,omitempty"`
+	TokenExp            time.Duration `env:"JWT_EXP" json:"jwtExp,omitempty"`
+	TokenSecret         string        `env:"JWT_SECRET" json:"jwtSecret,omitempty"`
+	AuthStageTimeout    time.Duration `env:"AUTH_STAGE_TIMEOUT" json:"authTimeout,omitempty"`
+	ServerEncryptionKey string        `env:"SERVER_ENCRYPTION_KEY" json:"serverSecret,omitempty"`
+	DomainName          string        `env:"DOMAIN_NAME" json:"domainName,omitempty"`
+	SMTPHost            string        `env:"SMTP_HOST" json:"smtpHost,omitempty"`
+	SMTPPort            int           `env:"SMTP_PORT" json:"smtpPort,omitempty"`
+	ServerEMail         string        `env:"SERVER_EMAIL" json:"serverEmail,omitempty"`
+	DatabaseURI         string        `env:"DATABASE_URI" json:"dbDsn,omitempty"`
+	MaxConns            int           `env:"DATABASE_MAX_CONNS" json:"dbMaxConns,omitempty"`
+	MaxConnLifetime     time.Duration `env:"DATABASE_MAX_CONN_LIFE_TIME" json:"dbMaxConnLifeTime,omitempty"`
+	MaxConnIdleTime     time.Duration `env:"DATABASE_MAX_CONN_IDLE_TIME" json:"dbMaxConnIdleTime,omitempty"`
 }
 
 func defaultServConf() *ServerConf {
@@ -104,4 +104,58 @@ func LoadServConf(flagSet *flag.FlagSet) (*ServerConf, error) {
 	}
 
 	return srvConf, nil
+}
+
+func (sCnf *ServerConf) UnmarshalJSON(data []byte) (err error) {
+	// default json fail on time.Duration
+	type ServerConfAlias ServerConf
+	aliasValue := &struct {
+		*ServerConfAlias
+		// redefine field
+		TokenExp         string `json:"jwtExp,omitempty"`
+		AuthStageTimeout string `json:"authTimeout,omitempty"`
+		MaxConnLifetime  string `json:"dbMaxConnLifeTime,omitempty"`
+		MaxConnIdleTime  string `json:"dbMaxConnIdleTime,omitempty"`
+	}{
+
+		ServerConfAlias: (*ServerConfAlias)(sCnf),
+	}
+
+	if err = json.Unmarshal(data, aliasValue); err != nil {
+		return
+	}
+
+	if aliasValue.TokenExp != "" {
+		tm, err := time.ParseDuration(aliasValue.TokenExp)
+		if err != nil {
+			return err
+		}
+		sCnf.TokenExp = tm
+	}
+
+	if aliasValue.AuthStageTimeout != "" {
+		tm, err := time.ParseDuration(aliasValue.AuthStageTimeout)
+		if err != nil {
+			return err
+		}
+		sCnf.AuthStageTimeout = tm
+	}
+
+	if aliasValue.MaxConnLifetime != "" {
+		tm, err := time.ParseDuration(aliasValue.MaxConnLifetime)
+		if err != nil {
+			return err
+		}
+		sCnf.MaxConnLifetime = tm
+	}
+
+	if aliasValue.MaxConnIdleTime != "" {
+		tm, err := time.ParseDuration(aliasValue.MaxConnIdleTime)
+		if err != nil {
+			return err
+		}
+		sCnf.MaxConnIdleTime = tm
+	}
+
+	return
 }

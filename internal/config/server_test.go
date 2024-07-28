@@ -44,6 +44,20 @@ func TestLoadServConf(t *testing.T) {
 		assert.Equal(t, config.ServerDefaultMaxConnIdleTime, conf.MaxConnIdleTime)
 	})
 
+	t.Run("env values durations", func(t *testing.T) {
+		defer os.Clearenv()
+
+		err := os.Setenv("JWT_EXP", "1h")
+		require.NoError(t, err)
+
+		flagSet := flag.NewFlagSet(t.Name(), errorHandling)
+		conf, err := config.LoadServConf(flagSet)
+
+		require.NoError(t, err)
+
+		assert.Equal(t, 1*time.Hour, conf.TokenExp)
+	})
+
 	t.Run("env values", func(t *testing.T) {
 		defer os.Clearenv()
 		err := os.Setenv("PORT", ":9191")
@@ -135,6 +149,7 @@ func TestLoadServConf(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, ":9191", conf.Port)
+		assert.Equal(t, 45*time.Second, conf.AuthStageTimeout)
 	})
 
 	t.Run("err", func(t *testing.T) {

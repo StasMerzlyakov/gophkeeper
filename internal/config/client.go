@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"flag"
 	"os"
 	"time"
@@ -11,12 +12,12 @@ import (
 const (
 	ClientDefaultServerAddres      = "localhost:3200"
 	ClientDefaultCACert            = "../../keys/ca-cert.pem"
-	ClientDefaultInterationTimeout = 20 * time.Second
+	ClientDefaultInterationTimeout = 3 * time.Second
 )
 
 type ClientConf struct {
-	ServerAddress     string        `env:"SERVER_ADDRESS" json:"serverAddress"`
-	InterationTimeout time.Duration `env:"INTERACTION_TIMEOUT" json:"interactionTimeout"`
+	ServerAddress     string        `env:"SERVER_ADDRESS" json:"serverAddress,omitempty"`
+	InterationTimeout time.Duration `env:"INTERACTION_TIMEOUT" json:"interactionTimeout,omitempty"`
 	CACert            string        `env:"CA_CERT" json:"caCert"`
 }
 
@@ -49,4 +50,30 @@ func LoadClientConf(flagSet *flag.FlagSet) (*ClientConf, error) {
 	}
 
 	return clntConf, nil
+}
+
+func (cCnf *ClientConf) UnmarshalJSON(data []byte) (err error) {
+	// default json fail on time.Duration
+	type ClientConfAlias ClientConf
+	aliasValue := &struct {
+		*ClientConfAlias
+		// redefine field
+		InterationTimeout string `json:"interactionTimeout,omitempty"`
+	}{
+
+		ClientConfAlias: (*ClientConfAlias)(cCnf),
+	}
+
+	if err = json.Unmarshal(data, aliasValue); err != nil {
+		return
+	}
+
+	if aliasValue.InterationTimeout != "" {
+		tm, err := time.ParseDuration(aliasValue.InterationTimeout)
+		if err != nil {
+			return err
+		}
+		cCnf.InterationTimeout = tm
+	}
+	return
 }
