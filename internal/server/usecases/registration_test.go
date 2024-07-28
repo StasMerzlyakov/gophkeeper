@@ -46,6 +46,9 @@ func TestRegistrator_Regisration(t *testing.T) {
 			Password: "test_pass",
 		}
 
+		mockStorage := NewMockStateFullStorage(ctrl)
+		mockStorage.EXPECT().IsEMailAvailable(gomock.Any(), gomock.Eq(data.EMail)).Times(1).Return(true, nil)
+
 		sessionID := domain.SessionID(uuid.NewString())
 		mockHelper := NewMockRegistrationHelper(ctrl)
 		mockHelper.EXPECT().NewSessionID().Times(1).Return(domain.SessionID(sessionID))
@@ -89,12 +92,58 @@ func TestRegistrator_Regisration(t *testing.T) {
 		registrator := usecases.NewRegistrator(conf).
 			TemporaryStorage(mockTempStorage).
 			EMailSender(mockSender).
+			StateFullStorage(mockStorage).
 			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
 		sID, err := registrator.Registrate(ctx, data)
 		assert.NoError(t, err)
 		assert.Equal(t, sessionID, sID)
+	})
+
+	t.Run("email_err", func(t *testing.T) {
+		conf := &config.ServerConf{
+			DomainName:          "localhost",
+			ServerEncryptionKey: "secret_key",
+		}
+
+		data := &domain.EMailData{
+			EMail:    "test@email",
+			Password: "test_pass",
+		}
+		testErr := errors.New("testErr")
+
+		mockStorage := NewMockStateFullStorage(ctrl)
+		mockStorage.EXPECT().IsEMailAvailable(gomock.Any(), gomock.Eq(data.EMail)).Times(1).Return(false, testErr)
+
+		registrator := usecases.NewRegistrator(conf).
+			StateFullStorage(mockStorage)
+
+		ctx := context.Background()
+		_, err := registrator.Registrate(ctx, data)
+		assert.ErrorIs(t, err, testErr)
+	})
+
+	t.Run("email_busy", func(t *testing.T) {
+		conf := &config.ServerConf{
+			DomainName:          "localhost",
+			ServerEncryptionKey: "secret_key",
+		}
+
+		data := &domain.EMailData{
+			EMail:    "test@email",
+			Password: "test_pass",
+		}
+
+		mockStorage := NewMockStateFullStorage(ctrl)
+		mockStorage.EXPECT().IsEMailAvailable(gomock.Any(), gomock.Eq(data.EMail)).Times(1).Return(false, nil)
+
+		registrator := usecases.NewRegistrator(conf).
+			StateFullStorage(mockStorage)
+
+		ctx := context.Background()
+		_, err := registrator.Registrate(ctx, data)
+		assert.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 	})
 
 	t.Run("check_email_err", func(t *testing.T) {
@@ -107,6 +156,9 @@ func TestRegistrator_Regisration(t *testing.T) {
 			EMail:    "test@email",
 			Password: "test_pass",
 		}
+
+		mockStorage := NewMockStateFullStorage(ctrl)
+		mockStorage.EXPECT().IsEMailAvailable(gomock.Any(), gomock.Eq(data.EMail)).Times(1).Return(true, nil)
 
 		sessionID := domain.SessionID(uuid.NewString())
 		mockHelper := NewMockRegistrationHelper(ctrl)
@@ -122,6 +174,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 		})
 
 		registrator := usecases.NewRegistrator(conf).
+			StateFullStorage(mockStorage).
 			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
@@ -140,6 +193,9 @@ func TestRegistrator_Regisration(t *testing.T) {
 			Password: "test_pass",
 		}
 
+		mockStorage := NewMockStateFullStorage(ctrl)
+		mockStorage.EXPECT().IsEMailAvailable(gomock.Any(), gomock.Eq(data.EMail)).Times(1).Return(true, nil)
+
 		sessionID := domain.SessionID(uuid.NewString())
 		mockHelper := NewMockRegistrationHelper(ctrl)
 		mockHelper.EXPECT().NewSessionID().Times(1).Return(domain.SessionID(sessionID))
@@ -155,6 +211,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 		mockHelper.EXPECT().HashPassword(gomock.Eq(data.Password)).Times(1).Return(nil, testErr)
 
 		registrator := usecases.NewRegistrator(conf).
+			StateFullStorage(mockStorage).
 			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
@@ -172,6 +229,9 @@ func TestRegistrator_Regisration(t *testing.T) {
 			EMail:    "test@email",
 			Password: "test_pass",
 		}
+
+		mockStorage := NewMockStateFullStorage(ctrl)
+		mockStorage.EXPECT().IsEMailAvailable(gomock.Any(), gomock.Eq(data.EMail)).Times(1).Return(true, nil)
 
 		sessionID := domain.SessionID(uuid.NewString())
 		mockHelper := NewMockRegistrationHelper(ctrl)
@@ -194,6 +254,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 		mockHelper.EXPECT().GenerateQR(gomock.Eq(data.EMail)).Times(1).Return("", nil, testErr)
 
 		registrator := usecases.NewRegistrator(conf).
+			StateFullStorage(mockStorage).
 			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
@@ -211,6 +272,9 @@ func TestRegistrator_Regisration(t *testing.T) {
 			EMail:    "test@email",
 			Password: "test_pass",
 		}
+
+		mockStorage := NewMockStateFullStorage(ctrl)
+		mockStorage.EXPECT().IsEMailAvailable(gomock.Any(), gomock.Eq(data.EMail)).Times(1).Return(true, nil)
 
 		sessionID := domain.SessionID(uuid.NewString())
 		mockHelper := NewMockRegistrationHelper(ctrl)
@@ -236,6 +300,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 		mockHelper.EXPECT().EncryptOTPKey(gomock.Eq(qrKey)).Times(1).Return("", testErr)
 
 		registrator := usecases.NewRegistrator(conf).
+			StateFullStorage(mockStorage).
 			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
@@ -253,6 +318,9 @@ func TestRegistrator_Regisration(t *testing.T) {
 			EMail:    "test@email",
 			Password: "test_pass",
 		}
+
+		mockStorage := NewMockStateFullStorage(ctrl)
+		mockStorage.EXPECT().IsEMailAvailable(gomock.Any(), gomock.Eq(data.EMail)).Times(1).Return(true, nil)
 
 		sessionID := domain.SessionID(uuid.NewString())
 		mockHelper := NewMockRegistrationHelper(ctrl)
@@ -294,6 +362,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 		registrator := usecases.NewRegistrator(conf).
 			RegistrationHelper(mockHelper).
+			StateFullStorage(mockStorage).
 			TemporaryStorage(mockTempStorage)
 
 		ctx := context.Background()
@@ -311,6 +380,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 			EMail:    "test@email",
 			Password: "test_pass",
 		}
+		mockStorage := NewMockStateFullStorage(ctrl)
+		mockStorage.EXPECT().IsEMailAvailable(gomock.Any(), gomock.Eq(data.EMail)).Times(1).Return(true, nil)
 
 		sessionID := domain.SessionID(uuid.NewString())
 		mockHelper := NewMockRegistrationHelper(ctrl)
@@ -355,6 +426,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 		registrator := usecases.NewRegistrator(conf).
 			RegistrationHelper(mockHelper).
+			StateFullStorage(mockStorage).
 			TemporaryStorage(mockTempStorage).
 			EMailSender(mockSender)
 

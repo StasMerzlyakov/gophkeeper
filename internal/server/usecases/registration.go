@@ -58,6 +58,14 @@ func (reg *registrator) GetEMailStatus(ctx context.Context, email string) (domai
 // First part of the registration process. Store email and password data. Generate and send email with OTP QR.
 func (reg *registrator) Registrate(ctx context.Context, data *domain.EMailData) (domain.SessionID, error) {
 
+	if isAvailable, err := reg.stflStorage.IsEMailAvailable(ctx, data.EMail); err != nil {
+		return "", fmt.Errorf("checkEMail err - %w", err)
+	} else {
+		if !isAvailable {
+			return "", fmt.Errorf("%w email %v is busy", domain.ErrClientDataIncorrect, data.EMail)
+		}
+	}
+
 	sessionID := reg.regHelper.NewSessionID()
 
 	if _, err := reg.regHelper.CheckEMailData(data); err != nil {
