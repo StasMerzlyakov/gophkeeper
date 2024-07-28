@@ -4,10 +4,8 @@ import (
 	"context"
 	"errors"
 	"testing"
-	"time"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
-	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -34,10 +32,7 @@ func TestLoginer_Login(t *testing.T) {
 			return nil
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		loginer := app.NewLoginer(conf).LoginSever(mockSrv).LoginView(mockVier)
+		loginer := app.NewLoginer().LoginSever(mockSrv).LoginView(mockVier)
 		loginer.Login(context.Background(), loginData)
 	})
 
@@ -61,10 +56,7 @@ func TestLoginer_Login(t *testing.T) {
 			return testErr
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		loginer := app.NewLoginer(conf).LoginSever(mockSrv).LoginView(mockVier)
+		loginer := app.NewLoginer().LoginSever(mockSrv).LoginView(mockVier)
 		loginer.Login(context.Background(), loginData)
 	})
 }
@@ -90,10 +82,7 @@ func TestLoginer_PassOTP(t *testing.T) {
 			return nil
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		loginer := app.NewLoginer(conf).LoginSever(mockSrv).LoginView(mockVier)
+		loginer := app.NewLoginer().LoginSever(mockSrv).LoginView(mockVier)
 		loginer.PassOTP(context.Background(), otpPass)
 	})
 
@@ -114,10 +103,7 @@ func TestLoginer_PassOTP(t *testing.T) {
 			return testErr
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		loginer := app.NewLoginer(conf).LoginSever(mockSrv).LoginView(mockVier)
+		loginer := app.NewLoginer().LoginSever(mockSrv).LoginView(mockVier)
 		loginer.PassOTP(context.Background(), otpPass)
 	})
 }
@@ -168,10 +154,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 			require.Equal(t, masterKey, mKey)
 		})
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		loginer := app.NewLoginer(conf).LoginSever(mockSrv).LoginView(mockVier).LoginHelper(mockHlp).LoginStorage(mockStorage)
+		loginer := app.NewLoginer().LoginSever(mockSrv).LoginView(mockVier).LoginHelper(mockHlp).LoginStorage(mockStorage)
 		loginer.CheckMasterKey(context.Background(), masterKeyPassword)
 	})
 
@@ -188,10 +171,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 
 		mockSrv.EXPECT().GetHelloData(gomock.Any()).Return(nil, testErr).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		loginer := app.NewLoginer(conf).LoginSever(mockSrv).LoginView(mockVier)
+		loginer := app.NewLoginer().LoginSever(mockSrv).LoginView(mockVier)
 		loginer.CheckMasterKey(context.Background(), masterKeyPassword)
 	})
 
@@ -221,10 +201,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 			return "", testErr
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		loginer := app.NewLoginer(conf).LoginSever(mockSrv).LoginView(mockVier).LoginHelper(mockHlp)
+		loginer := app.NewLoginer().LoginSever(mockSrv).LoginView(mockVier).LoginHelper(mockHlp)
 		loginer.CheckMasterKey(context.Background(), masterKeyPassword)
 	})
 
@@ -262,10 +239,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 			return nil, testErr
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		loginer := app.NewLoginer(conf).LoginSever(mockSrv).LoginView(mockVier).LoginHelper(mockHlp)
+		loginer := app.NewLoginer().LoginSever(mockSrv).LoginView(mockVier).LoginHelper(mockHlp)
 		loginer.CheckMasterKey(context.Background(), masterKeyPassword)
 	})
 
@@ -308,10 +282,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 			return false, testErr
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		loginer := app.NewLoginer(conf).LoginSever(mockSrv).LoginView(mockVier).LoginHelper(mockHlp)
+		loginer := app.NewLoginer().LoginSever(mockSrv).LoginView(mockVier).LoginHelper(mockHlp)
 		loginer.CheckMasterKey(context.Background(), masterKeyPassword)
 	})
 
@@ -359,10 +330,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 			assert.Equal(t, helloData.MasterKeyPassHint, msg)
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		loginer := app.NewLoginer(conf).LoginSever(mockSrv).LoginView(mockVier).LoginHelper(mockHlp)
+		loginer := app.NewLoginer().LoginSever(mockSrv).LoginView(mockVier).LoginHelper(mockHlp)
 		loginer.CheckMasterKey(context.Background(), masterKeyPassword)
 	})
 }

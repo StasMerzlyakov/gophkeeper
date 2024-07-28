@@ -19,7 +19,7 @@ func (tApp *tuiApp) ShowRegPassOPTView() {
 						otpPass.Pass = password
 					}).
 					AddButton("Enter", func() {
-						tApp.regController.PassOTP(otpPass)
+						tApp.controller.RegPassOTP(otpPass)
 					}), 0, 1, true,
 			).
 			AddItem(
@@ -57,7 +57,7 @@ func (tApp *tuiApp) ShowRegEmailView() {
 						emailData.Password = password
 					}).
 					AddButton("Enter", func() {
-						tApp.regController.Registrate(emailData)
+						tApp.controller.RegEMail(emailData)
 					}), 0, 1, true,
 			).
 			AddItem(
@@ -95,7 +95,7 @@ func (tApp *tuiApp) ShowRegMasterKeyView() {
 						masterKeyData.MasterKeyPassword = password
 					}).
 					AddButton("Enter", func() {
-						tApp.regController.InitMasterKey(masterKeyData)
+						tApp.controller.RegInitMasterKey(masterKeyData)
 					}), 0, 1, true,
 			).
 			AddItem(

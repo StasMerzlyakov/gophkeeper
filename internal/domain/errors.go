@@ -10,4 +10,5 @@ var (
 	ErrAuthDataIncorrect     = errors.New("wrong auth data")
 	ErrClientDataIncorrect   = errors.New("client data incorrect")
 	ErrClientInternal        = errors.New("client implementation error")
+	ErrClientServerTimeout   = errors.New("server is not responding")
 )

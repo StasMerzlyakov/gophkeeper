@@ -19,7 +19,7 @@ func (tApp *tuiApp) ShowLoginPassOPTView() {
 						otpPass.Pass = password
 					}).
 					AddButton("Enter", func() {
-						tApp.logController.PassOTP(otpPass)
+						tApp.controller.LoginPassOTP(otpPass)
 					}), 0, 1, true,
 			).
 			AddItem(
@@ -58,7 +58,7 @@ func (tApp *tuiApp) ShowLoginEmailView() {
 						emailData.Password = password
 					}).
 					AddButton("Login", func() {
-						tApp.logController.Login(emailData)
+						tApp.controller.LoginEMail(emailData)
 					}), 0, 1, true,
 			).
 			AddItem(
@@ -95,7 +95,7 @@ func (tApp *tuiApp) ShowLoginMasterKeyView(hint string) {
 			masterKey = mKey
 		}).
 			AddButton("Enter", func() {
-				tApp.logController.CheckMasterKey(masterKey)
+				tApp.controller.LoginCheckMasterKey(masterKey)
 			})
 
 		tApp.loginMKeyFlex.

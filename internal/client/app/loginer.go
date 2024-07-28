@@ -4,14 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
-func NewLoginer(conf *config.ClientConf) *loginer {
-	return &loginer{
-		conf: conf,
-	}
+func NewLoginer() *loginer {
+	return &loginer{}
 }
 
 func (lg *loginer) LoginSever(logSrv LoginServer) *loginer {
@@ -35,7 +32,6 @@ func (lg *loginer) LoginStorage(storage LoginStorage) *loginer {
 }
 
 type loginer struct {
-	conf    *config.ClientConf
 	logSrv  LoginServer
 	logView LoginView
 	helper  LoginHelper
@@ -43,35 +39,35 @@ type loginer struct {
 }
 
 func (lg *loginer) Login(ctx context.Context, data *domain.EMailData) {
-	timedCtx, fn := context.WithTimeout(ctx, lg.conf.InterationTimeout)
-	defer fn()
-
-	if err := lg.logSrv.Login(timedCtx, data); err != nil {
+	if err := lg.logSrv.Login(ctx, data); err != nil {
 		lg.logView.ShowError(err)
 		return
 	}
 
-	lg.logView.ShowLogOTPView()
+	select {
+	case <-ctx.Done():
+		return
+	default:
+		lg.logView.ShowLogOTPView()
+	}
 }
 
 func (lg *loginer) PassOTP(ctx context.Context, otpPass *domain.OTPPass) {
-	timedCtx, fn := context.WithTimeout(ctx, lg.conf.InterationTimeout)
-	defer fn()
-
-	if err := lg.logSrv.PassLoginOTP(timedCtx, otpPass.Pass); err != nil {
+	if err := lg.logSrv.PassLoginOTP(ctx, otpPass.Pass); err != nil {
 		lg.logView.ShowError(err)
 		return
 	}
 
+	/*select {
+	case <-ctx.Done():
+		return
+	default: */
 	lg.logView.ShowMasterKeyView("")
-
+	//}
 }
 
 func (lg *loginer) CheckMasterKey(ctx context.Context, masterKeyPassword string) {
-	timedCtx, fn := context.WithTimeout(ctx, lg.conf.InterationTimeout)
-	defer fn()
-
-	helloData, err := lg.logSrv.GetHelloData(timedCtx)
+	helloData, err := lg.logSrv.GetHelloData(ctx)
 	if err != nil {
 		lg.logView.ShowError(err)
 		return
@@ -101,6 +97,11 @@ func (lg *loginer) CheckMasterKey(ctx context.Context, masterKeyPassword string)
 		return
 	}
 
-	lg.storage.SetMasterKey(masterKey)
-	lg.logView.ShowDataAccessView()
+	select {
+	case <-ctx.Done():
+		return
+	default:
+		lg.storage.SetMasterKey(masterKey)
+		lg.logView.ShowDataAccessView()
+	}
 }

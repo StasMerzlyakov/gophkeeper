@@ -29,6 +29,13 @@ type UserID int64
 type AuthorizationData struct {
 }
 
+type ClientStatus string
+
+const (
+	ClientStatusOnline  ClientStatus = "ONLINE"
+	ClientStatusOffline ClientStatus = "OFFLINE"
+)
+
 type EMailStatus string
 
 const (

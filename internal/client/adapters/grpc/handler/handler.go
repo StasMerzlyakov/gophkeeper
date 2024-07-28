@@ -77,6 +77,12 @@ func (h *handler) Stop() {
 	}
 }
 
+func (h *handler) Ping(ctx context.Context) error {
+	req := &proto.PingRequest{}
+	_, err := h.pinger.Ping(ctx, req)
+	return err
+}
+
 func (h *handler) CheckEMail(ctx context.Context, email string) (domain.EMailStatus, error) {
 	req := &proto.CheckEMailRequest{
 		Email: email,

@@ -6,7 +6,11 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
-//go:generate mockgen -destination "./generated_mocks_test.go" -package ${GOPACKAGE}_test . RegServer,RegView,RegHelper,LoginServer,LoginView,LoginHelper,LoginStorage
+//go:generate mockgen -destination "./generated_mocks_test.go" -package ${GOPACKAGE}_test . Server,InfoView,Pinger,RegServer,RegView,RegHelper,LoginServer,LoginView,LoginHelper,LoginStorage
+
+type Pinger interface {
+	Ping(ctx context.Context) error
+}
 
 type LoginStorage interface {
 	SetMasterKey(masterKey string)
@@ -45,6 +49,18 @@ type LoginServer interface {
 	GetHelloData(ctx context.Context) (*domain.HelloData, error)
 }
 
+type InfoView interface {
+	ShowError(err error)
+	ShowMsg(msg string)
+	ShowLogOTPView()
+	ShowMasterKeyView(hint string)
+	ShowDataAccessView()
+	ShowLoginView()
+	ShowRegForm()
+	ShowRegOTPView()
+	ShowInitMasterKeyView()
+}
+
 type LoginView interface {
 	ShowLogOTPView()
 	ShowError(err error)
@@ -57,4 +73,16 @@ type LoginHelper interface {
 	DecryptMasterKey(masterKeyPass string, encryptedMasterKey string) (string, error)
 	DecryptShortData(ciphertext string, masterKey string) ([]byte, error)
 	CheckHello(chk string) (bool, error)
+}
+
+type Server interface {
+	Stop()
+	Ping(ctx context.Context) error
+	CheckEMail(ctx context.Context, email string) (domain.EMailStatus, error)
+	Registrate(ctx context.Context, data *domain.EMailData) error
+	PassRegOTP(ctx context.Context, otpPass string) error
+	InitMasterKey(ctx context.Context, mKey *domain.MasterKeyData) error
+	Login(ctx context.Context, data *domain.EMailData) error
+	PassLoginOTP(ctx context.Context, otpPass string) error
+	GetHelloData(ctx context.Context) (*domain.HelloData, error)
 }

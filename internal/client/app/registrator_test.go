@@ -4,10 +4,8 @@ import (
 	"context"
 	"errors"
 	"testing"
-	"time"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
-	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -36,10 +34,7 @@ func TestRegistrator_CheckEmail(t *testing.T) {
 		mockView := NewMockRegView(ctrl)
 		mockView.EXPECT().ShowMsg(gomock.Any()).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		reg := app.NewRegistrator(conf).RegHelper(mockHelper).RegServer(mockSrv).RegView(mockView)
+		reg := app.NewRegistrator().RegHelper(mockHelper).RegServer(mockSrv).RegView(mockView)
 		reg.CheckEmail(context.Background(), email)
 	})
 
@@ -56,10 +51,7 @@ func TestRegistrator_CheckEmail(t *testing.T) {
 			require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		reg := app.NewRegistrator(conf).RegHelper(mockHelper).RegView(mockView)
+		reg := app.NewRegistrator().RegHelper(mockHelper).RegView(mockView)
 		reg.CheckEmail(context.Background(), email)
 	})
 
@@ -84,10 +76,7 @@ func TestRegistrator_CheckEmail(t *testing.T) {
 			require.ErrorIs(t, err, testErr)
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		reg := app.NewRegistrator(conf).RegHelper(mockHelper).RegServer(mockSrv).RegView(mockView)
+		reg := app.NewRegistrator().RegHelper(mockHelper).RegServer(mockSrv).RegView(mockView)
 		reg.CheckEmail(context.Background(), email)
 	})
 
@@ -110,10 +99,7 @@ func TestRegistrator_CheckEmail(t *testing.T) {
 			require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		reg := app.NewRegistrator(conf).RegHelper(mockHelper).RegServer(mockSrv).RegView(mockView)
+		reg := app.NewRegistrator().RegHelper(mockHelper).RegServer(mockSrv).RegView(mockView)
 		reg.CheckEmail(context.Background(), email)
 	})
 }
@@ -144,11 +130,7 @@ func TestRegistrator_Registrate(t *testing.T) {
 		mockView := NewMockRegView(ctrl)
 		mockView.EXPECT().ShowRegOTPView().Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-
-		reg := app.NewRegistrator(conf).RegHelper(mockHelper).RegServer(mockSrv).RegView(mockView)
+		reg := app.NewRegistrator().RegHelper(mockHelper).RegServer(mockSrv).RegView(mockView)
 		reg.Registrate(context.Background(), emailData)
 	})
 
@@ -170,11 +152,7 @@ func TestRegistrator_Registrate(t *testing.T) {
 			require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-
-		reg := app.NewRegistrator(conf).RegHelper(mockHelper).RegView(mockView)
+		reg := app.NewRegistrator().RegHelper(mockHelper).RegView(mockView)
 		reg.Registrate(context.Background(), emailData)
 	})
 
@@ -202,11 +180,7 @@ func TestRegistrator_Registrate(t *testing.T) {
 			require.ErrorIs(t, err, testErr)
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-
-		reg := app.NewRegistrator(conf).RegServer(mockSrv).RegHelper(mockHelper).RegView(mockView)
+		reg := app.NewRegistrator().RegServer(mockSrv).RegHelper(mockHelper).RegView(mockView)
 		reg.Registrate(context.Background(), emailData)
 	})
 }
@@ -231,11 +205,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 		mockView := NewMockRegView(ctrl)
 		mockView.EXPECT().ShowInitMasterKeyView().Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-
-		reg := app.NewRegistrator(conf).RegServer(mockSrv).RegView(mockView)
+		reg := app.NewRegistrator().RegServer(mockSrv).RegView(mockView)
 
 		reg.PassOTP(context.Background(), otpPass)
 	})
@@ -258,11 +228,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 			require.ErrorIs(t, err, testErr)
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-
-		reg := app.NewRegistrator(conf).RegServer(mockSrv).RegView(mockView)
+		reg := app.NewRegistrator().RegServer(mockSrv).RegView(mockView)
 		reg.PassOTP(context.Background(), otpPass)
 	})
 
@@ -318,10 +284,7 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 		mockView := NewMockRegView(ctrl)
 		mockView.EXPECT().ShowLoginView().Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		reg := app.NewRegistrator(conf).RegServer(mockSrv).RegView(mockView).RegHelper(mockHelper)
+		reg := app.NewRegistrator().RegServer(mockSrv).RegView(mockView).RegHelper(mockHelper)
 		reg.InitMasterKey(context.Background(), keyData)
 	})
 
@@ -342,10 +305,7 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			assert.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		reg := app.NewRegistrator(conf).RegView(mockView).RegHelper(mockHelper)
+		reg := app.NewRegistrator().RegView(mockView).RegHelper(mockHelper)
 		reg.InitMasterKey(context.Background(), keyData)
 	})
 
@@ -376,10 +336,7 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			assert.ErrorIs(t, err, testErr)
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		reg := app.NewRegistrator(conf).RegView(mockView).RegHelper(mockHelper)
+		reg := app.NewRegistrator().RegView(mockView).RegHelper(mockHelper)
 		reg.InitMasterKey(context.Background(), keyData)
 	})
 
@@ -413,10 +370,7 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			assert.ErrorIs(t, err, testErr)
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		reg := app.NewRegistrator(conf).RegView(mockView).RegHelper(mockHelper)
+		reg := app.NewRegistrator().RegView(mockView).RegHelper(mockHelper)
 		reg.InitMasterKey(context.Background(), keyData)
 	})
 
@@ -457,10 +411,7 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			assert.ErrorIs(t, err, testErr)
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		reg := app.NewRegistrator(conf).RegView(mockView).RegHelper(mockHelper)
+		reg := app.NewRegistrator().RegView(mockView).RegHelper(mockHelper)
 		reg.InitMasterKey(context.Background(), keyData)
 	})
 
@@ -513,10 +464,7 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			assert.ErrorIs(t, err, testErr)
 		}).Times(1)
 
-		conf := &config.ClientConf{
-			InterationTimeout: 2 * time.Second,
-		}
-		reg := app.NewRegistrator(conf).RegServer(mockSrv).RegView(mockView).RegHelper(mockHelper)
+		reg := app.NewRegistrator().RegServer(mockSrv).RegView(mockView).RegHelper(mockHelper)
 		reg.InitMasterKey(context.Background(), keyData)
 	})
 }

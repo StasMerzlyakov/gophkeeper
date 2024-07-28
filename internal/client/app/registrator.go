@@ -4,14 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
-func NewRegistrator(conf *config.ClientConf) *registrator {
-	return &registrator{
-		conf: conf,
-	}
+func NewRegistrator() *registrator {
+	return &registrator{}
 }
 
 func (reg *registrator) RegServer(srv RegServer) *registrator {
@@ -30,7 +27,6 @@ func (reg *registrator) RegHelper(helper RegHelper) *registrator {
 }
 
 type registrator struct {
-	conf   *config.ClientConf
 	srv    RegServer
 	view   RegView
 	helper RegHelper
@@ -42,10 +38,7 @@ func (reg *registrator) CheckEmail(ctx context.Context, email string) {
 		return
 	}
 
-	timedCtx, fn := context.WithTimeout(ctx, reg.conf.InterationTimeout)
-	defer fn()
-
-	if status, err := reg.srv.CheckEMail(timedCtx, email); err != nil {
+	if status, err := reg.srv.CheckEMail(ctx, email); err != nil {
 		reg.view.ShowError(err)
 
 	} else {
@@ -58,37 +51,40 @@ func (reg *registrator) CheckEmail(ctx context.Context, email string) {
 }
 
 func (reg *registrator) Registrate(ctx context.Context, data *domain.EMailData) {
-	timedCtx, fn := context.WithTimeout(ctx, reg.conf.InterationTimeout)
-	defer fn()
-
 	if !reg.helper.CheckAuthPasswordComplexityLevel(data.Password) {
 		reg.view.ShowError(fmt.Errorf("%w - password too slow", domain.ErrClientDataIncorrect))
 		return
 	}
 
-	if err := reg.srv.Registrate(timedCtx, data); err != nil {
+	if err := reg.srv.Registrate(ctx, data); err != nil {
 		reg.view.ShowError(err)
 		return
 	}
-	reg.view.ShowRegOTPView()
+
+	select {
+	case <-ctx.Done():
+		return
+	default:
+		reg.view.ShowRegOTPView()
+	}
+
 }
 
 func (reg *registrator) PassOTP(ctx context.Context, otpPass *domain.OTPPass) {
-	timedCtx, fn := context.WithTimeout(ctx, reg.conf.InterationTimeout)
-	defer fn()
-
-	if err := reg.srv.PassRegOTP(timedCtx, otpPass.Pass); err != nil {
+	if err := reg.srv.PassRegOTP(ctx, otpPass.Pass); err != nil {
 		reg.view.ShowError(err)
 		return
 	}
+	select {
+	case <-ctx.Done():
+		return
+	default:
+		reg.view.ShowInitMasterKeyView()
+	}
 
-	reg.view.ShowInitMasterKeyView()
 }
 
 func (reg *registrator) InitMasterKey(ctx context.Context, mKey *domain.UnencryptedMasterKeyData) {
-	timedCtx, fn := context.WithTimeout(ctx, reg.conf.InterationTimeout)
-	defer fn()
-
 	if !reg.helper.CheckMasterKeyPasswordComplexityLevel(mKey.MasterKeyPassword) {
 		reg.view.ShowError(fmt.Errorf("%w - master key too slow", domain.ErrClientDataIncorrect))
 		return
@@ -119,10 +115,15 @@ func (reg *registrator) InitMasterKey(ctx context.Context, mKey *domain.Unencryp
 		HelloEncrypted:     helloEncr,
 	}
 
-	if err := reg.srv.InitMasterKey(timedCtx, mData); err != nil {
+	if err := reg.srv.InitMasterKey(ctx, mData); err != nil {
 		reg.view.ShowError(err)
 		return
 	}
 
-	reg.view.ShowLoginView()
+	select {
+	case <-ctx.Done():
+		return
+	default:
+		reg.view.ShowLoginView()
+	}
 }

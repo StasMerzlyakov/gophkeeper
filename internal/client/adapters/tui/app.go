@@ -25,21 +25,15 @@ func NewApp(conf *config.ClientConf) *tuiApp {
 	return &tuiApp{}
 }
 
-func (tApp *tuiApp) SetLoginController(logController LoginController) *tuiApp {
-	tApp.logController = logController
-	return tApp
-}
-
-func (tApp *tuiApp) SetRegController(regController RegController) *tuiApp {
-	tApp.regController = regController
+func (tApp *tuiApp) SetController(controller Controller) *tuiApp {
+	tApp.controller = controller
 	return tApp
 }
 
 type tuiApp struct {
-	app           *tview.Application
-	pages         *tview.Pages
-	logController LoginController
-	regController RegController
+	app        *tview.Application
+	pages      *tview.Pages
+	controller Controller
 
 	loginFlex     *tview.Flex
 	loginOTPFlex  *tview.Flex
