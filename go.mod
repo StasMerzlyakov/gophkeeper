@@ -15,12 +15,14 @@ require (
 	github.com/mocktools/go-smtp-mock/v2 v2.3.0
 	github.com/pquerna/otp v1.4.0
 	github.com/rivo/tview v0.0.0-20240625185742-b0a7293b8130
+	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.9.0
 	github.com/testcontainers/testcontainers-go v0.32.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.32.0
 	github.com/wagslane/go-password-validator v0.3.0
 	github.com/xhit/go-simple-mail v2.2.2+incompatible
 	go.uber.org/zap v1.27.0
+	golang.org/x/crypto v0.25.0
 	golang.org/x/net v0.27.0
 	golang.org/x/tools v0.23.0
 	google.golang.org/grpc v1.65.0
@@ -74,7 +76,6 @@ require (
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.24.5 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
@@ -83,7 +84,6 @@ require (
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
-	golang.org/x/crypto v0.25.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20221208152030-732eee02a75a // indirect
 	golang.org/x/mod v0.19.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect

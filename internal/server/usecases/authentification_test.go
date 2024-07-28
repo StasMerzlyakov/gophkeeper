@@ -203,9 +203,11 @@ func TestCheckOTP(t *testing.T) {
 			PasswordSalt:    "Salt",
 		}
 
-		mockTempStorage.EXPECT().LoadAndDelete(gomock.Any(), gomock.Eq(currentID)).Times(1).Return(
+		mockTempStorage.EXPECT().Load(gomock.Any(), gomock.Eq(currentID)).Times(1).Return(
 			data, nil,
 		)
+
+		mockTempStorage.EXPECT().Delete(gomock.Any(), gomock.Eq(currentID)).Times(1)
 
 		mockHelper := NewMockRegistrationHelper(ctrl)
 		mockHelper.EXPECT().DecryptOTPKey(gomock.Eq(encryptedOTPKey)).Times(1).Return(
@@ -236,7 +238,7 @@ func TestCheckOTP(t *testing.T) {
 		mockTempStorage := NewMockTemporaryStorage(ctrl)
 
 		testEx := errors.New("testEx")
-		mockTempStorage.EXPECT().LoadAndDelete(gomock.Any(), gomock.Eq(currentID)).Times(1).Return(
+		mockTempStorage.EXPECT().Load(gomock.Any(), gomock.Eq(currentID)).Times(1).Return(
 			nil, testEx,
 		)
 
@@ -259,7 +261,7 @@ func TestCheckOTP(t *testing.T) {
 
 		data := domain.RegistrationData{}
 
-		mockTempStorage.EXPECT().LoadAndDelete(gomock.Any(), gomock.Eq(currentID)).Times(1).Return(
+		mockTempStorage.EXPECT().Load(gomock.Any(), gomock.Eq(currentID)).Times(1).Return(
 			data, nil,
 		)
 
@@ -291,7 +293,7 @@ func TestCheckOTP(t *testing.T) {
 			PasswordSalt:    "Salt",
 		}
 
-		mockTempStorage.EXPECT().LoadAndDelete(gomock.Any(), gomock.Eq(currentID)).Times(1).Return(
+		mockTempStorage.EXPECT().Load(gomock.Any(), gomock.Eq(currentID)).Times(1).Return(
 			data, nil,
 		)
 
@@ -331,7 +333,7 @@ func TestCheckOTP(t *testing.T) {
 			PasswordSalt:    "Salt",
 		}
 
-		mockTempStorage.EXPECT().LoadAndDelete(gomock.Any(), gomock.Eq(currentID)).Times(1).Return(
+		mockTempStorage.EXPECT().Load(gomock.Any(), gomock.Eq(currentID)).Times(1).Return(
 			data, nil,
 		)
 
@@ -370,7 +372,7 @@ func TestCheckOTP(t *testing.T) {
 			PasswordSalt:    "Salt",
 		}
 
-		mockTempStorage.EXPECT().LoadAndDelete(gomock.Any(), gomock.Eq(currentID)).Times(1).Return(
+		mockTempStorage.EXPECT().Load(gomock.Any(), gomock.Eq(currentID)).Times(1).Return(
 			data, nil,
 		)
 

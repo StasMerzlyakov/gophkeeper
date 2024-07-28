@@ -117,6 +117,12 @@ func TestRegistrator_Registrate(t *testing.T) {
 		}
 
 		mockHelper := NewMockRegHelper(ctrl)
+
+		mockHelper.EXPECT().ParseEMail(gomock.Any()).DoAndReturn(func(str string) bool {
+			require.Equal(t, emailData.EMail, str)
+			return true
+		}).Times(1)
+
 		mockHelper.EXPECT().CheckAuthPasswordComplexityLevel(gomock.Any()).DoAndReturn(func(str string) bool {
 			require.Equal(t, emailData.Password, str)
 			return true
@@ -134,6 +140,27 @@ func TestRegistrator_Registrate(t *testing.T) {
 		reg.Registrate(context.Background(), emailData)
 	})
 
+	t.Run("wrong_email", func(t *testing.T) {
+
+		emailData := &domain.EMailData{
+			EMail:    "email",
+			Password: "pass",
+		}
+
+		mockHelper := NewMockRegHelper(ctrl)
+
+		mockHelper.EXPECT().ParseEMail(gomock.Any()).DoAndReturn(func(str string) bool {
+			require.Equal(t, emailData.EMail, str)
+			return false
+		}).Times(1)
+
+		mockView := NewMockRegView(ctrl)
+		mockView.EXPECT().ShowMsg(gomock.Any())
+
+		reg := app.NewRegistrator().RegHelper(mockHelper).RegView(mockView)
+		reg.Registrate(context.Background(), emailData)
+	})
+
 	t.Run("validate_pass_err", func(t *testing.T) {
 
 		emailData := &domain.EMailData{
@@ -142,15 +169,17 @@ func TestRegistrator_Registrate(t *testing.T) {
 		}
 
 		mockHelper := NewMockRegHelper(ctrl)
+		mockHelper.EXPECT().ParseEMail(gomock.Any()).DoAndReturn(func(str string) bool {
+			require.Equal(t, emailData.EMail, str)
+			return true
+		}).Times(1)
 		mockHelper.EXPECT().CheckAuthPasswordComplexityLevel(gomock.Any()).DoAndReturn(func(str string) bool {
 			require.Equal(t, emailData.Password, str)
 			return false
 		}).Times(1)
 
 		mockView := NewMockRegView(ctrl)
-		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
-			require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
-		}).Times(1)
+		mockView.EXPECT().ShowMsg(gomock.Any())
 
 		reg := app.NewRegistrator().RegHelper(mockHelper).RegView(mockView)
 		reg.Registrate(context.Background(), emailData)
@@ -164,6 +193,10 @@ func TestRegistrator_Registrate(t *testing.T) {
 		}
 
 		mockHelper := NewMockRegHelper(ctrl)
+		mockHelper.EXPECT().ParseEMail(gomock.Any()).DoAndReturn(func(str string) bool {
+			require.Equal(t, emailData.EMail, str)
+			return true
+		}).Times(1)
 		mockHelper.EXPECT().CheckAuthPasswordComplexityLevel(gomock.Any()).DoAndReturn(func(str string) bool {
 			require.Equal(t, emailData.Password, str)
 			return true
@@ -301,9 +334,7 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 		}).Times(1)
 
 		mockView := NewMockRegView(ctrl)
-		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
-			assert.ErrorIs(t, err, domain.ErrClientDataIncorrect)
-		}).Times(1)
+		mockView.EXPECT().ShowMsg(gomock.Any()).Times(1)
 
 		reg := app.NewRegistrator().RegView(mockView).RegHelper(mockHelper)
 		reg.InitMasterKey(context.Background(), keyData)

@@ -237,43 +237,15 @@ func TestCheckServerSecretKey(t *testing.T) {
 func TestEncryptDecrypt(t *testing.T) {
 
 	t.Run("ok", func(t *testing.T) {
-		secretKey := "N1PCdw3M2B1TfJhoaY2mL736p2vCUc47"
+		secretKey := "hello world"
 		plainText := "testTestTest123"
-		cipherText, err := domain.EncryptOTPKey(secretKey, plainText, testOKSaltFn)
+		cipherText, err := domain.EncryptOTPKey(secretKey, plainText)
 		require.NoError(t, err)
 		require.True(t, len(cipherText) > 0)
 
 		text, err := domain.DecryptOTPKey(secretKey, cipherText)
 		require.NoError(t, err)
 		require.Equal(t, plainText, text)
-	})
-
-	t.Run("wrong pass encr", func(t *testing.T) {
-		secretKey := "N1PCdw3M2B1TfJhoaY2mL736p2vCUc4"
-		plainText := "testTestTest123"
-		cipherText, err := domain.EncryptOTPKey(secretKey, plainText, testOKSaltFn)
-		require.ErrorIs(t, err, domain.ErrServerInternal)
-		assert.True(t, len(cipherText) == 0)
-	})
-
-	t.Run("wrong pass decr", func(t *testing.T) {
-		secretKey := "N1PCdw3M2B1TfJhoaY2mL736p2vCUc47"
-		plainText := "testTestTest123"
-		cipherText, err := domain.EncryptOTPKey(secretKey, plainText, testOKSaltFn)
-		require.NoError(t, err)
-		require.True(t, len(cipherText) > 0)
-
-		text, err := domain.DecryptOTPKey(secretKey[2:], cipherText)
-		require.ErrorIs(t, err, domain.ErrServerInternal)
-		assert.True(t, len(text) == 0)
-	})
-
-	t.Run("err", func(t *testing.T) {
-		secretKey := "N1PCdw3M2B1TfJhoaY2mL736p2vCUc47"
-		plainText := "testTestTest123"
-		cipherText, err := domain.EncryptOTPKey(secretKey, plainText, testErrSaltFn)
-		assert.True(t, len(cipherText) == 0)
-		require.ErrorIs(t, err, domain.ErrServerInternal)
 	})
 
 }

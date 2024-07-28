@@ -2,6 +2,6 @@
     "port": ":9192",
     "tlsKey" : "./keys/server-key.pem",
     "tlsCert" : "./keys/server-cert.pem",
-    "serverSecret" : "$\\asServerKey!12>Au{mL736}",
+    "serverSecret" : "ServerKey!12>Au{mL736}",
     "dbDsn": "postgres://postgres:postgres@localhost:5432/gophkeeper"
 }

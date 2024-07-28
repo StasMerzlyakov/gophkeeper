@@ -57,34 +57,46 @@ func (reg *registrator) GetEMailStatus(ctx context.Context, email string) (domai
 
 // First part of the registration process. Store email and password data. Generate and send email with OTP QR.
 func (reg *registrator) Registrate(ctx context.Context, data *domain.EMailData) (domain.SessionID, error) {
+	log := domain.GetCtxLogger(ctx)
+	action := domain.GetAction(1)
+	log.Debugw(action, "email", data.EMail, "msg", "registration started")
+	if _, err := reg.regHelper.CheckEMailData(data); err != nil {
+		err = fmt.Errorf("register err - %w", err)
+		log.Infow(action, "err", err.Error())
+		return "", err
+	}
 
 	if isAvailable, err := reg.stflStorage.IsEMailAvailable(ctx, data.EMail); err != nil {
-		return "", fmt.Errorf("checkEMail err - %w", err)
+		err = fmt.Errorf("register err - %w", err)
+		log.Infow(action, "err", err.Error())
+		return "", err
 	} else {
 		if !isAvailable {
-			return "", fmt.Errorf("%w email %v is busy", domain.ErrClientDataIncorrect, data.EMail)
+			return "", fmt.Errorf("%w register err - email %v is busy", domain.ErrClientDataIncorrect, data.EMail)
 		}
 	}
 
 	sessionID := reg.regHelper.NewSessionID()
 
-	if _, err := reg.regHelper.CheckEMailData(data); err != nil {
-		return "", fmt.Errorf("register err - %w", err)
-	}
-
 	hashPasswordData, err := reg.regHelper.HashPassword(data.Password)
 	if err != nil {
-		return "", fmt.Errorf("register err - %w", err)
+		err = fmt.Errorf("register err - %w", err)
+		log.Infow(action, "err", err.Error())
+		return "", err
 	}
 
 	key, image, err := reg.regHelper.GenerateQR(data.EMail)
 	if err != nil {
-		return "", fmt.Errorf("register err - %w", err)
+		err = fmt.Errorf("register err - %w", err)
+		log.Infow(action, "err", err.Error())
+		return "", err
 	}
 
 	encryptedKey, err := reg.regHelper.EncryptOTPKey(key)
 	if err != nil {
-		return "", fmt.Errorf("register err - %w", err)
+		err = fmt.Errorf("register err - %w", err)
+		log.Infow(action, "err", err.Error())
+		return "", err
 	}
 
 	regData := domain.RegistrationData{
@@ -96,47 +108,66 @@ func (reg *registrator) Registrate(ctx context.Context, data *domain.EMailData) 
 	}
 
 	if err := reg.tempStorage.Create(ctx, sessionID, regData); err != nil {
-		return "", fmt.Errorf("register err - %w", err)
+		err = fmt.Errorf("register err - %w", err)
+		log.Infow(action, "err", err.Error())
+		return "", err
 	}
 
 	if err := reg.emailSender.Send(ctx, data.EMail, image); err != nil {
-		return "", fmt.Errorf("register err - %w", err)
+		err = fmt.Errorf("register err - %w", err)
+		log.Infow(action, "err", err.Error())
+		return "", err
 	}
+
+	log.Debugw(action, "email", data.EMail, "msg", "email registerd")
 	return sessionID, nil
 }
 
 // Second part of the registration process. Check OTP password.
 func (reg *registrator) PassOTP(ctx context.Context, currentID domain.SessionID, otpPass string) (domain.SessionID, error) {
+	log := domain.GetCtxLogger(ctx)
+	action := domain.GetAction(1)
+
+	log.Debugw(action, "msg", "passOTP start")
 
 	data, err := reg.tempStorage.Load(ctx, currentID)
 	if err != nil {
-		return "", fmt.Errorf("passOTP err - %w", err)
+		err = fmt.Errorf("passOTP err - %w", err)
+		log.Infow(action, "err", err.Error())
+		return "", err
 	}
 
 	regData, ok := data.(domain.RegistrationData)
 	if !ok {
-		err := fmt.Errorf("%w unexpected data by id %s", domain.ErrAuthDataIncorrect, currentID)
-		return "", fmt.Errorf("passOTP err - %w", err)
+		err := fmt.Errorf("%w passOTP err - unexpected data by id %s", domain.ErrAuthDataIncorrect, currentID)
+		log.Infow(action, "err", err.Error())
+		return "", err
 	}
 
 	if regData.State != domain.RegistrationStateInit {
-		err := fmt.Errorf("%w - wrong registartionState by id %s", domain.ErrAuthDataIncorrect, currentID)
-		return "", fmt.Errorf("passOTP err - %w", err)
+		err := fmt.Errorf("%w passOTP err - wrong registartionState by id %s", domain.ErrAuthDataIncorrect, currentID)
+		log.Infow(action, "err", err.Error())
+		return "", err
 	}
 
 	otpKey, err := reg.regHelper.DecryptOTPKey(regData.EncryptedOTPKey)
 	if err != nil {
-		return "", fmt.Errorf("passOTP err - %w", err)
+		err = fmt.Errorf("passOTP err - %w", err)
+		log.Infow(action, "err", err.Error())
+		return "", err
 	}
 
 	ok, err = reg.regHelper.ValidateOTPCode(otpKey, otpPass)
 	if err != nil {
-		return "", fmt.Errorf("passOTP err - %w", err)
+		err = fmt.Errorf("passOTP err - %w", err)
+		log.Infow(action, "err", err.Error())
+		return "", err
 	}
 
 	if !ok {
-		err := fmt.Errorf("%w - wrong otp pass", domain.ErrAuthDataIncorrect)
-		return "", fmt.Errorf("passOTP err - %w", err)
+		err := fmt.Errorf("%w - passOTP err - wrong otp pass", domain.ErrAuthDataIncorrect)
+		log.Infow(action, "err", err.Error())
+		return "", err
 	}
 
 	regDataNew := domain.RegistrationData{
@@ -150,29 +181,41 @@ func (reg *registrator) PassOTP(ctx context.Context, currentID domain.SessionID,
 	newSessionID := reg.regHelper.NewSessionID()
 
 	if err := reg.tempStorage.DeleteAndCreate(ctx, currentID, newSessionID, regDataNew); err != nil {
-		return "", fmt.Errorf("passOTP err - %w", err)
+		err = fmt.Errorf("passOTP err - %w", err)
+		log.Infow(action, "err", err.Error())
+		return "", err
 	}
 
+	log.Debugw(action, "msg", "passOTP complete")
 	return newSessionID, nil
 }
 
 // The last part of the registration process - store MasterKeyData.
 func (reg *registrator) InitMasterKey(ctx context.Context, currentID domain.SessionID, mKey *domain.MasterKeyData) error {
 
+	log := domain.GetCtxLogger(ctx)
+	action := domain.GetAction(1)
+
+	log.Debugw(action, "msg", "initMasterKey start")
+
 	data, err := reg.tempStorage.LoadAndDelete(ctx, currentID)
 	if err != nil {
-		return fmt.Errorf("initMasterKey err - %w", err)
+		err = fmt.Errorf("initMasterKey err - %w", err)
+		log.Infow(action, "err", err.Error())
+		return err
 	}
 
 	regData, ok := data.(domain.RegistrationData)
 	if !ok {
-		err := fmt.Errorf("%w unexpected data by id %s", domain.ErrClientDataIncorrect, currentID)
-		return fmt.Errorf("initMasterKey err - %w", err)
+		err := fmt.Errorf("initMasterKey err - %w unexpected data by id %s", domain.ErrClientDataIncorrect, currentID)
+		log.Infow(action, "err", err.Error())
+		return err
 	}
 
 	if regData.State != domain.RegistrationStateAuth {
-		err := fmt.Errorf("%w - wrong registartionState by id %s", domain.ErrClientDataIncorrect, currentID)
-		return fmt.Errorf("initMasterKey err - %w", err)
+		err := fmt.Errorf("initMasterKey err - %w - wrong registartionState by id %s", domain.ErrClientDataIncorrect, currentID)
+		log.Infow(action, "err", err.Error())
+		return err
 	}
 
 	fullData := &domain.FullRegistrationData{
@@ -186,8 +229,13 @@ func (reg *registrator) InitMasterKey(ctx context.Context, currentID domain.Sess
 	}
 
 	if err := reg.stflStorage.Registrate(ctx, fullData); err != nil {
-		return fmt.Errorf("initMasterKey err - %w", err)
-	} else {
-		return nil
+		err = fmt.Errorf("initMasterKey err - %w", err)
+		log.Infow(action, "err", err.Error())
+		return err
 	}
+
+	log.Debugw(action, "msg", "initMasterKey success")
+
+	return nil
+
 }

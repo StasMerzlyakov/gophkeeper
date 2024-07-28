@@ -58,3 +58,21 @@ GoKeeper-->Client:
 ### Send mail
 
 local postfix
+
+
+
+### Build
+```bash
+make build
+```
+
+## run server
+```bash
+./build/server -c ./serverConf.json
+```
+
+## run client
+```bash
+./build/client_linux -c ./clientConf.json
+```
+

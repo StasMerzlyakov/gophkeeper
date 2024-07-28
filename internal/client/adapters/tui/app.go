@@ -51,45 +51,43 @@ type tuiApp struct {
 	dataMainFlex *tview.Flex
 }
 
-func (tApp *tuiApp) ShowInitView() {
-	tApp.app.QueueUpdateDraw(func() {
-		tApp.pages.SwitchToPage(InitPage)
-	})
-}
-
 func (tApp *tuiApp) ShowError(err error) {
-	tApp.app.QueueUpdateDraw(func() {
-		modal := tview.NewModal().
-			SetText(err.Error()).
-			AddButtons([]string{"Quit", "Cancel"}).
-			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-				switch buttonLabel {
-				case "Quit":
-					tApp.app.Stop()
-				case "Cancel":
-					tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
-				}
-			})
-		modal.SetTitle("Error")
+	go func() {
+		tApp.app.QueueUpdateDraw(func() {
+			modal := tview.NewModal().
+				SetText(err.Error()).
+				AddButtons([]string{"Quit", "Cancel"}).
+				SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+					switch buttonLabel {
+					case "Quit":
+						tApp.app.Stop()
+					case "Cancel":
+						tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
+					}
+				})
+			modal.SetTitle("Error")
 
-		tApp.app.SetRoot(modal, true).SetFocus(modal)
-	})
+			tApp.app.SetRoot(modal, true).SetFocus(modal)
+		})
+	}()
 }
 
 func (tApp *tuiApp) ShowMsg(msg string) {
-	tApp.app.QueueUpdateDraw(func() {
-		modal := tview.NewModal().
-			SetText(msg).
-			AddButtons([]string{"Ok"}).
-			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-				tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
-			})
-		modal.SetTitle("Info")
-		tApp.app.SetRoot(modal, true).SetFocus(modal)
-	})
+	go func() {
+		tApp.app.QueueUpdateDraw(func() {
+			modal := tview.NewModal().
+				SetText(msg).
+				AddButtons([]string{"Ok"}).
+				SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+					tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
+				})
+			modal.SetTitle("Info")
+			tApp.app.SetRoot(modal, true).SetFocus(modal)
+		})
+	}()
 }
 
-func (tApp *tuiApp) Start() {
+func (tApp *tuiApp) Start() error {
 	tApp.app = tview.NewApplication()
 
 	tApp.pages = tview.NewPages()
@@ -116,8 +114,11 @@ func (tApp *tuiApp) Start() {
 	tApp.pages.AddPage(DataPageMain, tApp.dataMainFlex, true, false)
 
 	if err := tApp.app.SetRoot(tApp.pages, true).EnableMouse(false).Run(); err != nil {
-		panic(err)
+		log := app.GetMainLogger()
+		log.Error(err)
+		return err
 	}
+	return nil
 }
 
 func (tApp *tuiApp) createStartForm() *tview.Flex {

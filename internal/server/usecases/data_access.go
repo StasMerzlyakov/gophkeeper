@@ -25,9 +25,18 @@ type dataAccessor struct {
 }
 
 func (da *dataAccessor) GetHelloData(ctx context.Context) (*domain.HelloData, error) {
+	log := domain.GetCtxLogger(ctx)
+	action := domain.GetAction(1)
+
+	log.Debugw(action, "msg", "getHelloData start")
+
 	res, err := da.stflStorage.GetHelloData(ctx)
 	if err != nil {
+		err := fmt.Errorf("getHelloData err %w", err)
+		log.Infow(action, "err", err.Error())
 		return res, fmt.Errorf("getHelloData err %w", err)
 	}
-	return res, err
+
+	log.Debugw(action, "msg", "getHelloData success")
+	return res, nil
 }

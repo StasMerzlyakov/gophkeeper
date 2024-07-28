@@ -9,6 +9,7 @@ import (
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/proto"
+	"github.com/StasMerzlyakov/gophkeeper/internal/server/adapters/grpc/interceptor"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -74,9 +75,24 @@ func (grpcHandler *grpcHandler) Start(srcCtx context.Context) {
 			}
 			grpcHandler.s = grpc.NewServer(
 				grpc.Creds(tlsCredentials),
+				grpc.ChainUnaryInterceptor(
+					interceptor.EncrichWithRequestIDInterceptor(),
+					interceptor.ErrorCodeInteceptor(),
+					interceptor.JWTInterceptor([]byte(grpcHandler.conf.TokenSecret),
+						[]string{"proto.DataAccessor"},
+					),
+				),
 			)
 		} else {
-			grpcHandler.s = grpc.NewServer()
+			grpcHandler.s = grpc.NewServer(
+				grpc.ChainUnaryInterceptor(
+					interceptor.EncrichWithRequestIDInterceptor(),
+					interceptor.ErrorCodeInteceptor(),
+					interceptor.JWTInterceptor([]byte(grpcHandler.conf.TokenSecret),
+						[]string{"proto.DataAccessor"},
+					),
+				),
+			)
 		}
 
 		proto.RegisterPingerServer(grpcHandler.s, &pinger{})

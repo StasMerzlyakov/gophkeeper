@@ -42,7 +42,7 @@ func (h *helper) CheckHello(chk string) (bool, error) {
 }
 
 func (h *helper) EncryptMasterKey(masterKeyPass string, masterKey string) (string, error) {
-	return domain.EncryptMasterKey(masterKeyPass, masterKey, h.salfFn)
+	return domain.EncryptMasterKey(masterKeyPass, masterKey)
 }
 
 func (h *helper) DecryptMasterKey(masterKeyPass string, encryptedMasterKey string) (string, error) {

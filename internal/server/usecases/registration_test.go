@@ -111,13 +111,23 @@ func TestRegistrator_Regisration(t *testing.T) {
 			EMail:    "test@email",
 			Password: "test_pass",
 		}
+
+		mockHelper := NewMockRegistrationHelper(ctrl)
+		mockHelper.EXPECT().CheckEMailData(gomock.Any()).Times(1).DoAndReturn(func(dt *domain.EMailData) (bool, error) {
+			require.NotNil(t, dt)
+			assert.Equal(t, data.EMail, dt.EMail)
+			assert.Equal(t, data.Password, dt.Password)
+			return true, nil
+		})
+
 		testErr := errors.New("testErr")
 
 		mockStorage := NewMockStateFullStorage(ctrl)
 		mockStorage.EXPECT().IsEMailAvailable(gomock.Any(), gomock.Eq(data.EMail)).Times(1).Return(false, testErr)
 
 		registrator := usecases.NewRegistrator(conf).
-			StateFullStorage(mockStorage)
+			StateFullStorage(mockStorage).
+			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
 		_, err := registrator.Registrate(ctx, data)
@@ -135,11 +145,19 @@ func TestRegistrator_Regisration(t *testing.T) {
 			Password: "test_pass",
 		}
 
+		mockHelper := NewMockRegistrationHelper(ctrl)
+		mockHelper.EXPECT().CheckEMailData(gomock.Any()).Times(1).DoAndReturn(func(dt *domain.EMailData) (bool, error) {
+			require.NotNil(t, dt)
+			assert.Equal(t, data.EMail, dt.EMail)
+			assert.Equal(t, data.Password, dt.Password)
+			return true, nil
+		})
+
 		mockStorage := NewMockStateFullStorage(ctrl)
 		mockStorage.EXPECT().IsEMailAvailable(gomock.Any(), gomock.Eq(data.EMail)).Times(1).Return(false, nil)
 
 		registrator := usecases.NewRegistrator(conf).
-			StateFullStorage(mockStorage)
+			StateFullStorage(mockStorage).RegistrationHelper(mockHelper)
 
 		ctx := context.Background()
 		_, err := registrator.Registrate(ctx, data)
@@ -157,12 +175,7 @@ func TestRegistrator_Regisration(t *testing.T) {
 			Password: "test_pass",
 		}
 
-		mockStorage := NewMockStateFullStorage(ctrl)
-		mockStorage.EXPECT().IsEMailAvailable(gomock.Any(), gomock.Eq(data.EMail)).Times(1).Return(true, nil)
-
-		sessionID := domain.SessionID(uuid.NewString())
 		mockHelper := NewMockRegistrationHelper(ctrl)
-		mockHelper.EXPECT().NewSessionID().Times(1).Return(domain.SessionID(sessionID))
 
 		testErr := errors.New("CheckEMilErr")
 
@@ -174,7 +187,6 @@ func TestRegistrator_Regisration(t *testing.T) {
 		})
 
 		registrator := usecases.NewRegistrator(conf).
-			StateFullStorage(mockStorage).
 			RegistrationHelper(mockHelper)
 
 		ctx := context.Background()

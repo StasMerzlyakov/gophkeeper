@@ -66,12 +66,18 @@ func (mSt *memStorage) DeleteAndCreate(ctx context.Context,
 // Returns:
 //
 //	[domain.ErrDataNotExists] if no value fund by sessionID.
-func (mSt *memStorage) LoadAndDelete(ctx context.Context,
-	sessionID domain.SessionID,
-) (any, error) {
+func (mSt *memStorage) LoadAndDelete(ctx context.Context, sessionID domain.SessionID) (any, error) {
 	if val, ok := mSt.ttlMap.LoadAndDelete(string(sessionID)); !ok {
 		return nil, fmt.Errorf("%w - now data found by key %s", domain.ErrDataNotExists, sessionID)
 	} else {
 		return val, nil
 	}
+}
+
+// LoadAndDelete delete and return value by sessionID.
+// Returns:
+//
+//	[domain.ErrDataNotExists] if no value fund by sessionID.
+func (mSt *memStorage) Delete(ctx context.Context, sessionID domain.SessionID) {
+	mSt.ttlMap.Delete(string(sessionID))
 }

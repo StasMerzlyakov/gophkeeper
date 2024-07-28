@@ -1,4 +1,4 @@
-.PHONY: build proto clean test cover generate
+.PHONY: build proto clean test cover generate client
 
 build:
 	go mod tidy
@@ -8,6 +8,15 @@ build:
 	    -X main.buildDate=$(shell date +'%Y-%m-%d') -X main.buildCommit=$(shell git rev-parse HEAD)" -buildvcs=false  -o=build/client_win ./cmd/client/...
 	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X main.buildVersion=$(shell test `git tag --points-at HEAD` && git tag --points-at HEAD || echo N/A) \
 	    -X main.buildDate=$(shell date +'%Y-%m-%d') -X main.buildCommit=$(shell git rev-parse HEAD)" -buildvcs=false  -o=build/client_mac ./cmd/client/...
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X main.buildVersion=$(shell test `git tag --points-at HEAD` && git tag --points-at HEAD || echo N/A) \
+	    -X main.buildDate=$(shell date +'%Y-%m-%d') -X main.buildCommit=$(shell git rev-parse HEAD)" -buildvcs=false  -o=build/client_linux ./cmd/client/...
+server:
+	go mod tidy
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X main.buildVersion=$(shell test `git tag --points-at HEAD` && git tag --points-at HEAD || echo N/A) \
+	    -X main.buildDate=$(shell date +'%Y-%m-%d') -X main.buildCommit=$(shell git rev-parse HEAD)" -buildvcs=false  -o=build/server ./cmd/server/...
+	
+client:
+	go mod tidy
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X main.buildVersion=$(shell test `git tag --points-at HEAD` && git tag --points-at HEAD || echo N/A) \
 	    -X main.buildDate=$(shell date +'%Y-%m-%d') -X main.buildCommit=$(shell git rev-parse HEAD)" -buildvcs=false  -o=build/client_linux ./cmd/client/...
 

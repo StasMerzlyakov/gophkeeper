@@ -6,26 +6,30 @@ import (
 )
 
 func (tApp *tuiApp) ShowDataAccessView() {
-	tApp.app.QueueUpdateDraw(func() {
-		tApp.dataMainFlex.Clear()
 
-		tApp.dataMainFlex.
-			SetDirection(tview.FlexRow).
-			AddItem(
-				tview.NewTextView().
-					SetTextColor(tcell.ColorGreen).
-					SetText("(b) to back\n(q) to quit"), 0, 1, false).
-			SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-				switch event.Rune() {
-				case 'q':
-					tApp.app.Stop()
-				case 'b':
-					tApp.pages.SwitchToPage(InitPage)
-				}
-				return event
-			})
+	go func() {
+		tApp.app.QueueUpdateDraw(func() {
+			tApp.dataMainFlex.Clear()
 
-		tApp.pages.SetTitle("Data page")
-		tApp.pages.SwitchToPage(DataPageMain)
-	})
+			box := tview.NewBox().SetBorder(true).SetTitle("UserData")
+			tApp.dataMainFlex.Box = box
+
+			tApp.dataMainFlex.
+				SetDirection(tview.FlexRow).
+				AddItem(
+					tview.NewTextView().
+						SetTextColor(tcell.ColorGreen).
+						SetText("(Ctrl-b) to back\n(Ctrl-q) to quit"), 0, 1, false).
+				SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+					switch event.Key() {
+					case tcell.KeyCtrlQ:
+						tApp.app.Stop()
+					case tcell.KeyCtrlB:
+						tApp.pages.SwitchToPage(DataPageMain)
+					}
+					return event
+				})
+			tApp.pages.SwitchToPage(DataPageMain)
+		})
+	}()
 }

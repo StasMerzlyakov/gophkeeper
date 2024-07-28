@@ -45,7 +45,8 @@ func main() {
 		panic(err)
 	}
 
-	logger, err := zap.NewProduction()
+	logger, err := zap.NewDevelopment()
+
 	if err != nil {
 		panic("cannot initialize zap")
 	}

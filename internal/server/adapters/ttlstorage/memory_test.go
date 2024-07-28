@@ -105,4 +105,14 @@ func TestMemStorage2(t *testing.T) {
 	err = memStorage.DeleteAndCreate(ctx, stage1ID, stage2ID, regStage1)
 	require.ErrorIs(t, err, domain.ErrDublicateKeyViolation)
 
+	err = memStorage.Create(ctx, stage1ID, regStage1)
+	require.NoError(t, err)
+
+	_, err = memStorage.Load(ctx, stage1ID)
+	require.NoError(t, err)
+
+	memStorage.Delete(ctx, stage1ID)
+
+	_, err = memStorage.Load(ctx, stage1ID)
+	require.ErrorIs(t, err, domain.ErrDataNotExists)
 }

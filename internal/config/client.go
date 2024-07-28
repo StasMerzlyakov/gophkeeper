@@ -12,6 +12,7 @@ import (
 const (
 	ClientDefaultServerAddres      = "localhost:3200"
 	ClientDefaultCACert            = "../../keys/ca-cert.pem"
+	ClientDefaultLogFile           = "./client.log"
 	ClientDefaultInterationTimeout = 3 * time.Second
 )
 
@@ -19,6 +20,7 @@ type ClientConf struct {
 	ServerAddress     string        `env:"SERVER_ADDRESS" json:"serverAddress,omitempty"`
 	InterationTimeout time.Duration `env:"INTERACTION_TIMEOUT" json:"interactionTimeout,omitempty"`
 	CACert            string        `env:"CA_CERT" json:"caCert"`
+	LogFile           string        `env:"LOG_FILE" json:"logFile"`
 }
 
 func defaultClientConf() *ClientConf {
@@ -26,6 +28,7 @@ func defaultClientConf() *ClientConf {
 		ServerAddress:     ClientDefaultServerAddres,
 		CACert:            ClientDefaultCACert,
 		InterationTimeout: ClientDefaultInterationTimeout,
+		LogFile:           ClientDefaultLogFile,
 	}
 }
 

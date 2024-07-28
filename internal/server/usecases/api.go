@@ -28,6 +28,7 @@ type TemporaryStorage interface {
 	LoadAndDelete(ctx context.Context,
 		sessionID domain.SessionID,
 	) (any, error)
+	Delete(ctx context.Context, sessionID domain.SessionID)
 	Load(ctx context.Context, sessionID domain.SessionID) (any, error)
 }
 

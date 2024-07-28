@@ -25,3 +25,5 @@ vendor/
 .idea
 .vscode
 build
+
+client.log

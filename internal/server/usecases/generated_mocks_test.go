@@ -131,6 +131,18 @@ func (mr *MockTemporaryStorageMockRecorder) Create(arg0, arg1, arg2 interface{})
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockTemporaryStorage)(nil).Create), arg0, arg1, arg2)
 }
 
+// Delete mocks base method.
+func (m *MockTemporaryStorage) Delete(arg0 context.Context, arg1 domain.SessionID) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Delete", arg0, arg1)
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockTemporaryStorageMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockTemporaryStorage)(nil).Delete), arg0, arg1)
+}
+
 // DeleteAndCreate mocks base method.
 func (m *MockTemporaryStorage) DeleteAndCreate(arg0 context.Context, arg1, arg2 domain.SessionID, arg3 interface{}) error {
 	m.ctrl.T.Helper()

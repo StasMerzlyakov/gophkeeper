@@ -149,7 +149,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 			return true, nil
 		}).Times(1)
 
-		mockStorage := NewMockLoginStorage(ctrl)
+		mockStorage := NewMockAppStorage(ctrl)
 		mockStorage.EXPECT().SetMasterKey(gomock.Any()).Do(func(mKey string) {
 			require.Equal(t, masterKey, mKey)
 		})

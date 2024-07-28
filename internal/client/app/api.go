@@ -6,13 +6,13 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
-//go:generate mockgen -destination "./generated_mocks_test.go" -package ${GOPACKAGE}_test . Server,InfoView,Pinger,RegServer,RegView,RegHelper,LoginServer,LoginView,LoginHelper,LoginStorage
+//go:generate mockgen -destination "./generated_mocks_test.go" -package ${GOPACKAGE}_test . Server,InfoView,Pinger,RegServer,RegView,RegHelper,LoginServer,LoginView,LoginHelper,AppStorage
 
 type Pinger interface {
 	Ping(ctx context.Context) error
 }
 
-type LoginStorage interface {
+type AppStorage interface {
 	SetMasterKey(masterKey string)
 	GetMasterKey() string
 }

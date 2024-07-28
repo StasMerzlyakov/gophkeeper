@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
@@ -20,6 +21,7 @@ import (
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	pasVld "github.com/wagslane/go-password-validator"
+	"golang.org/x/crypto/pbkdf2"
 )
 
 const (
@@ -32,6 +34,12 @@ const (
 	TOTPAlgorithm = otp.AlgorithmSHA512
 	HelloWorld    = "Hello from GophKeeper!!!"
 	SaltSize      = 16
+)
+
+const (
+	saltLen    = 32
+	keyLen     = 32
+	iterations = 100002
 )
 
 func GetAction(depth int) string {
@@ -205,56 +213,106 @@ func ValidateAccountPass(pass string, hashB64 string, saltB64 string) (bool, err
 }
 
 // EncryptMasterKey is used to secure master key on client side
-func EncryptMasterKey(masterKeyPass string, masterKey string, saltFn SaltFn) (string, error) {
-	return EncryptOTPKey(masterKeyPass, masterKey, saltFn)
+func EncryptMasterKey(masterKeyPass string, masterKey string) (string, error) {
+	return encryptData(masterKeyPass, masterKey)
 }
 
 // DecryptMasterKey is used to restore master key on client side
 func DecryptMasterKey(secretKey string, encryptedMasterKey string) (string, error) {
-	return DecryptOTPKey(secretKey, encryptedMasterKey)
+	return decryptData(secretKey, encryptedMasterKey)
 }
 
 // EncryptOTPKey is used to secure qr code on server side
-func EncryptOTPKey(secretKey string, otpKey string, saltFn SaltFn) (string, error) {
-	aes, err := aes.NewCipher([]byte(secretKey))
-	if err != nil {
-		return "", fmt.Errorf("%w - encrypt NewCipher error %s", ErrServerInternal, err.Error())
-	}
-
-	gcm, err := cipher.NewGCM(aes)
-	if err != nil {
-		return "", fmt.Errorf("%w - encrypt NewGCM error %s", ErrServerInternal, err.Error())
-	}
-
-	nonce := make([]byte, gcm.NonceSize())
-	_, err = saltFn(nonce)
-	if err != nil {
-		return "", fmt.Errorf("%w - encrypt salt generation %s", ErrServerInternal, err.Error())
-	}
-
-	ciphertext := gcm.Seal(nonce, nonce, []byte(otpKey), nil)
-
-	return string(ciphertext), nil
+func EncryptOTPKey(secretKey string, otpKey string) (string, error) {
+	return encryptData(secretKey, otpKey)
 }
 
 // DecryptOTPKey is used during registration process
 func DecryptOTPKey(secretKey string, encryptedOTPKey string) (string, error) {
-	aes, err := aes.NewCipher([]byte(secretKey))
-	if err != nil {
-		return "", fmt.Errorf("%w - decrypt newCipher error %s", ErrServerInternal, err.Error())
+	return decryptData(secretKey, encryptedOTPKey)
+}
+
+func encryptData(password string, plaintext string) (string, error) {
+
+	// allocate memory to hold the header of the ciphertext
+	header := make([]byte, saltLen+aes.BlockSize)
+
+	// generate salt
+	salt := header[:saltLen]
+	if _, err := io.ReadFull(rand.Reader, salt); err != nil {
+		panic(err)
 	}
 
-	gcm, err := cipher.NewGCM(aes)
-	if err != nil {
-		return "", fmt.Errorf("%w - decrypt NewGCM error %s", ErrServerInternal, err.Error())
+	// generate initialization vector
+	iv := header[saltLen : aes.BlockSize+saltLen]
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+		panic(err)
 	}
 
-	nonceSize := gcm.NonceSize()
-	nonce, encryptedOTPKey := encryptedOTPKey[:nonceSize], encryptedOTPKey[nonceSize:]
+	// generate a 32 bit key with the provided password
+	key := pbkdf2.Key([]byte(password), salt, iterations, keyLen, sha256.New)
 
-	plaintext, err := gcm.Open(nil, []byte(nonce), []byte(encryptedOTPKey), nil)
+	// generate a hmac for the message with the key
+	mac := hmac.New(sha256.New, key)
+	mac.Write([]byte(plaintext))
+	hmac := mac.Sum(nil)
+
+	// append this hmac to the plaintext
+	plaintext = string(hmac) + plaintext
+
+	//create the cipher
+	block, err := aes.NewCipher(key)
 	if err != nil {
-		return "", fmt.Errorf("%w - decrypt gcm open err %s", ErrServerInternal, err.Error())
+		panic(err)
+	}
+	// allocate space for the ciphertext and write the header to it
+	ciphertext := make([]byte, len(header)+len(plaintext))
+	copy(ciphertext, header)
+
+	// encrypt
+	stream := cipher.NewCFBEncrypter(block, iv)
+	stream.XORKeyStream(ciphertext[aes.BlockSize+saltLen:], []byte(plaintext))
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
+}
+
+func decryptData(password string, encrypted string) (string, error) {
+
+	ciphertext, err := base64.StdEncoding.DecodeString(encrypted)
+
+	if err != nil {
+		return "", fmt.Errorf("%w decrypt err %s", ErrServerInternal, err.Error())
+	}
+	// get the salt from the ciphertext
+	salt := ciphertext[:saltLen]
+	// get the IV from the ciphertext
+	iv := ciphertext[saltLen : aes.BlockSize+saltLen]
+
+	// generate the key with the KDF
+	key := pbkdf2.Key([]byte(password), salt, iterations, keyLen, sha256.New)
+
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		panic(err)
+	}
+
+	if len(ciphertext) < aes.BlockSize {
+		return "", fmt.Errorf("%w wrong key length size", ErrServerInternal)
+	}
+
+	decrypted := ciphertext[saltLen+aes.BlockSize:]
+	stream := cipher.NewCFBDecrypter(block, iv)
+	stream.XORKeyStream(decrypted, decrypted)
+
+	// extract hmac from plaintext
+	extractedMac := decrypted[:32]
+	plaintext := decrypted[32:]
+
+	// validate the hmac
+	mac := hmac.New(sha256.New, key)
+	mac.Write(plaintext)
+	expectedMac := mac.Sum(nil)
+	if !hmac.Equal(extractedMac, expectedMac) {
+		return "", fmt.Errorf("%w hmac not equal", ErrServerInternal)
 	}
 
 	return string(plaintext), nil

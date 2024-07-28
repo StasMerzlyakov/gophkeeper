@@ -27,6 +27,8 @@ func ErrorCodeInteceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		resp, err := handler(ctx, req)
 		if err != nil {
+			log := domain.GetCtxLogger(ctx)
+			log.Infow("error", "err", err.Error())
 			resCode := MapDomainErrorToGRPCCodeErr(err)
 			return resp, status.Error(resCode, "")
 		}
