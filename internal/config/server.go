@@ -65,7 +65,7 @@ func defaultServConf() *ServerConf {
 	}
 }
 
-func LoadServerConfigFromFile(fileName string, srcConf *ServerConf) {
+func LoadConfigFromFile(fileName string, srcConf any) {
 
 	f, err := os.Open(fileName)
 	if err != nil {
@@ -95,7 +95,7 @@ func LoadServConf(flagSet *flag.FlagSet) (*ServerConf, error) {
 	}
 
 	if configFileName != "" {
-		LoadServerConfigFromFile(configFileName, srvConf)
+		LoadConfigFromFile(configFileName, srvConf)
 	}
 
 	err := env.Parse(srvConf)
