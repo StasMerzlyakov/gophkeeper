@@ -6,7 +6,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func (tApp *tuiApp) ShowRegPassOPTView() {
+func (tApp *tuiApp) ShowRegOTPView() {
 	tApp.app.QueueUpdateDraw(func() {
 		tApp.regOTPFlex.Clear()
 		otpPass := &domain.OTPPass{}
@@ -41,7 +41,7 @@ func (tApp *tuiApp) ShowRegPassOPTView() {
 	})
 }
 
-func (tApp *tuiApp) ShowRegEmailView() {
+func (tApp *tuiApp) ShowRegView() {
 	tApp.app.QueueUpdateDraw(func() {
 		tApp.regFlex.Clear()
 		emailData := &domain.EMailData{}

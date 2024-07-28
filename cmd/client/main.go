@@ -1,13 +1,13 @@
 package main
 
 import (
-	"context"
-	"errors"
+	"flag"
 	"fmt"
-	"time"
 
+	"github.com/StasMerzlyakov/gophkeeper/internal/client/adapters/grpc/handler"
+	"github.com/StasMerzlyakov/gophkeeper/internal/client/adapters/tui"
+	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
-	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
 var (
@@ -22,73 +22,33 @@ func printVersion() {
 	fmt.Printf("Build commit: %s\n", buildCommit)
 }
 
-type testView interface {
-	ShowError(err error)
-	ShowMsg(msg string)
-}
-
-type testController struct {
-	exitChan <-chan struct{}
-	view     testView
-	conf     *config.ClientConf
-}
-
-func (tC *testController) Login(dt *domain.EMailData) {
-	go func() {
-		ctx, cancelFn := context.WithTimeout(context.Background(), tC.conf.InterationTimeout/2)
-		defer cancelFn()
-
-		chanDone := make(chan struct{})
-
-		go func() {
-			defer func() {
-				chanDone <- struct{}{}
-			}()
-
-			// function call with context
-			select {
-			case <-ctx.Done():
-				// cancel
-			case <-time.After(tC.conf.InterationTimeout):
-				tC.view.ShowMsg("Done")
-			}
-
-		}()
-
-		select {
-		case <-tC.exitChan:
-			// application stopped
-			return
-		case <-chanDone:
-			return
-		case <-ctx.Done():
-			tC.view.ShowError(errors.New("operation timeout"))
-		}
-	}()
-}
-
 func main() {
 
-	/*printVersion()
+	printVersion()
 
-	conf, err := config.LoadClientConf()
+	flagSet := flag.NewFlagSet("main", flag.ContinueOnError)
+	conf, err := config.LoadClientConf(flagSet)
 	if err != nil {
 		panic(err)
 	}
 
-	tView := tui.NewApp(conf)
-
-	exitChan := make(chan struct{})
-
-	tCtrl := &testController{
-		view:     tView,
-		exitChan: exitChan,
-		conf:     conf,
+	// grpc
+	helper, err := handler.NewHandler(conf)
+	if err != nil {
+		panic(err)
 	}
 
-	tView.SetController(tCtrl)
+	// controller
+	appCtrl := app.NewAppController(conf)
+	defer appCtrl.Stop()
+	appCtrl.SetServer(helper)
+
+	// view
+	tView := tui.NewApp(conf)
+	tView.SetController(appCtrl)
+
+	appCtrl.SetInfoView(tView)
 
 	tView.Start()
 
-	close(exitChan) */
 }

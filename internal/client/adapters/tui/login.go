@@ -6,7 +6,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func (tApp *tuiApp) ShowLoginPassOPTView() {
+func (tApp *tuiApp) ShowLogOTPView() {
 	tApp.app.QueueUpdateDraw(func() {
 		tApp.loginOTPFlex.Clear()
 		otpPass := &domain.OTPPass{}
@@ -42,7 +42,7 @@ func (tApp *tuiApp) ShowLoginPassOPTView() {
 	})
 }
 
-func (tApp *tuiApp) ShowLoginEmailView() {
+func (tApp *tuiApp) ShowLoginView() {
 	tApp.app.QueueUpdateDraw(func() {
 		tApp.loginFlex.Clear()
 		emailData := &domain.EMailData{}
@@ -81,7 +81,7 @@ func (tApp *tuiApp) ShowLoginEmailView() {
 	})
 }
 
-func (tApp *tuiApp) ShowLoginMasterKeyView(hint string) {
+func (tApp *tuiApp) ShowMasterKeyView(hint string) {
 	tApp.app.QueueUpdateDraw(func() {
 		tApp.loginMKeyFlex.Clear()
 		var masterKey string

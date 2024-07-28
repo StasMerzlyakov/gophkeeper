@@ -28,9 +28,9 @@ type RegView interface {
 	ShowLoginView()
 	ShowError(err error)
 	ShowMsg(msg string)
-	ShowRegForm()
+	ShowRegView()
 	ShowRegOTPView()
-	ShowInitMasterKeyView()
+	ShowRegMasterKeyView()
 }
 
 type RegHelper interface {
@@ -56,9 +56,9 @@ type InfoView interface {
 	ShowMasterKeyView(hint string)
 	ShowDataAccessView()
 	ShowLoginView()
-	ShowRegForm()
+	ShowRegView()
 	ShowRegOTPView()
-	ShowInitMasterKeyView()
+	ShowRegMasterKeyView()
 }
 
 type LoginView interface {

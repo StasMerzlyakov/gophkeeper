@@ -79,7 +79,7 @@ func (reg *registrator) PassOTP(ctx context.Context, otpPass *domain.OTPPass) {
 	case <-ctx.Done():
 		return
 	default:
-		reg.view.ShowInitMasterKeyView()
+		reg.view.ShowRegMasterKeyView()
 	}
 
 }

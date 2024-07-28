@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/gdamore/tcell/v2"
 
@@ -24,6 +25,10 @@ const (
 func NewApp(conf *config.ClientConf) *tuiApp {
 	return &tuiApp{}
 }
+
+var _ app.InfoView = (*tuiApp)(nil)
+var _ app.LoginView = (*tuiApp)(nil)
+var _ app.RegView = (*tuiApp)(nil)
 
 func (tApp *tuiApp) SetController(controller Controller) *tuiApp {
 	tApp.controller = controller
@@ -127,9 +132,9 @@ func (tApp *tuiApp) createStartForm() *tview.Flex {
 		case 'q':
 			tApp.app.Stop()
 		case 'r':
-			tApp.ShowRegEmailView()
+			tApp.ShowRegView()
 		case 'l':
-			tApp.ShowLoginEmailView()
+			tApp.ShowLoginView()
 		}
 
 		return event

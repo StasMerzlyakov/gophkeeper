@@ -203,7 +203,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 		}).Times(1)
 
 		mockView := NewMockRegView(ctrl)
-		mockView.EXPECT().ShowInitMasterKeyView().Times(1)
+		mockView.EXPECT().ShowRegMasterKeyView().Times(1)
 
 		reg := app.NewRegistrator().RegServer(mockSrv).RegView(mockView)
 

@@ -208,18 +208,6 @@ func (mr *MockInfoViewMockRecorder) ShowError(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowError", reflect.TypeOf((*MockInfoView)(nil).ShowError), arg0)
 }
 
-// ShowInitMasterKeyView mocks base method.
-func (m *MockInfoView) ShowInitMasterKeyView() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "ShowInitMasterKeyView")
-}
-
-// ShowInitMasterKeyView indicates an expected call of ShowInitMasterKeyView.
-func (mr *MockInfoViewMockRecorder) ShowInitMasterKeyView() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowInitMasterKeyView", reflect.TypeOf((*MockInfoView)(nil).ShowInitMasterKeyView))
-}
-
 // ShowLogOTPView mocks base method.
 func (m *MockInfoView) ShowLogOTPView() {
 	m.ctrl.T.Helper()
@@ -268,16 +256,16 @@ func (mr *MockInfoViewMockRecorder) ShowMsg(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowMsg", reflect.TypeOf((*MockInfoView)(nil).ShowMsg), arg0)
 }
 
-// ShowRegForm mocks base method.
-func (m *MockInfoView) ShowRegForm() {
+// ShowRegMasterKeyView mocks base method.
+func (m *MockInfoView) ShowRegMasterKeyView() {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "ShowRegForm")
+	m.ctrl.Call(m, "ShowRegMasterKeyView")
 }
 
-// ShowRegForm indicates an expected call of ShowRegForm.
-func (mr *MockInfoViewMockRecorder) ShowRegForm() *gomock.Call {
+// ShowRegMasterKeyView indicates an expected call of ShowRegMasterKeyView.
+func (mr *MockInfoViewMockRecorder) ShowRegMasterKeyView() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowRegForm", reflect.TypeOf((*MockInfoView)(nil).ShowRegForm))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowRegMasterKeyView", reflect.TypeOf((*MockInfoView)(nil).ShowRegMasterKeyView))
 }
 
 // ShowRegOTPView mocks base method.
@@ -290,6 +278,18 @@ func (m *MockInfoView) ShowRegOTPView() {
 func (mr *MockInfoViewMockRecorder) ShowRegOTPView() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowRegOTPView", reflect.TypeOf((*MockInfoView)(nil).ShowRegOTPView))
+}
+
+// ShowRegView mocks base method.
+func (m *MockInfoView) ShowRegView() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ShowRegView")
+}
+
+// ShowRegView indicates an expected call of ShowRegView.
+func (mr *MockInfoViewMockRecorder) ShowRegView() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowRegView", reflect.TypeOf((*MockInfoView)(nil).ShowRegView))
 }
 
 // MockPinger is a mock of Pinger interface.
@@ -444,18 +444,6 @@ func (mr *MockRegViewMockRecorder) ShowError(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowError", reflect.TypeOf((*MockRegView)(nil).ShowError), arg0)
 }
 
-// ShowInitMasterKeyView mocks base method.
-func (m *MockRegView) ShowInitMasterKeyView() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "ShowInitMasterKeyView")
-}
-
-// ShowInitMasterKeyView indicates an expected call of ShowInitMasterKeyView.
-func (mr *MockRegViewMockRecorder) ShowInitMasterKeyView() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowInitMasterKeyView", reflect.TypeOf((*MockRegView)(nil).ShowInitMasterKeyView))
-}
-
 // ShowLoginView mocks base method.
 func (m *MockRegView) ShowLoginView() {
 	m.ctrl.T.Helper()
@@ -480,16 +468,16 @@ func (mr *MockRegViewMockRecorder) ShowMsg(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowMsg", reflect.TypeOf((*MockRegView)(nil).ShowMsg), arg0)
 }
 
-// ShowRegForm mocks base method.
-func (m *MockRegView) ShowRegForm() {
+// ShowRegMasterKeyView mocks base method.
+func (m *MockRegView) ShowRegMasterKeyView() {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "ShowRegForm")
+	m.ctrl.Call(m, "ShowRegMasterKeyView")
 }
 
-// ShowRegForm indicates an expected call of ShowRegForm.
-func (mr *MockRegViewMockRecorder) ShowRegForm() *gomock.Call {
+// ShowRegMasterKeyView indicates an expected call of ShowRegMasterKeyView.
+func (mr *MockRegViewMockRecorder) ShowRegMasterKeyView() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowRegForm", reflect.TypeOf((*MockRegView)(nil).ShowRegForm))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowRegMasterKeyView", reflect.TypeOf((*MockRegView)(nil).ShowRegMasterKeyView))
 }
 
 // ShowRegOTPView mocks base method.
@@ -502,6 +490,18 @@ func (m *MockRegView) ShowRegOTPView() {
 func (mr *MockRegViewMockRecorder) ShowRegOTPView() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowRegOTPView", reflect.TypeOf((*MockRegView)(nil).ShowRegOTPView))
+}
+
+// ShowRegView mocks base method.
+func (m *MockRegView) ShowRegView() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ShowRegView")
+}
+
+// ShowRegView indicates an expected call of ShowRegView.
+func (mr *MockRegViewMockRecorder) ShowRegView() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowRegView", reflect.TypeOf((*MockRegView)(nil).ShowRegView))
 }
 
 // MockRegHelper is a mock of RegHelper interface.
