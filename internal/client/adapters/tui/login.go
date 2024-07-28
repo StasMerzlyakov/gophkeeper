@@ -91,8 +91,8 @@ func (tApp *tuiApp) ShowLoginMasterKeyView(hint string) {
 			form.AddTextView("MasterKeyHint", hint, 0, 1, false, false)
 		}
 
-		form.AddPasswordField("MasterKey", "", 40, '#', func(masterKey string) {
-			masterKey = masterKey
+		form.AddPasswordField("MasterKey", "", 40, '#', func(mKey string) {
+			masterKey = mKey
 		}).
 			AddButton("Enter", func() {
 				tApp.logController.CheckMasterKey(masterKey)
