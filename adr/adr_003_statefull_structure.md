@@ -16,7 +16,6 @@ class userInfo{
 	pass_hash text not null            // Хэш от пароля
 	pass_salt text not null            // Солья для вычисления хэша от пароля
 	otp_key text not null              // Зашифрованный на ServerSecret OTP пароль пользователя
-	master_key text not null           // Зашифрованный на MasterKeyPass ключи шифрования данных пользователя
 	master_hint text not null          // Напоминалка для пользователя для восстановления MasterKey
 	hello_encrypted text not null      // Зашифрованная на MasterKey 'Hello from GophKeeper!!!'. Используется для проверки правильности ввода MasterKeyPass
 	primary key(user_id)

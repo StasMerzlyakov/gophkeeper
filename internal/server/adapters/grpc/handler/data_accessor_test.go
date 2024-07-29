@@ -23,7 +23,7 @@ func TestHello(t *testing.T) {
 			DoAndReturn(func(ctx context.Context) (*domain.HelloData, error) {
 				return &domain.HelloData{
 					HelloEncrypted:     "hello",
-					EncryptedMasterKey: "masterKey",
+					MasterPasswordHint: "masterKey",
 				}, nil
 			}).Times(1)
 
@@ -33,7 +33,7 @@ func TestHello(t *testing.T) {
 
 		require.Nil(t, err)
 		require.Equal(t, "hello", res.HelloEncrypted)
-		require.Equal(t, "masterKey", res.EncryptedMasterKey)
+		require.Equal(t, "masterKey", res.MasterPasswordHint)
 	})
 
 	t.Run("err", func(t *testing.T) {

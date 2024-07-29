@@ -72,8 +72,7 @@ func (rh *regHandler) PassOTP(ctx context.Context, req *proto.PassOTPRequest) (*
 func (rh *regHandler) SetMasterKey(ctx context.Context, req *proto.MasterKeyRequest) (*proto.MasterKeyResponse, error) {
 	action := domain.GetAction(0)
 	mKeyData := &domain.MasterKeyData{
-		EncryptedMasterKey: req.EncryptedMasterKey,
-		MasterKeyHint:      req.MasterKeyPassHint,
+		MasterPasswordHint: req.MasterPasswordHint,
 		HelloEncrypted:     req.HelloEncrypted,
 	}
 

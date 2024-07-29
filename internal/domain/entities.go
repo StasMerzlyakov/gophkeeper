@@ -15,8 +15,7 @@ type OTPPass struct {
 
 // MasterKey struct is used in master key initialization process
 type MasterKey struct {
-	EncryptedMasterKey string
-	MasterKeyPassHint  string
+	MasterPasswordHint string
 }
 
 // SessionID is used during registration or authorization process
@@ -67,29 +66,26 @@ type FullRegistrationData struct {
 	PasswordHash       string
 	PasswordSalt       string
 	EncryptedOTPKey    string
-	EncryptedMasterKey string
-	MasterKeyHint      string
+	MasterPasswordHint string
 	HelloEncrypted     string
 }
 
 // UnencryptedMasterKeyData struct is used in registration process on client side
 type UnencryptedMasterKeyData struct {
-	MasterKeyPassword string
-	MasterKeyHint     string
+	MasterPassword     string
+	MasterPasswordHint string
 }
 
 // MasterKeyData struct is used in registration process
 type MasterKeyData struct {
-	EncryptedMasterKey string
-	MasterKeyHint      string
+	MasterPasswordHint string
 	HelloEncrypted     string
 }
 
 // HelloData struct is used in authorization process
 type HelloData struct {
-	EncryptedMasterKey string
 	HelloEncrypted     string
-	MasterKeyPassHint  string
+	MasterPasswordHint string
 }
 
 type AuthorizationState string

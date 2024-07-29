@@ -26,9 +26,8 @@ message PassOTPResponse {
 
 message MasterKeyRequest {
     string session_id = 1;
-    string encryptedMasterKey = 2;
-    string masterKeyPassHint = 3;
-    string helloEncrypted = 4;
+    string masterPasswordHint = 2;
+    string helloEncrypted = 3;
 }
 
 message MasterKeyResponse {
@@ -83,8 +82,7 @@ message HelloRequest{}
 
 message HelloResponse{
     string helloEncrypted = 1;
-    string encryptedMasterKey = 2;
-    string masterKeyPassHint = 3;
+    string masterPasswordHint = 2;
 }
 
 service DataAccessor {

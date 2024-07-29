@@ -184,9 +184,8 @@ func TestSetMasterKey(t *testing.T) {
 		mockService.EXPECT().InitMasterKey(gomock.Any(), gomock.Any(), gomock.Any()).
 			DoAndReturn(func(ctx context.Context, currentID domain.SessionID, mKey *domain.MasterKeyData) error {
 				require.Equal(t, domain.SessionID("currentID"), currentID)
-				require.Equal(t, "EncryptedMasterKey", mKey.EncryptedMasterKey)
 				require.Equal(t, "HelloEncrypted", mKey.HelloEncrypted)
-				require.Equal(t, "MasterKeyHint", mKey.MasterKeyHint)
+				require.Equal(t, "MasterPasswordHint", mKey.MasterPasswordHint)
 				return nil
 			}).Times(1)
 
@@ -194,8 +193,7 @@ func TestSetMasterKey(t *testing.T) {
 
 		_, err := regHandler.SetMasterKey(context.Background(), &proto.MasterKeyRequest{
 			SessionId:          "currentID",
-			EncryptedMasterKey: "EncryptedMasterKey",
-			MasterKeyPassHint:  "MasterKeyHint",
+			MasterPasswordHint: "MasterPasswordHint",
 			HelloEncrypted:     "HelloEncrypted",
 		})
 
@@ -209,9 +207,8 @@ func TestSetMasterKey(t *testing.T) {
 		mockService.EXPECT().InitMasterKey(gomock.Any(), gomock.Any(), gomock.Any()).
 			DoAndReturn(func(ctx context.Context, currentID domain.SessionID, mKey *domain.MasterKeyData) error {
 				require.Equal(t, domain.SessionID("currentID"), currentID)
-				require.Equal(t, "EncryptedMasterKey", mKey.EncryptedMasterKey)
 				require.Equal(t, "HelloEncrypted", mKey.HelloEncrypted)
-				require.Equal(t, "MasterKeyHint", mKey.MasterKeyHint)
+				require.Equal(t, "MasterPasswordHint", mKey.MasterPasswordHint)
 				return testErr
 			}).Times(1)
 
@@ -219,8 +216,7 @@ func TestSetMasterKey(t *testing.T) {
 
 		_, err := regHandler.SetMasterKey(context.Background(), &proto.MasterKeyRequest{
 			SessionId:          "currentID",
-			EncryptedMasterKey: "EncryptedMasterKey",
-			MasterKeyPassHint:  "MasterKeyHint",
+			MasterPasswordHint: "MasterPasswordHint",
 			HelloEncrypted:     "HelloEncrypted",
 		})
 
