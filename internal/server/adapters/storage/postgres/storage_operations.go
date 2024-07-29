@@ -25,10 +25,10 @@ func (st *storage) Registrate(ctx context.Context, data *domain.FullRegistration
 	var userID int64
 
 	if err := st.pPool.QueryRow(ctx,
-		`insert into user_info(email, pass_hash, pass_salt, otp_key, master_key, master_hint, hello_encrypted) 
-		 values ($1, $2, $3, $4, $5, $6, $7) on conflict("email") do nothing returning user_id;
+		`insert into user_info(email, pass_hash, pass_salt, otp_key, master_hint, hello_encrypted) 
+		 values ($1, $2, $3, $4, $5, $6) on conflict("email") do nothing returning user_id;
 	  	`, data.EMail, data.PasswordHash, data.PasswordSalt, data.EncryptedOTPKey,
-		data.EncryptedMasterKey, data.MasterKeyHint, data.HelloEncrypted).Scan(&userID); err != nil {
+		data.MasterPasswordHint, data.HelloEncrypted).Scan(&userID); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			// email already registered
 			return fmt.Errorf("%w - email %s already registered", domain.ErrClientDataIncorrect, data.EMail)
@@ -62,8 +62,8 @@ func (st *storage) GetHelloData(ctx context.Context) (*domain.HelloData, error) 
 	}
 
 	var helloData domain.HelloData
-	err = st.pPool.QueryRow(ctx, "select hello_encrypted, master_key, master_hint from user_info where user_id = $1", userID).
-		Scan(&helloData.HelloEncrypted, &helloData.EncryptedMasterKey, &helloData.MasterKeyPassHint)
+	err = st.pPool.QueryRow(ctx, "select hello_encrypted, master_hint from user_info where user_id = $1", userID).
+		Scan(&helloData.HelloEncrypted, &helloData.MasterPasswordHint)
 	if err != nil {
 		return nil, fmt.Errorf("%w - %s", domain.ErrServerInternal, err.Error())
 	} else {

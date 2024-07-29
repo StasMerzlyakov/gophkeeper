@@ -48,8 +48,7 @@ func TestStorageOperations(t *testing.T) {
 		PasswordHash:       "PasswordHash",
 		PasswordSalt:       "PasswordSalt",
 		EncryptedOTPKey:    "EncryptedOTPKey",
-		EncryptedMasterKey: "EncryptedMasterKey",
-		MasterKeyHint:      "MasterKeyHint",
+		MasterPasswordHint: "MasterPasswordHint",
 		HelloEncrypted:     "HelloEncrypted",
 	}
 
@@ -86,9 +85,7 @@ func TestStorageOperations(t *testing.T) {
 	helloData, err := storage.GetHelloData(ctxWithID)
 	require.NoError(t, err)
 	require.Equal(t, regData.HelloEncrypted, helloData.HelloEncrypted)
-	require.Equal(t, regData.EncryptedMasterKey, helloData.EncryptedMasterKey)
-
-	require.Equal(t, regData.MasterKeyHint, helloData.MasterKeyPassHint)
+	require.Equal(t, regData.MasterPasswordHint, helloData.MasterPasswordHint)
 
 	ctxWithID2 := domain.EnrichWithUserID(ctx, -1)
 	_, err = storage.GetHelloData(ctxWithID2)

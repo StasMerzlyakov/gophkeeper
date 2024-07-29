@@ -88,7 +88,6 @@ func (st *storage) init(ctx context.Context, logger domain.Logger) error {
 		pass_hash text not null,
 		pass_salt text not null,
 		otp_key text not null,
-		master_key text not null,
 		master_hint text not null,
 		hello_encrypted text not null,
 		primary key(user_id)
