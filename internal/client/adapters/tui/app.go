@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"time"
+
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/gdamore/tcell/v2"
@@ -20,6 +22,9 @@ const (
 	RegMKeyPage  = "RegMKeyPage"
 
 	DataPageMain = "DataPageMain"
+
+	BankCardPage     = "BankCardPage"
+	BankCardListPage = "BankCardListPage"
 )
 
 func NewApp(conf *config.ClientConf) *tuiApp {
@@ -49,6 +54,9 @@ type tuiApp struct {
 	regMKeyFlex *tview.Flex
 
 	dataMainFlex *tview.Flex
+
+	bankCardListFlex *tview.Flex
+	bankCardFlex     *tview.Flex
 }
 
 func (tApp *tuiApp) ShowError(err error) {
@@ -102,6 +110,8 @@ func (tApp *tuiApp) Start() error {
 	tApp.regOTPFlex = tview.NewFlex()
 
 	tApp.dataMainFlex = tview.NewFlex()
+	tApp.bankCardListFlex = tview.NewFlex()
+	tApp.bankCardFlex = tview.NewFlex()
 
 	tApp.pages.AddPage(LoginEMailPage, tApp.loginFlex, true, false)
 	tApp.pages.AddPage(LoginOTPPage, tApp.loginOTPFlex, true, false)
@@ -113,11 +123,20 @@ func (tApp *tuiApp) Start() error {
 
 	tApp.pages.AddPage(DataPageMain, tApp.dataMainFlex, true, false)
 
+	tApp.pages.AddPage(BankCardListPage, tApp.bankCardListFlex, true, false)
+	tApp.pages.AddPage(BankCardPage, tApp.bankCardFlex, true, false)
+
+	go func() {
+		time.Sleep(2 * time.Second)
+		tApp.ShowDataAccessView()
+	}()
+
 	if err := tApp.app.SetRoot(tApp.pages, true).EnableMouse(false).Run(); err != nil {
 		log := app.GetMainLogger()
 		log.Error(err)
 		return err
 	}
+
 	return nil
 }
 

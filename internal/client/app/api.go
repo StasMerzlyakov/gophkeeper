@@ -6,7 +6,7 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
-//go:generate mockgen -destination "./generated_mocks_test.go" -package ${GOPACKAGE}_test . Server,InfoView,Pinger,RegServer,RegView,RegHelper,LoginServer,LoginView,LoginHelper,AppStorage
+//go:generate mockgen -destination "./generated_mocks_test.go" -package ${GOPACKAGE}_test . Server,InfoView,Pinger,RegServer,RegView,DomainHelper,LoginServer,LoginView,AppStorage
 
 type Pinger interface {
 	Ping(ctx context.Context) error
@@ -15,6 +15,16 @@ type Pinger interface {
 type AppStorage interface {
 	SetMasterPassword(masterPassword string)
 	GetMasterPassword() string
+	AddBankCard(bankCard *domain.BankCard) error
+	AddUserPasswordData(data *domain.UserPasswordData) error
+	UpdateBankCard(bankCard *domain.BankCard) error
+	UpdatePasswordData(data *domain.UserPasswordData) error
+	DeleteBankCard(number string) error
+	DeleteUpdatePasswordData(hint string) error
+	GetBankCard(number string) (*domain.BankCard, error)
+	GetUpdatePasswordData(hint string) (*domain.UserPasswordData, error)
+	GetBankCardNumberList() []string
+	GetUserPasswordDataList() []string
 }
 
 type RegServer interface {
@@ -33,12 +43,15 @@ type RegView interface {
 	ShowRegMasterKeyView()
 }
 
-type RegHelper interface {
+type DomainHelper interface {
 	ParseEMail(address string) bool
 	CheckAuthPasswordComplexityLevel(pass string) bool
 	CheckMasterPasswordComplexityLevel(pass string) bool
 	EncryptHello(masterPass string, hello string) (string, error)
 	Random32ByteString() string
+	DecryptHello(masterPassword string, helloEncrypted string) error
+	CheckBankCardData(data *domain.BankCard) error
+	CheckUserPasswordData(data *domain.UserPasswordData) error
 }
 
 type LoginServer interface {
@@ -57,6 +70,8 @@ type InfoView interface {
 	ShowRegView()
 	ShowRegOTPView()
 	ShowRegMasterKeyView()
+	ShowBankCardListView(cardsNumber []string)
+	ShowBankCardView(bankCard *domain.BankCard)
 }
 
 type LoginView interface {
@@ -65,10 +80,6 @@ type LoginView interface {
 	ShowMsg(msg string)
 	ShowMasterKeyView(hint string)
 	ShowDataAccessView()
-}
-
-type LoginHelper interface {
-	DecryptHello(masterPassword string, helloEncrypted string) error
 }
 
 type Server interface {

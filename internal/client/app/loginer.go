@@ -20,7 +20,7 @@ func (lg *loginer) LoginView(logView LoginView) *loginer {
 	return lg
 }
 
-func (lg *loginer) LoginHelper(helper LoginHelper) *loginer {
+func (lg *loginer) LoginHelper(helper DomainHelper) *loginer {
 	lg.helper = helper
 	return lg
 }
@@ -33,7 +33,7 @@ func (lg *loginer) LoginStorage(storage AppStorage) *loginer {
 type loginer struct {
 	logSrv  LoginServer
 	logView LoginView
-	helper  LoginHelper
+	helper  DomainHelper
 	storage AppStorage
 }
 

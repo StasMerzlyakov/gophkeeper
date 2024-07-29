@@ -6,6 +6,14 @@ type EncryptedBankCard struct {
 	Content string
 }
 
+// BankCardView used in view -> controller communication
+type BankCardView struct {
+	Number      string
+	ExpiryMonth string
+	ExpiryYear  string
+	CVV         string
+}
+
 // BankCard bank card data
 type BankCard struct {
 	// Type is an optional string with one of the supported card types

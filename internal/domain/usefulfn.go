@@ -18,10 +18,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/StasMerzlyakov/gophkeeper/internal/domain/creditcard"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
-	"github.com/retgits/creditcard"
 	pasVld "github.com/wagslane/go-password-validator"
 	"golang.org/x/crypto/pbkdf2"
 )

@@ -14,8 +14,27 @@ func (tApp *tuiApp) ShowDataAccessView() {
 			box := tview.NewBox().SetBorder(true).SetTitle("UserData")
 			tApp.dataMainFlex.Box = box
 
+			dataTypesList := tview.NewList().ShowSecondaryText(false)
+
+			dataTypes := []string{
+				"Bank cards", "UserPasswordData",
+			}
+			for index, number := range dataTypes {
+				dataTypesList.AddItem(number, "", rune(49+index), nil)
+			}
+
+			dataTypesList.SetSelectedFunc(func(index int, name string, second_name string, shortcut rune) {
+				switch index {
+				case 0:
+					tApp.controller.ShowBankCardList()
+				default:
+					tApp.ShowMsg("TODO")
+				}
+			})
+
 			tApp.dataMainFlex.
 				SetDirection(tview.FlexRow).
+				AddItem(dataTypesList, 0, 1, true).
 				AddItem(
 					tview.NewTextView().
 						SetTextColor(tcell.ColorGreen).

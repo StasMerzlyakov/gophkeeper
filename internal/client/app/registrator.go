@@ -21,7 +21,7 @@ func (reg *registrator) RegView(view RegView) *registrator {
 	return reg
 }
 
-func (reg *registrator) RegHelper(helper RegHelper) *registrator {
+func (reg *registrator) RegHelper(helper DomainHelper) *registrator {
 	reg.helper = helper
 	return reg
 }
@@ -29,7 +29,7 @@ func (reg *registrator) RegHelper(helper RegHelper) *registrator {
 type registrator struct {
 	srv    RegServer
 	view   RegView
-	helper RegHelper
+	helper DomainHelper
 }
 
 func (reg *registrator) CheckEmail(ctx context.Context, email string) {

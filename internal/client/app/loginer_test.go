@@ -127,7 +127,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 		mockSrv := NewMockLoginServer(ctrl)
 		mockSrv.EXPECT().GetHelloData(gomock.Any()).Return(helloData, nil).Times(1)
 
-		mockHlp := NewMockLoginHelper(ctrl)
+		mockHlp := NewMockDomainHelper(ctrl)
 
 		mockHlp.EXPECT().DecryptHello(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) error {
 			assert.Equal(t, masterPassword, secretKey)
@@ -183,7 +183,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 		mockSrv := NewMockLoginServer(ctrl)
 		mockSrv.EXPECT().GetHelloData(gomock.Any()).Return(helloData, nil).Times(1)
 
-		mockHlp := NewMockLoginHelper(ctrl)
+		mockHlp := NewMockDomainHelper(ctrl)
 
 		mockHlp.EXPECT().DecryptHello(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) error {
 			assert.Equal(t, masterPassword, secretKey)

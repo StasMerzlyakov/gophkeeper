@@ -10,8 +10,7 @@ func NewHelper(salfFn domain.SaltFn) *helper {
 	}
 }
 
-var _ RegHelper = (*helper)(nil)
-var _ LoginHelper = (*helper)(nil)
+var _ DomainHelper = (*helper)(nil)
 
 type helper struct {
 	salfFn domain.SaltFn
@@ -23,6 +22,13 @@ func (h *helper) ParseEMail(email string) bool {
 
 func (h *helper) CheckAuthPasswordComplexityLevel(email string) bool {
 	return domain.CheckAuthPasswordComplexityLevel(email)
+}
+
+func (h *helper) CheckBankCardData(data *domain.BankCard) error {
+	return domain.CheckBankCardData(data)
+}
+func (h *helper) CheckUserPasswordData(data *domain.UserPasswordData) error {
+	return domain.CheckUserPasswordData(data)
 }
 
 func (h *helper) CheckMasterPasswordComplexityLevel(pass string) bool {

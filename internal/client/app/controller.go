@@ -4,24 +4,26 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
+	"strconv"
 	"sync"
 	"time"
 
-	"github.com/StasMerzlyakov/gophkeeper/internal/client/adapters/storage"
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
 func NewAppController(conf *config.ClientConf) *appController {
 	helper := NewHelper(rand.Read)
-	storage := storage.NewStorage()
-	return &appController{
+	cntr := &appController{
 		conf:        conf,
 		status:      domain.ClientStatusOnline,
-		loginer:     NewLoginer().LoginHelper(helper).LoginStorage(storage),
+		loginer:     NewLoginer(),
 		pinger:      NewPinger(),
-		registrator: NewRegistrator().RegHelper(helper),
+		registrator: NewRegistrator(),
 	}
+
+	cntr.SetDomainHelper(helper)
+	return cntr
 }
 
 func (ac *appController) Start() {
@@ -82,8 +84,16 @@ func (ac *appController) SetInfoView(view InfoView) *appController {
 	return ac
 }
 
+func (ac *appController) SetDomainHelper(helper DomainHelper) *appController {
+	ac.helper = helper
+	ac.loginer.LoginHelper(helper)
+	ac.registrator.RegHelper(helper)
+	return ac
+}
+
 func (ac *appController) SetAppStorage(storage AppStorage) *appController {
 	ac.loginer.LoginStorage(storage)
+	ac.storage = storage
 	return ac
 }
 
@@ -99,12 +109,14 @@ type appController struct {
 	conf        *config.ClientConf
 	status      domain.ClientStatus
 	infoView    InfoView
+	helper      DomainHelper
 	loginer     *loginer
 	pinger      *pinger
 	registrator *registrator
 	server      Server
 	exitChan    chan struct{}
 	wg          sync.WaitGroup
+	storage     AppStorage
 }
 
 func (ac *appController) GetStatus() domain.ClientStatus {
@@ -141,7 +153,6 @@ func (ac *appController) invokeFnHlp(fn func(ctx context.Context), showErr bool)
 }
 
 func (ac *appController) invokeFn(fn func(ctx context.Context), runStatus domain.ClientStatus, msg string, showErr bool) {
-
 	go func() {
 		if ac.status != runStatus {
 			if msg != "" {
@@ -183,4 +194,141 @@ func (ac *appController) RegInitMasterKey(mKey *domain.UnencryptedMasterKeyData)
 	ac.invokeFn(func(ctx context.Context) {
 		ac.registrator.InitMasterKey(ctx, mKey)
 	}, domain.ClientStatusOnline, "server is offline", true)
+}
+
+func (ac *appController) AddBankCard(bankCardView *domain.BankCardView) {
+	go func() {
+		bankCard := &domain.BankCard{
+			Number: bankCardView.Number,
+			CVV:    bankCardView.CVV,
+		}
+
+		expMonth, err := strconv.Atoi(bankCardView.ExpiryMonth)
+		if err != nil {
+			ac.infoView.ShowMsg("Wrong month value")
+			return
+		}
+		bankCard.ExpiryMonth = expMonth
+
+		expEear, err := strconv.Atoi(bankCardView.ExpiryYear)
+		if err != nil {
+			ac.infoView.ShowMsg("Wrong year value")
+			return
+		}
+		if expEear < 100 {
+			expEear += 2000
+		}
+		bankCard.ExpiryYear = expEear
+
+		if err := ac.helper.CheckBankCardData(bankCard); err != nil {
+			ac.infoView.ShowMsg(fmt.Sprintf("Wrong card data %v", err.Error()))
+			return
+		}
+
+		if err := ac.storage.AddBankCard(bankCard); err != nil {
+			panic(err)
+		}
+		ac.infoView.ShowBankCardListView(ac.storage.GetBankCardNumberList())
+	}()
+}
+func (ac *appController) UpdateBankCard(bankCardView *domain.BankCardView) {
+	go func() {
+		bankCard := &domain.BankCard{
+			Number: bankCardView.Number,
+			CVV:    bankCardView.CVV,
+		}
+
+		expMonth, err := strconv.Atoi(bankCardView.ExpiryMonth)
+		if err != nil {
+			ac.infoView.ShowMsg("Wrong month value")
+			return
+		}
+		bankCard.ExpiryMonth = expMonth
+
+		expEear, err := strconv.Atoi(bankCardView.ExpiryYear)
+		if err != nil {
+			ac.infoView.ShowMsg("Wrong year value")
+			return
+		}
+		if expEear < 100 {
+			expEear += 2000
+		}
+		bankCard.ExpiryYear = expEear
+
+		if err := ac.helper.CheckBankCardData(bankCard); err != nil {
+			ac.infoView.ShowMsg(fmt.Sprintf("Wrong card data %v", err.Error()))
+			return
+		}
+
+		if err := ac.storage.UpdateBankCard(bankCard); err != nil {
+			panic(err)
+		}
+		ac.infoView.ShowBankCardListView(ac.storage.GetBankCardNumberList())
+	}()
+}
+
+func (ac *appController) DeleteBankCard(number string) {
+	go func() {
+		if err := ac.storage.DeleteBankCard(number); err != nil {
+			panic(err)
+		}
+		ac.infoView.ShowBankCardListView(ac.storage.GetBankCardNumberList())
+	}()
+}
+
+func (ac *appController) GetBankCard(number string) {
+	go func() {
+		if card, err := ac.storage.GetBankCard(number); err != nil {
+			panic(err)
+		} else {
+			ac.infoView.ShowBankCardView(card)
+		}
+	}()
+}
+
+func (ac *appController) ShowBankCard(num string) {
+	go func() {
+		if num == "" {
+			ac.infoView.ShowBankCardView(nil)
+		} else {
+			if data, err := ac.storage.GetBankCard(num); err != nil {
+				panic(err)
+			} else {
+				ac.infoView.ShowBankCardView(data)
+			}
+		}
+	}()
+}
+
+func (ac *appController) ShowBankCardList() {
+	go func() {
+		ac.infoView.ShowBankCardListView(ac.storage.GetBankCardNumberList())
+	}()
+}
+
+func (ac *appController) ShowUserPasswordData(hint string) {
+	panic("TODO")
+}
+
+func (ac *appController) ShowUserPasswordDataList() {
+	panic("TODO")
+}
+
+func (ac *appController) AddUserPasswordData(data *domain.UserPasswordData) {
+	if err := ac.storage.AddUserPasswordData(data); err != nil {
+		panic(err)
+	}
+}
+func (ac *appController) UpdatePasswordData(data *domain.UserPasswordData) {
+	if err := ac.storage.UpdatePasswordData(data); err != nil {
+		panic(err)
+	}
+}
+func (ac *appController) DeleteUpdatePasswordData(hint string) {
+	if err := ac.storage.DeleteUpdatePasswordData(hint); err != nil {
+		panic(err)
+	}
+}
+func (ac *appController) GetUpdatePasswordData(hint string) {
+	panic("TODO")
 }

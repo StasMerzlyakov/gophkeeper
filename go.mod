@@ -14,7 +14,6 @@ require (
 	github.com/kisielk/errcheck v1.7.0
 	github.com/mocktools/go-smtp-mock/v2 v2.3.0
 	github.com/pquerna/otp v1.4.0
-	github.com/retgits/creditcard v0.6.0
 	github.com/rivo/tview v0.0.0-20240625185742-b0a7293b8130
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.9.0

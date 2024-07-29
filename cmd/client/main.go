@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/adapters/grpc/handler"
+	"github.com/StasMerzlyakov/gophkeeper/internal/client/adapters/storage"
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/adapters/tui"
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
@@ -57,7 +58,7 @@ func main() {
 	// controller
 	appCtrl := app.NewAppController(conf)
 	defer appCtrl.Stop()
-	appCtrl.SetServer(helper)
+	appCtrl.SetServer(helper).SetAppStorage(storage.NewStorage())
 
 	// view
 	tView := tui.NewApp(conf)

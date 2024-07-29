@@ -19,7 +19,7 @@ func TestRegistrator_CheckEmail(t *testing.T) {
 
 	t.Run("ok", func(t *testing.T) {
 		email := "email"
-		mockHelper := NewMockRegHelper(ctrl)
+		mockHelper := NewMockDomainHelper(ctrl)
 		mockHelper.EXPECT().ParseEMail(gomock.Any()).DoAndReturn(func(str string) bool {
 			require.Equal(t, email, str)
 			return true
@@ -40,7 +40,7 @@ func TestRegistrator_CheckEmail(t *testing.T) {
 
 	t.Run("parseEmail_err", func(t *testing.T) {
 		email := "email"
-		mockHelper := NewMockRegHelper(ctrl)
+		mockHelper := NewMockDomainHelper(ctrl)
 		mockHelper.EXPECT().ParseEMail(gomock.Any()).DoAndReturn(func(str string) bool {
 			require.Equal(t, email, str)
 			return false
@@ -57,7 +57,7 @@ func TestRegistrator_CheckEmail(t *testing.T) {
 
 	t.Run("checkEmail_err", func(t *testing.T) {
 		email := "email"
-		mockHelper := NewMockRegHelper(ctrl)
+		mockHelper := NewMockDomainHelper(ctrl)
 
 		mockHelper.EXPECT().ParseEMail(gomock.Any()).DoAndReturn(func(str string) bool {
 			require.Equal(t, email, str)
@@ -82,7 +82,7 @@ func TestRegistrator_CheckEmail(t *testing.T) {
 
 	t.Run("email_busy", func(t *testing.T) {
 		email := "email"
-		mockHelper := NewMockRegHelper(ctrl)
+		mockHelper := NewMockDomainHelper(ctrl)
 		mockHelper.EXPECT().ParseEMail(gomock.Any()).DoAndReturn(func(str string) bool {
 			require.Equal(t, email, str)
 			return true
@@ -116,7 +116,7 @@ func TestRegistrator_Registrate(t *testing.T) {
 			Password: "pass",
 		}
 
-		mockHelper := NewMockRegHelper(ctrl)
+		mockHelper := NewMockDomainHelper(ctrl)
 
 		mockHelper.EXPECT().ParseEMail(gomock.Any()).DoAndReturn(func(str string) bool {
 			require.Equal(t, emailData.EMail, str)
@@ -147,7 +147,7 @@ func TestRegistrator_Registrate(t *testing.T) {
 			Password: "pass",
 		}
 
-		mockHelper := NewMockRegHelper(ctrl)
+		mockHelper := NewMockDomainHelper(ctrl)
 
 		mockHelper.EXPECT().ParseEMail(gomock.Any()).DoAndReturn(func(str string) bool {
 			require.Equal(t, emailData.EMail, str)
@@ -168,7 +168,7 @@ func TestRegistrator_Registrate(t *testing.T) {
 			Password: "pass",
 		}
 
-		mockHelper := NewMockRegHelper(ctrl)
+		mockHelper := NewMockDomainHelper(ctrl)
 		mockHelper.EXPECT().ParseEMail(gomock.Any()).DoAndReturn(func(str string) bool {
 			require.Equal(t, emailData.EMail, str)
 			return true
@@ -192,7 +192,7 @@ func TestRegistrator_Registrate(t *testing.T) {
 			Password: "pass",
 		}
 
-		mockHelper := NewMockRegHelper(ctrl)
+		mockHelper := NewMockDomainHelper(ctrl)
 		mockHelper.EXPECT().ParseEMail(gomock.Any()).DoAndReturn(func(str string) bool {
 			require.Equal(t, emailData.EMail, str)
 			return true
@@ -277,7 +277,7 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			MasterPasswordHint: "MasterPasswordHint",
 		}
 
-		mockHelper := NewMockRegHelper(ctrl)
+		mockHelper := NewMockDomainHelper(ctrl)
 		mockHelper.EXPECT().CheckMasterPasswordComplexityLevel(gomock.Any()).DoAndReturn(func(str string) bool {
 			require.Equal(t, keyData.MasterPassword, str)
 			return true
@@ -314,7 +314,7 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			MasterPasswordHint: "MasterPasswordHint",
 		}
 
-		mockHelper := NewMockRegHelper(ctrl)
+		mockHelper := NewMockDomainHelper(ctrl)
 		mockHelper.EXPECT().CheckMasterPasswordComplexityLevel(gomock.Any()).DoAndReturn(func(str string) bool {
 			require.Equal(t, keyData.MasterPassword, str)
 			return false
@@ -333,7 +333,7 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			MasterPasswordHint: "MasterPasswordHint",
 		}
 
-		mockHelper := NewMockRegHelper(ctrl)
+		mockHelper := NewMockDomainHelper(ctrl)
 		mockHelper.EXPECT().CheckMasterPasswordComplexityLevel(gomock.Any()).DoAndReturn(func(str string) bool {
 			require.Equal(t, keyData.MasterPassword, str)
 			return true
@@ -365,7 +365,7 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			MasterPasswordHint: "MasterPasswordHint",
 		}
 
-		mockHelper := NewMockRegHelper(ctrl)
+		mockHelper := NewMockDomainHelper(ctrl)
 		mockHelper.EXPECT().CheckMasterPasswordComplexityLevel(gomock.Any()).DoAndReturn(func(str string) bool {
 			require.Equal(t, keyData.MasterPassword, str)
 			return true

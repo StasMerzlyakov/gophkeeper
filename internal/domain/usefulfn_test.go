@@ -439,6 +439,16 @@ func TestCheckBankCardData(t *testing.T) {
 		assert.NoError(t, domain.CheckBankCardData(card))
 	})
 
+	t.Run("ok2", func(t *testing.T) {
+		card := &domain.BankCard{
+			Number:      "2200400128400690",
+			ExpiryMonth: 02,
+			ExpiryYear:  2031,
+			CVV:         "123",
+		}
+		assert.NoError(t, domain.CheckBankCardData(card))
+	})
+
 	t.Run("err", func(t *testing.T) {
 		card := &domain.BankCard{
 			Type:        "Something",
