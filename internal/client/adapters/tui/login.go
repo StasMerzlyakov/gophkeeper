@@ -89,7 +89,7 @@ func (tApp *tuiApp) ShowMasterKeyView(hint string) {
 	go func() {
 		tApp.app.QueueUpdateDraw(func() {
 			tApp.loginMKeyFlex.Clear()
-			var masterKey string
+			var masterPassword string
 
 			form := tview.NewForm()
 			if hint != "" {
@@ -97,10 +97,10 @@ func (tApp *tuiApp) ShowMasterKeyView(hint string) {
 			}
 
 			form.AddPasswordField("MasterPassword", "", 40, '#', func(mKey string) {
-				masterKey = mKey
+				masterPassword = mKey
 			}).
 				AddButton("Enter", func() {
-					tApp.controller.LoginCheckMasterKey(masterKey)
+					tApp.controller.LoginCheckMasterKey(masterPassword)
 				})
 
 			box := tview.NewBox().SetBorder(true).SetTitle("Authorization")
