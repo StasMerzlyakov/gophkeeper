@@ -35,6 +35,77 @@ func (m *MockStateFullStorage) EXPECT() *MockStateFullStorageMockRecorder {
 	return m.recorder
 }
 
+// CreateBankCard mocks base method.
+func (m *MockStateFullStorage) CreateBankCard(arg0 context.Context, arg1 *domain.EncryptedBankCard) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateBankCard", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateBankCard indicates an expected call of CreateBankCard.
+func (mr *MockStateFullStorageMockRecorder) CreateBankCard(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBankCard", reflect.TypeOf((*MockStateFullStorage)(nil).CreateBankCard), arg0, arg1)
+}
+
+// CreateUserPasswordData mocks base method.
+func (m *MockStateFullStorage) CreateUserPasswordData(arg0 context.Context, arg1 *domain.EncryptedUserPasswordData) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateUserPasswordData", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateUserPasswordData indicates an expected call of CreateUserPasswordData.
+func (mr *MockStateFullStorageMockRecorder) CreateUserPasswordData(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUserPasswordData", reflect.TypeOf((*MockStateFullStorage)(nil).CreateUserPasswordData), arg0, arg1)
+}
+
+// DeleteBankCard mocks base method.
+func (m *MockStateFullStorage) DeleteBankCard(arg0 context.Context, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteBankCard", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteBankCard indicates an expected call of DeleteBankCard.
+func (mr *MockStateFullStorageMockRecorder) DeleteBankCard(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBankCard", reflect.TypeOf((*MockStateFullStorage)(nil).DeleteBankCard), arg0, arg1)
+}
+
+// DeleteUserPasswordData mocks base method.
+func (m *MockStateFullStorage) DeleteUserPasswordData(arg0 context.Context, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteUserPasswordData", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteUserPasswordData indicates an expected call of DeleteUserPasswordData.
+func (mr *MockStateFullStorageMockRecorder) DeleteUserPasswordData(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUserPasswordData", reflect.TypeOf((*MockStateFullStorage)(nil).DeleteUserPasswordData), arg0, arg1)
+}
+
+// GetBankCardList mocks base method.
+func (m *MockStateFullStorage) GetBankCardList(arg0 context.Context) ([]domain.EncryptedBankCard, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBankCardList", arg0)
+	ret0, _ := ret[0].([]domain.EncryptedBankCard)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBankCardList indicates an expected call of GetBankCardList.
+func (mr *MockStateFullStorageMockRecorder) GetBankCardList(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBankCardList", reflect.TypeOf((*MockStateFullStorage)(nil).GetBankCardList), arg0)
+}
+
 // GetHelloData mocks base method.
 func (m *MockStateFullStorage) GetHelloData(arg0 context.Context) (*domain.HelloData, error) {
 	m.ctrl.T.Helper()
@@ -65,6 +136,21 @@ func (mr *MockStateFullStorageMockRecorder) GetLoginData(arg0, arg1 interface{})
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLoginData", reflect.TypeOf((*MockStateFullStorage)(nil).GetLoginData), arg0, arg1)
 }
 
+// GetUserPasswordDataList mocks base method.
+func (m *MockStateFullStorage) GetUserPasswordDataList(arg0 context.Context) ([]domain.EncryptedUserPasswordData, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserPasswordDataList", arg0)
+	ret0, _ := ret[0].([]domain.EncryptedUserPasswordData)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserPasswordDataList indicates an expected call of GetUserPasswordDataList.
+func (mr *MockStateFullStorageMockRecorder) GetUserPasswordDataList(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserPasswordDataList", reflect.TypeOf((*MockStateFullStorage)(nil).GetUserPasswordDataList), arg0)
+}
+
 // IsEMailAvailable mocks base method.
 func (m *MockStateFullStorage) IsEMailAvailable(arg0 context.Context, arg1 string) (bool, error) {
 	m.ctrl.T.Helper()
@@ -92,6 +178,34 @@ func (m *MockStateFullStorage) Registrate(arg0 context.Context, arg1 *domain.Ful
 func (mr *MockStateFullStorageMockRecorder) Registrate(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Registrate", reflect.TypeOf((*MockStateFullStorage)(nil).Registrate), arg0, arg1)
+}
+
+// UpdateBankCard mocks base method.
+func (m *MockStateFullStorage) UpdateBankCard(arg0 context.Context, arg1 *domain.EncryptedBankCard) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateBankCard", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateBankCard indicates an expected call of UpdateBankCard.
+func (mr *MockStateFullStorageMockRecorder) UpdateBankCard(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateBankCard", reflect.TypeOf((*MockStateFullStorage)(nil).UpdateBankCard), arg0, arg1)
+}
+
+// UpdateUserPasswordData mocks base method.
+func (m *MockStateFullStorage) UpdateUserPasswordData(arg0 context.Context, arg1 *domain.EncryptedUserPasswordData) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserPasswordData", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateUserPasswordData indicates an expected call of UpdateUserPasswordData.
+func (mr *MockStateFullStorageMockRecorder) UpdateUserPasswordData(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserPasswordData", reflect.TypeOf((*MockStateFullStorage)(nil).UpdateUserPasswordData), arg0, arg1)
 }
 
 // MockTemporaryStorage is a mock of TemporaryStorage interface.

@@ -40,3 +40,32 @@ func (da *dataAccessor) GetHelloData(ctx context.Context) (*domain.HelloData, er
 	log.Debugw(action, "msg", "getHelloData success")
 	return res, nil
 }
+
+func (da *dataAccessor) GetBankCardList(ctx context.Context) ([]domain.EncryptedBankCard, error) {
+	return da.stflStorage.GetBankCardList(ctx)
+}
+
+func (da *dataAccessor) CreateBankCard(ctx context.Context, bnkCard *domain.EncryptedBankCard) error {
+	return da.stflStorage.CreateBankCard(ctx, bnkCard)
+}
+
+func (da *dataAccessor) UpdateBankCard(ctx context.Context, bnkCard *domain.EncryptedBankCard) error {
+	return da.stflStorage.UpdateBankCard(ctx, bnkCard)
+}
+
+func (da *dataAccessor) DeleteBankCard(ctx context.Context, number string) error {
+	return da.stflStorage.DeleteBankCard(ctx, number)
+}
+
+func (da *dataAccessor) GetUserPasswordDataList(ctx context.Context) ([]domain.EncryptedUserPasswordData, error) {
+	return da.stflStorage.GetUserPasswordDataList(ctx)
+}
+func (da *dataAccessor) CreateUserPasswordData(ctx context.Context, bnkCard *domain.EncryptedUserPasswordData) error {
+	return da.stflStorage.CreateUserPasswordData(ctx, bnkCard)
+}
+func (da *dataAccessor) UpdateUserPasswordData(ctx context.Context, bnkCard *domain.EncryptedUserPasswordData) error {
+	return da.stflStorage.UpdateUserPasswordData(ctx, bnkCard)
+}
+func (da *dataAccessor) DeleteUserPasswordData(ctx context.Context, hint string) error {
+	return da.stflStorage.DeleteUserPasswordData(ctx, hint)
+}

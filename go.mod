@@ -14,6 +14,7 @@ require (
 	github.com/kisielk/errcheck v1.7.0
 	github.com/mocktools/go-smtp-mock/v2 v2.3.0
 	github.com/pquerna/otp v1.4.0
+	github.com/retgits/creditcard v0.6.0
 	github.com/rivo/tview v0.0.0-20240625185742-b0a7293b8130
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.9.0
@@ -72,7 +73,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
-	github.com/retgits/creditcard v0.6.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.24.5 // indirect
