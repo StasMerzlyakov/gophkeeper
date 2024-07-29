@@ -85,6 +85,89 @@ message HelloResponse{
     string masterPasswordHint = 2;
 }
 
+message BankCard {
+    string number = 1;
+    string content = 2;
+}
+
+message BankCardListRequest {
+}
+
+message BankCardListResponse {
+    repeated BankCard cards = 1;
+}
+
+message CreateBankCardRequest {
+    string number = 1;
+    string content = 2;
+}
+
+message CreateBankCardResponse {
+}
+
+message DeleteBankCardRequest {
+    string number = 1;
+}
+
+message DeleteBankCardResponse {
+}
+
+message UpdateBankCardRequest {
+    string number = 1;
+    string content = 2;
+}
+
+message UpdateBankCardResponse {
+}
+
+message UserPasswordData {
+    string hint = 1;
+    string content = 2;
+}
+
+message UserPasswordDataRequest {
+}
+
+message UserPasswordDataResponse {
+    repeated UserPasswordData datas = 1;
+}
+
+
+message CreateUserPasswordDataRequest {
+    string hint = 1;
+    string content = 2;
+}
+
+message CreateUserPasswordDataResponse {
+}
+
+message DeleteUserPasswordDataRequest {
+    string hint = 1;
+}
+
+message DeleteUserPasswordDataResponse {
+}
+
+message UpdateUserPasswordDataRequest {
+    string hint = 1;
+    string content = 2;
+}
+
+message UpdateUserPasswordDataResponse {
+}
+
+
 service DataAccessor {
     rpc Hello(HelloRequest) returns (HelloResponse);
+    rpc GetBankCardList(BankCardListRequest) returns (BankCardListResponse);
+    rpc CreateBankCard(CreateBankCardRequest) returns (CreateBankCardResponse);
+    rpc DeleteBankCard(DeleteBankCardRequest) returns (DeleteBankCardResponse);
+    rpc UpdateBankCard(UpdateBankCardRequest) returns (UpdateBankCardResponse);
+
+    rpc GetUserPasswordDataList(UserPasswordDataRequest) returns (UserPasswordDataResponse);
+    rpc CreateUserPasswordData(CreateUserPasswordDataRequest) returns (CreateUserPasswordDataResponse);
+    rpc DeleteUserPasswordData(DeleteUserPasswordDataRequest) returns (DeleteUserPasswordDataResponse);
+    rpc UpdateUserPasswordData(UpdateUserPasswordDataRequest) returns (UpdateUserPasswordDataResponse);
 };
+
+

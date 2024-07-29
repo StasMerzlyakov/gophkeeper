@@ -117,6 +117,77 @@ func (m *MockDataAccessor) EXPECT() *MockDataAccessorMockRecorder {
 	return m.recorder
 }
 
+// CreateBankCard mocks base method.
+func (m *MockDataAccessor) CreateBankCard(arg0 context.Context, arg1 *domain.EncryptedBankCard) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateBankCard", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateBankCard indicates an expected call of CreateBankCard.
+func (mr *MockDataAccessorMockRecorder) CreateBankCard(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBankCard", reflect.TypeOf((*MockDataAccessor)(nil).CreateBankCard), arg0, arg1)
+}
+
+// CreateUserPasswordData mocks base method.
+func (m *MockDataAccessor) CreateUserPasswordData(arg0 context.Context, arg1 *domain.EncryptedUserPasswordData) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateUserPasswordData", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateUserPasswordData indicates an expected call of CreateUserPasswordData.
+func (mr *MockDataAccessorMockRecorder) CreateUserPasswordData(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUserPasswordData", reflect.TypeOf((*MockDataAccessor)(nil).CreateUserPasswordData), arg0, arg1)
+}
+
+// DeleteBankCard mocks base method.
+func (m *MockDataAccessor) DeleteBankCard(arg0 context.Context, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteBankCard", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteBankCard indicates an expected call of DeleteBankCard.
+func (mr *MockDataAccessorMockRecorder) DeleteBankCard(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBankCard", reflect.TypeOf((*MockDataAccessor)(nil).DeleteBankCard), arg0, arg1)
+}
+
+// DeleteUserPasswordData mocks base method.
+func (m *MockDataAccessor) DeleteUserPasswordData(arg0 context.Context, arg1 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteUserPasswordData", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteUserPasswordData indicates an expected call of DeleteUserPasswordData.
+func (mr *MockDataAccessorMockRecorder) DeleteUserPasswordData(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUserPasswordData", reflect.TypeOf((*MockDataAccessor)(nil).DeleteUserPasswordData), arg0, arg1)
+}
+
+// GetBankCardList mocks base method.
+func (m *MockDataAccessor) GetBankCardList(arg0 context.Context) ([]domain.EncryptedBankCard, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBankCardList", arg0)
+	ret0, _ := ret[0].([]domain.EncryptedBankCard)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBankCardList indicates an expected call of GetBankCardList.
+func (mr *MockDataAccessorMockRecorder) GetBankCardList(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBankCardList", reflect.TypeOf((*MockDataAccessor)(nil).GetBankCardList), arg0)
+}
+
 // GetHelloData mocks base method.
 func (m *MockDataAccessor) GetHelloData(arg0 context.Context) (*domain.HelloData, error) {
 	m.ctrl.T.Helper()
@@ -130,6 +201,49 @@ func (m *MockDataAccessor) GetHelloData(arg0 context.Context) (*domain.HelloData
 func (mr *MockDataAccessorMockRecorder) GetHelloData(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHelloData", reflect.TypeOf((*MockDataAccessor)(nil).GetHelloData), arg0)
+}
+
+// GetUserPasswordDataList mocks base method.
+func (m *MockDataAccessor) GetUserPasswordDataList(arg0 context.Context) ([]domain.EncryptedUserPasswordData, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserPasswordDataList", arg0)
+	ret0, _ := ret[0].([]domain.EncryptedUserPasswordData)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserPasswordDataList indicates an expected call of GetUserPasswordDataList.
+func (mr *MockDataAccessorMockRecorder) GetUserPasswordDataList(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserPasswordDataList", reflect.TypeOf((*MockDataAccessor)(nil).GetUserPasswordDataList), arg0)
+}
+
+// UpdateBankCard mocks base method.
+func (m *MockDataAccessor) UpdateBankCard(arg0 context.Context, arg1 *domain.EncryptedBankCard) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateBankCard", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateBankCard indicates an expected call of UpdateBankCard.
+func (mr *MockDataAccessorMockRecorder) UpdateBankCard(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateBankCard", reflect.TypeOf((*MockDataAccessor)(nil).UpdateBankCard), arg0, arg1)
+}
+
+// UpdateUserPasswordData mocks base method.
+func (m *MockDataAccessor) UpdateUserPasswordData(arg0 context.Context, arg1 *domain.EncryptedUserPasswordData) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserPasswordData", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateUserPasswordData indicates an expected call of UpdateUserPasswordData.
+func (mr *MockDataAccessorMockRecorder) UpdateUserPasswordData(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserPasswordData", reflect.TypeOf((*MockDataAccessor)(nil).UpdateUserPasswordData), arg0, arg1)
 }
 
 // MockAuthService is a mock of AuthService interface.

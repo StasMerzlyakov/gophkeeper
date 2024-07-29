@@ -17,6 +17,16 @@ type Registrator interface {
 
 type DataAccessor interface {
 	GetHelloData(ctx context.Context) (*domain.HelloData, error)
+
+	GetBankCardList(ctx context.Context) ([]domain.EncryptedBankCard, error)
+	CreateBankCard(ctx context.Context, bnkCard *domain.EncryptedBankCard) error
+	UpdateBankCard(ctx context.Context, bnkCard *domain.EncryptedBankCard) error
+	DeleteBankCard(ctx context.Context, number string) error
+
+	GetUserPasswordDataList(ctx context.Context) ([]domain.EncryptedUserPasswordData, error)
+	CreateUserPasswordData(ctx context.Context, bnkCard *domain.EncryptedUserPasswordData) error
+	UpdateUserPasswordData(ctx context.Context, bnkCard *domain.EncryptedUserPasswordData) error
+	DeleteUserPasswordData(ctx context.Context, hint string) error
 }
 
 type AuthService interface {

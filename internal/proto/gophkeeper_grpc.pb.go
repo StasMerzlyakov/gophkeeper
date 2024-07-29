@@ -444,7 +444,15 @@ var Pinger_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	DataAccessor_Hello_FullMethodName = "/proto.DataAccessor/Hello"
+	DataAccessor_Hello_FullMethodName                   = "/proto.DataAccessor/Hello"
+	DataAccessor_GetBankCardList_FullMethodName         = "/proto.DataAccessor/GetBankCardList"
+	DataAccessor_CreateBankCard_FullMethodName          = "/proto.DataAccessor/CreateBankCard"
+	DataAccessor_DeleteBankCard_FullMethodName          = "/proto.DataAccessor/DeleteBankCard"
+	DataAccessor_UpdateBankCard_FullMethodName          = "/proto.DataAccessor/UpdateBankCard"
+	DataAccessor_GetUserPasswordDataList_FullMethodName = "/proto.DataAccessor/GetUserPasswordDataList"
+	DataAccessor_CreateUserPasswordData_FullMethodName  = "/proto.DataAccessor/CreateUserPasswordData"
+	DataAccessor_DeleteUserPasswordData_FullMethodName  = "/proto.DataAccessor/DeleteUserPasswordData"
+	DataAccessor_UpdateUserPasswordData_FullMethodName  = "/proto.DataAccessor/UpdateUserPasswordData"
 )
 
 // DataAccessorClient is the client API for DataAccessor service.
@@ -452,6 +460,14 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DataAccessorClient interface {
 	Hello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error)
+	GetBankCardList(ctx context.Context, in *BankCardListRequest, opts ...grpc.CallOption) (*BankCardListResponse, error)
+	CreateBankCard(ctx context.Context, in *CreateBankCardRequest, opts ...grpc.CallOption) (*CreateBankCardResponse, error)
+	DeleteBankCard(ctx context.Context, in *DeleteBankCardRequest, opts ...grpc.CallOption) (*DeleteBankCardResponse, error)
+	UpdateBankCard(ctx context.Context, in *UpdateBankCardRequest, opts ...grpc.CallOption) (*UpdateBankCardResponse, error)
+	GetUserPasswordDataList(ctx context.Context, in *UserPasswordDataRequest, opts ...grpc.CallOption) (*UserPasswordDataResponse, error)
+	CreateUserPasswordData(ctx context.Context, in *CreateUserPasswordDataRequest, opts ...grpc.CallOption) (*CreateUserPasswordDataResponse, error)
+	DeleteUserPasswordData(ctx context.Context, in *DeleteUserPasswordDataRequest, opts ...grpc.CallOption) (*DeleteUserPasswordDataResponse, error)
+	UpdateUserPasswordData(ctx context.Context, in *UpdateUserPasswordDataRequest, opts ...grpc.CallOption) (*UpdateUserPasswordDataResponse, error)
 }
 
 type dataAccessorClient struct {
@@ -472,11 +488,99 @@ func (c *dataAccessorClient) Hello(ctx context.Context, in *HelloRequest, opts .
 	return out, nil
 }
 
+func (c *dataAccessorClient) GetBankCardList(ctx context.Context, in *BankCardListRequest, opts ...grpc.CallOption) (*BankCardListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BankCardListResponse)
+	err := c.cc.Invoke(ctx, DataAccessor_GetBankCardList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataAccessorClient) CreateBankCard(ctx context.Context, in *CreateBankCardRequest, opts ...grpc.CallOption) (*CreateBankCardResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateBankCardResponse)
+	err := c.cc.Invoke(ctx, DataAccessor_CreateBankCard_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataAccessorClient) DeleteBankCard(ctx context.Context, in *DeleteBankCardRequest, opts ...grpc.CallOption) (*DeleteBankCardResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteBankCardResponse)
+	err := c.cc.Invoke(ctx, DataAccessor_DeleteBankCard_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataAccessorClient) UpdateBankCard(ctx context.Context, in *UpdateBankCardRequest, opts ...grpc.CallOption) (*UpdateBankCardResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateBankCardResponse)
+	err := c.cc.Invoke(ctx, DataAccessor_UpdateBankCard_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataAccessorClient) GetUserPasswordDataList(ctx context.Context, in *UserPasswordDataRequest, opts ...grpc.CallOption) (*UserPasswordDataResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserPasswordDataResponse)
+	err := c.cc.Invoke(ctx, DataAccessor_GetUserPasswordDataList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataAccessorClient) CreateUserPasswordData(ctx context.Context, in *CreateUserPasswordDataRequest, opts ...grpc.CallOption) (*CreateUserPasswordDataResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateUserPasswordDataResponse)
+	err := c.cc.Invoke(ctx, DataAccessor_CreateUserPasswordData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataAccessorClient) DeleteUserPasswordData(ctx context.Context, in *DeleteUserPasswordDataRequest, opts ...grpc.CallOption) (*DeleteUserPasswordDataResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteUserPasswordDataResponse)
+	err := c.cc.Invoke(ctx, DataAccessor_DeleteUserPasswordData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataAccessorClient) UpdateUserPasswordData(ctx context.Context, in *UpdateUserPasswordDataRequest, opts ...grpc.CallOption) (*UpdateUserPasswordDataResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateUserPasswordDataResponse)
+	err := c.cc.Invoke(ctx, DataAccessor_UpdateUserPasswordData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DataAccessorServer is the server API for DataAccessor service.
 // All implementations must embed UnimplementedDataAccessorServer
 // for forward compatibility
 type DataAccessorServer interface {
 	Hello(context.Context, *HelloRequest) (*HelloResponse, error)
+	GetBankCardList(context.Context, *BankCardListRequest) (*BankCardListResponse, error)
+	CreateBankCard(context.Context, *CreateBankCardRequest) (*CreateBankCardResponse, error)
+	DeleteBankCard(context.Context, *DeleteBankCardRequest) (*DeleteBankCardResponse, error)
+	UpdateBankCard(context.Context, *UpdateBankCardRequest) (*UpdateBankCardResponse, error)
+	GetUserPasswordDataList(context.Context, *UserPasswordDataRequest) (*UserPasswordDataResponse, error)
+	CreateUserPasswordData(context.Context, *CreateUserPasswordDataRequest) (*CreateUserPasswordDataResponse, error)
+	DeleteUserPasswordData(context.Context, *DeleteUserPasswordDataRequest) (*DeleteUserPasswordDataResponse, error)
+	UpdateUserPasswordData(context.Context, *UpdateUserPasswordDataRequest) (*UpdateUserPasswordDataResponse, error)
 	mustEmbedUnimplementedDataAccessorServer()
 }
 
@@ -486,6 +590,30 @@ type UnimplementedDataAccessorServer struct {
 
 func (UnimplementedDataAccessorServer) Hello(context.Context, *HelloRequest) (*HelloResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Hello not implemented")
+}
+func (UnimplementedDataAccessorServer) GetBankCardList(context.Context, *BankCardListRequest) (*BankCardListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBankCardList not implemented")
+}
+func (UnimplementedDataAccessorServer) CreateBankCard(context.Context, *CreateBankCardRequest) (*CreateBankCardResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBankCard not implemented")
+}
+func (UnimplementedDataAccessorServer) DeleteBankCard(context.Context, *DeleteBankCardRequest) (*DeleteBankCardResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteBankCard not implemented")
+}
+func (UnimplementedDataAccessorServer) UpdateBankCard(context.Context, *UpdateBankCardRequest) (*UpdateBankCardResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateBankCard not implemented")
+}
+func (UnimplementedDataAccessorServer) GetUserPasswordDataList(context.Context, *UserPasswordDataRequest) (*UserPasswordDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserPasswordDataList not implemented")
+}
+func (UnimplementedDataAccessorServer) CreateUserPasswordData(context.Context, *CreateUserPasswordDataRequest) (*CreateUserPasswordDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateUserPasswordData not implemented")
+}
+func (UnimplementedDataAccessorServer) DeleteUserPasswordData(context.Context, *DeleteUserPasswordDataRequest) (*DeleteUserPasswordDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteUserPasswordData not implemented")
+}
+func (UnimplementedDataAccessorServer) UpdateUserPasswordData(context.Context, *UpdateUserPasswordDataRequest) (*UpdateUserPasswordDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserPasswordData not implemented")
 }
 func (UnimplementedDataAccessorServer) mustEmbedUnimplementedDataAccessorServer() {}
 
@@ -518,6 +646,150 @@ func _DataAccessor_Hello_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DataAccessor_GetBankCardList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BankCardListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataAccessorServer).GetBankCardList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DataAccessor_GetBankCardList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataAccessorServer).GetBankCardList(ctx, req.(*BankCardListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataAccessor_CreateBankCard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateBankCardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataAccessorServer).CreateBankCard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DataAccessor_CreateBankCard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataAccessorServer).CreateBankCard(ctx, req.(*CreateBankCardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataAccessor_DeleteBankCard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteBankCardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataAccessorServer).DeleteBankCard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DataAccessor_DeleteBankCard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataAccessorServer).DeleteBankCard(ctx, req.(*DeleteBankCardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataAccessor_UpdateBankCard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateBankCardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataAccessorServer).UpdateBankCard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DataAccessor_UpdateBankCard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataAccessorServer).UpdateBankCard(ctx, req.(*UpdateBankCardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataAccessor_GetUserPasswordDataList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserPasswordDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataAccessorServer).GetUserPasswordDataList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DataAccessor_GetUserPasswordDataList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataAccessorServer).GetUserPasswordDataList(ctx, req.(*UserPasswordDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataAccessor_CreateUserPasswordData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateUserPasswordDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataAccessorServer).CreateUserPasswordData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DataAccessor_CreateUserPasswordData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataAccessorServer).CreateUserPasswordData(ctx, req.(*CreateUserPasswordDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataAccessor_DeleteUserPasswordData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteUserPasswordDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataAccessorServer).DeleteUserPasswordData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DataAccessor_DeleteUserPasswordData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataAccessorServer).DeleteUserPasswordData(ctx, req.(*DeleteUserPasswordDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataAccessor_UpdateUserPasswordData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserPasswordDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataAccessorServer).UpdateUserPasswordData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DataAccessor_UpdateUserPasswordData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataAccessorServer).UpdateUserPasswordData(ctx, req.(*UpdateUserPasswordDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DataAccessor_ServiceDesc is the grpc.ServiceDesc for DataAccessor service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -528,6 +800,38 @@ var DataAccessor_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Hello",
 			Handler:    _DataAccessor_Hello_Handler,
+		},
+		{
+			MethodName: "GetBankCardList",
+			Handler:    _DataAccessor_GetBankCardList_Handler,
+		},
+		{
+			MethodName: "CreateBankCard",
+			Handler:    _DataAccessor_CreateBankCard_Handler,
+		},
+		{
+			MethodName: "DeleteBankCard",
+			Handler:    _DataAccessor_DeleteBankCard_Handler,
+		},
+		{
+			MethodName: "UpdateBankCard",
+			Handler:    _DataAccessor_UpdateBankCard_Handler,
+		},
+		{
+			MethodName: "GetUserPasswordDataList",
+			Handler:    _DataAccessor_GetUserPasswordDataList_Handler,
+		},
+		{
+			MethodName: "CreateUserPasswordData",
+			Handler:    _DataAccessor_CreateUserPasswordData_Handler,
+		},
+		{
+			MethodName: "DeleteUserPasswordData",
+			Handler:    _DataAccessor_DeleteUserPasswordData_Handler,
+		},
+		{
+			MethodName: "UpdateUserPasswordData",
+			Handler:    _DataAccessor_UpdateUserPasswordData_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -15,11 +15,13 @@ import (
 	"net/mail"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
+	"github.com/retgits/creditcard"
 	pasVld "github.com/wagslane/go-password-validator"
 	"golang.org/x/crypto/pbkdf2"
 )
@@ -394,4 +396,35 @@ func ParseJWTToken(tokenSecret []byte, token JWTToken) (UserID, error) {
 	}
 
 	return claims.UserID, nil
+}
+
+func CheckBankCardData(data *BankCard) error {
+
+	card := (*creditcard.Card)(data)
+
+	if len(card.Number) != 16 { // The github.com/retgits/creditcard library has a bug if card.Number length too short.
+		return fmt.Errorf("%w wrong card number length", ErrClientDataIncorrect)
+	}
+	validation := card.Validate()
+	if len(validation.Errors) > 0 {
+		errStr := strings.Join(validation.Errors, ", ")
+		return fmt.Errorf("%w bank data validation err %s", ErrClientDataIncorrect, errStr)
+	}
+	return nil
+}
+
+func CheckUserPasswordData(data *UserPasswordData) error {
+	if len(data.Hint) < 5 {
+		return fmt.Errorf("%w hint too short", ErrClientDataIncorrect)
+	}
+
+	if len(data.Login) == 0 {
+		return fmt.Errorf("%w login is not set", ErrClientDataIncorrect)
+	}
+
+	if len(data.Passwrod) == 0 {
+		return fmt.Errorf("%w password is not set", ErrClientDataIncorrect)
+	}
+
+	return nil
 }

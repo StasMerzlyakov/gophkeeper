@@ -426,3 +426,65 @@ func TestEncryptionText(t *testing.T) {
 	require.False(t, bytes.Equal([]byte(encrypted), []byte(encrypted2)))
 
 }
+
+func TestCheckBankCardData(t *testing.T) {
+
+	t.Run("ok", func(t *testing.T) {
+		card := &domain.BankCard{
+			Number:      "6250941006528599",
+			ExpiryMonth: 06,
+			ExpiryYear:  2026,
+			CVV:         "123",
+		}
+		assert.NoError(t, domain.CheckBankCardData(card))
+	})
+
+	t.Run("err", func(t *testing.T) {
+		card := &domain.BankCard{
+			Type:        "Something",
+			Number:      "5019717010103742",
+			ExpiryMonth: 11,
+			ExpiryYear:  2019,
+			CVV:         "1234",
+		}
+		assert.ErrorIs(t, domain.CheckBankCardData(card), domain.ErrClientDataIncorrect)
+	})
+}
+
+func TestCheckLoginPassData(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		lData := &domain.UserPasswordData{
+			Hint:     "ya.ru",
+			Login:    "login",
+			Passwrod: "pass",
+		}
+		assert.NoError(t, domain.CheckUserPasswordData(lData))
+	})
+
+	t.Run("wong hint", func(t *testing.T) {
+		lData := &domain.UserPasswordData{
+			Hint:     "ya.r",
+			Login:    "login",
+			Passwrod: "pass",
+		}
+		assert.ErrorIs(t, domain.CheckUserPasswordData(lData), domain.ErrClientDataIncorrect)
+	})
+
+	t.Run("wong login", func(t *testing.T) {
+		lData := &domain.UserPasswordData{
+			Hint:     "ya.ru",
+			Login:    "",
+			Passwrod: "pass",
+		}
+		assert.ErrorIs(t, domain.CheckUserPasswordData(lData), domain.ErrClientDataIncorrect)
+	})
+
+	t.Run("wong pass", func(t *testing.T) {
+		lData := &domain.UserPasswordData{
+			Hint:     "ya.ru",
+			Login:    "login",
+			Passwrod: "",
+		}
+		assert.ErrorIs(t, domain.CheckUserPasswordData(lData), domain.ErrClientDataIncorrect)
+	})
+}
