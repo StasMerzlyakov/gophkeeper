@@ -83,7 +83,7 @@ func (st *storage) init(ctx context.Context, logger domain.Logger) error {
 
 	if _, err = tx.Exec(ctx, `
 	create table if not exists user_info (
-		userId bigserial,
+		user_id bigserial,
 		email text not null,
 		pass_hash text not null,
 		pass_salt text not null,
@@ -91,7 +91,7 @@ func (st *storage) init(ctx context.Context, logger domain.Logger) error {
 		master_key text not null,
 		master_hint text not null,
 		hello_encrypted text not null,
-		primary key(userId)
+		primary key(user_id)
 	);`); err != nil {
 		panic(err)
 	}
