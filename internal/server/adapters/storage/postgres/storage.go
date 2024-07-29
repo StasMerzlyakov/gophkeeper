@@ -99,6 +99,44 @@ func (st *storage) init(ctx context.Context, logger domain.Logger) error {
 		panic(err)
 	}
 
+	if _, err = tx.Exec(ctx, `
+	create table if not exists bank_card (
+		id bigserial,
+		number text not null,
+		content text not null,
+		user_id bigint not null references user_info (user_id) on delete cascade,
+		primary key(id)
+	);`); err != nil {
+		panic(err)
+	}
+
+	if _, err = tx.Exec(ctx, `create unique index if not exists idx_bank_card_number on bank_card(number,user_id);`); err != nil {
+		panic(err)
+	}
+
+	if _, err = tx.Exec(ctx, `create index if not exists idx_bank_card_user_id on bank_card(user_id);`); err != nil {
+		panic(err)
+	}
+
+	if _, err = tx.Exec(ctx, `
+	create table if not exists user_password_data (
+		id bigserial,
+		hint text not null,
+		content text not null,
+		user_id bigint not null references user_info (user_id) on delete cascade,
+		primary key(id)
+	);`); err != nil {
+		panic(err)
+	}
+
+	if _, err = tx.Exec(ctx, `create unique index if not exists idx_user_password_data_hint on user_password_data(hint,user_id);`); err != nil {
+		panic(err)
+	}
+
+	if _, err = tx.Exec(ctx, `create index if not exists idx_user_password_data_user_id on user_password_data(user_id);`); err != nil {
+		panic(err)
+	}
+
 	return tx.Commit(ctx)
 }
 
