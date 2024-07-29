@@ -20,10 +20,10 @@ type regHandler struct {
 }
 
 func (rh *regHandler) CheckEMail(ctx context.Context, req *proto.CheckEMailRequest) (*proto.CheckEMailResponse, error) {
-
+	action := domain.GetAction(0)
 	status, err := rh.registrator.GetEMailStatus(ctx, req.Email)
 	if err != nil {
-		return nil, WrapErr(err)
+		return nil, fmt.Errorf("%v err - %w", action, err)
 	}
 
 	resp := &proto.CheckEMailResponse{}
@@ -39,6 +39,7 @@ func (rh *regHandler) CheckEMail(ctx context.Context, req *proto.CheckEMailReque
 }
 
 func (rh *regHandler) Registrate(ctx context.Context, req *proto.RegistrationRequest) (*proto.RegistrationResponse, error) {
+	action := domain.GetAction(0)
 	data := &domain.EMailData{
 		EMail:    req.Email,
 		Password: req.Password,
@@ -46,7 +47,7 @@ func (rh *regHandler) Registrate(ctx context.Context, req *proto.RegistrationReq
 	sID, err := rh.registrator.Registrate(ctx, data)
 
 	if err != nil {
-		return nil, WrapErr(err)
+		return nil, fmt.Errorf("%v err - %w", action, err)
 	}
 
 	resp := &proto.RegistrationResponse{
@@ -56,10 +57,10 @@ func (rh *regHandler) Registrate(ctx context.Context, req *proto.RegistrationReq
 	return resp, nil
 }
 func (rh *regHandler) PassOTP(ctx context.Context, req *proto.PassOTPRequest) (*proto.PassOTPResponse, error) {
-
+	action := domain.GetAction(0)
 	sID, err := rh.registrator.PassOTP(ctx, domain.SessionID(req.SessionId), req.Password)
 	if err != nil {
-		return nil, WrapErr(err)
+		return nil, fmt.Errorf("%v err - %w", action, err)
 	}
 
 	resp := &proto.PassOTPResponse{
@@ -69,7 +70,7 @@ func (rh *regHandler) PassOTP(ctx context.Context, req *proto.PassOTPRequest) (*
 	return resp, nil
 }
 func (rh *regHandler) SetMasterKey(ctx context.Context, req *proto.MasterKeyRequest) (*proto.MasterKeyResponse, error) {
-
+	action := domain.GetAction(0)
 	mKeyData := &domain.MasterKeyData{
 		EncryptedMasterKey: req.EncryptedMasterKey,
 		MasterKeyHint:      req.MasterKeyPassHint,
@@ -78,7 +79,7 @@ func (rh *regHandler) SetMasterKey(ctx context.Context, req *proto.MasterKeyRequ
 
 	err := rh.registrator.InitMasterKey(ctx, domain.SessionID(req.SessionId), mKeyData)
 	if err != nil {
-		return nil, WrapErr(err)
+		return nil, fmt.Errorf("%v err - %w", action, err)
 	}
 
 	return nil, nil

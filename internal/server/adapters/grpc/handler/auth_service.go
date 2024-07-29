@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	"github.com/StasMerzlyakov/gophkeeper/internal/proto"
@@ -19,6 +20,7 @@ type authService struct {
 }
 
 func (aS *authService) Login(ctx context.Context, req *proto.LoginRequest) (*proto.LoginResponse, error) {
+	action := domain.GetAction(0)
 
 	data := &domain.EMailData{
 		EMail:    req.Email,
@@ -27,7 +29,7 @@ func (aS *authService) Login(ctx context.Context, req *proto.LoginRequest) (*pro
 
 	sID, err := aS.authService.Login(ctx, data)
 	if err != nil {
-		return nil, WrapErr(err)
+		return nil, fmt.Errorf("%v err - %w", action, err)
 	}
 	resp := &proto.LoginResponse{
 		SessionId: string(sID),
@@ -37,9 +39,10 @@ func (aS *authService) Login(ctx context.Context, req *proto.LoginRequest) (*pro
 }
 
 func (aS *authService) PassOTP(ctx context.Context, req *proto.PassOTPRequest) (*proto.AuthResponse, error) {
+	action := domain.GetAction(0)
 	jwtToken, err := aS.authService.CheckOTP(ctx, domain.SessionID(req.SessionId), req.Password)
 	if err != nil {
-		return nil, WrapErr(err)
+		return nil, fmt.Errorf("%v err - %w", action, err)
 	}
 
 	resp := &proto.AuthResponse{
