@@ -2,9 +2,11 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
+	"github.com/jackc/pgx/v5"
 )
 
 func (st *storage) IsEMailAvailable(ctx context.Context, email string) (bool, error) {
@@ -24,9 +26,13 @@ func (st *storage) Registrate(ctx context.Context, data *domain.FullRegistration
 
 	if err := st.pPool.QueryRow(ctx,
 		`insert into user_info(email, pass_hash, pass_salt, otp_key, master_key, master_hint, hello_encrypted) 
-		 values ($1, $2, $3, $4, $5, $6, $7) returning user_id;
+		 values ($1, $2, $3, $4, $5, $6, $7) on conflict("email") do nothing returning user_id;
 	  	`, data.EMail, data.PasswordHash, data.PasswordSalt, data.EncryptedOTPKey,
 		data.EncryptedMasterKey, data.MasterKeyHint, data.HelloEncrypted).Scan(&userID); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			// email already registered
+			return fmt.Errorf("%w - email %s already registered", domain.ErrClientDataIncorrect, data.EMail)
+		}
 		return fmt.Errorf("%w - %s", domain.ErrServerInternal, err.Error())
 	} else {
 		return nil

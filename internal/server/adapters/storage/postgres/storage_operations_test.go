@@ -55,6 +55,9 @@ func TestStorageOperations(t *testing.T) {
 	err = storage.Registrate(ctx, regData)
 	require.NoError(t, err)
 
+	err = storage.Registrate(ctx, regData)
+	require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
+
 	ok, err = storage.IsEMailAvailable(ctx, testEmail)
 	require.NoError(t, err)
 	require.False(t, ok)
