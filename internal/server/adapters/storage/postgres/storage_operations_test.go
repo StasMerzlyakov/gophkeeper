@@ -52,6 +52,11 @@ func TestStorageOperations(t *testing.T) {
 		MasterKeyHint:      "MasterKeyHint",
 		HelloEncrypted:     "HelloEncrypted",
 	}
+
+	lData, err := storage.GetLoginData(ctx, testEmail)
+	require.Nil(t, lData)
+	require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
+
 	err = storage.Registrate(ctx, regData)
 	require.NoError(t, err)
 
@@ -62,7 +67,7 @@ func TestStorageOperations(t *testing.T) {
 	require.NoError(t, err)
 	require.False(t, ok)
 
-	lData, err := storage.GetLoginData(ctx, testEmail)
+	lData, err = storage.GetLoginData(ctx, testEmail)
 	require.NoError(t, err)
 
 	require.Equal(t, regData.EMail, lData.EMail)
@@ -72,7 +77,7 @@ func TestStorageOperations(t *testing.T) {
 	require.True(t, lData.UserID > 0)
 
 	_, err = storage.GetLoginData(ctx, "testEmail")
-	require.ErrorIs(t, err, domain.ErrServerInternal)
+	require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 
 	_, err = storage.GetHelloData(ctx)
 	require.ErrorIs(t, err, domain.ErrServerInternal)

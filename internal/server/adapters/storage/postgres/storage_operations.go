@@ -44,8 +44,11 @@ func (st *storage) GetLoginData(ctx context.Context, email string) (*domain.Logi
 	var loginData domain.LoginData
 	err := st.pPool.QueryRow(ctx, "select user_id, email, pass_hash, pass_salt, otp_key from user_info where email = $1", email).
 		Scan(&loginData.UserID, &loginData.EMail, &loginData.PasswordHash, &loginData.PasswordSalt, &loginData.EncryptedOTPKey)
-
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			// email already registered
+			return nil, fmt.Errorf("%w - email %s not registered", domain.ErrClientDataIncorrect, email)
+		}
 		return nil, fmt.Errorf("%w - %s", domain.ErrServerInternal, err.Error())
 	} else {
 		return &loginData, nil
