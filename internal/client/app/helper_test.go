@@ -1,7 +1,6 @@
 package app_test
 
 import (
-	"bytes"
 	"testing"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
@@ -76,7 +75,7 @@ func TestParseEMail(t *testing.T) {
 	}
 }
 
-func TestCheckMasterKeyPasswordComplexityLevel(t *testing.T) {
+func TestCheckMasterPasswordComplexityLevel(t *testing.T) {
 
 	helper := app.NewHelper(testOKSaltFn)
 	testData := []struct {
@@ -105,7 +104,7 @@ func TestCheckMasterKeyPasswordComplexityLevel(t *testing.T) {
 
 	for _, test := range testData {
 		t.Run(test.name, func(t *testing.T) {
-			ok := helper.CheckMasterKeyPasswordComplexityLevel(test.pass)
+			ok := helper.CheckMasterPasswordComplexityLevel(test.pass)
 			assert.Equal(t, test.res, ok)
 		})
 	}
@@ -115,44 +114,12 @@ func TestEncryptionText(t *testing.T) {
 	helper := app.NewHelper(testOKSaltFn)
 	passphrase := helper.Random32ByteString()
 
-	randomText := "hello world"
+	masterPass := "hello world"
 
-	encrypted, err := helper.EncryptShortData([]byte(randomText), passphrase)
+	encrypted, err := helper.EncryptHello(masterPass, passphrase)
 	require.NoError(t, err)
 
-	data, err := helper.DecryptShortData(encrypted, passphrase)
+	err = helper.DecryptHello(masterPass, encrypted)
 	require.NoError(t, err)
 
-	require.True(t, bytes.Equal([]byte(randomText), data))
-
-	// check iv
-	encrypted2, err := helper.EncryptShortData([]byte(randomText), passphrase)
-	require.NoError(t, err)
-
-	require.False(t, bytes.Equal([]byte(encrypted), []byte(encrypted2)))
-}
-
-func TestHelloWorld(t *testing.T) {
-	helper := app.NewHelper(testOKSaltFn)
-
-	generated, err := helper.GenerateHello()
-	require.NoError(t, err)
-
-	ok, err := helper.CheckHello(generated)
-	require.NoError(t, err)
-	require.True(t, ok)
-
-}
-
-func TestEncryptMasterKey(t *testing.T) {
-	helper := app.NewHelper(testOKSaltFn)
-	secretKey := "N1PCdw3M2B1TfJhoaY2mL736p2vCUc47"
-	plainText := "testTestTest123"
-	cipherText, err := helper.EncryptMasterKey(secretKey, plainText)
-	require.NoError(t, err)
-	require.True(t, len(cipherText) > 0)
-
-	text, err := helper.DecryptMasterKey(secretKey, cipherText)
-	require.NoError(t, err)
-	require.Equal(t, plainText, text)
 }

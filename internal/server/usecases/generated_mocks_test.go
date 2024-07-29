@@ -307,21 +307,6 @@ func (mr *MockRegistrationHelperMockRecorder) EncryptOTPKey(arg0 interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EncryptOTPKey", reflect.TypeOf((*MockRegistrationHelper)(nil).EncryptOTPKey), arg0)
 }
 
-// GenerateHello mocks base method.
-func (m *MockRegistrationHelper) GenerateHello() (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GenerateHello")
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GenerateHello indicates an expected call of GenerateHello.
-func (mr *MockRegistrationHelperMockRecorder) GenerateHello() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateHello", reflect.TypeOf((*MockRegistrationHelper)(nil).GenerateHello))
-}
-
 // GenerateQR mocks base method.
 func (m *MockRegistrationHelper) GenerateQR(arg0 string) (string, []byte, error) {
 	m.ctrl.T.Helper()

@@ -132,8 +132,7 @@ func (h *handler) PassRegOTP(ctx context.Context, otpPass string) error {
 func (h *handler) InitMasterKey(ctx context.Context, mKey *domain.MasterKeyData) error {
 	req := &proto.MasterKeyRequest{
 		SessionId:          h.sessionID,
-		EncryptedMasterKey: mKey.EncryptedMasterKey,
-		MasterKeyPassHint:  mKey.MasterKeyHint,
+		MasterPasswordHint: mKey.MasterPasswordHint,
 		HelloEncrypted:     mKey.HelloEncrypted,
 	}
 
@@ -184,9 +183,8 @@ func (h *handler) GetHelloData(ctx context.Context) (*domain.HelloData, error) {
 		return nil, fmt.Errorf("%w: get hello data err ", err)
 	}
 	data := &domain.HelloData{
-		EncryptedMasterKey: resp.EncryptedMasterKey,
 		HelloEncrypted:     resp.HelloEncrypted,
-		MasterKeyPassHint:  resp.MasterKeyPassHint,
+		MasterPasswordHint: resp.MasterPasswordHint,
 	}
 
 	return data, nil

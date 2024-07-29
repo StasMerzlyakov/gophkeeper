@@ -93,10 +93,10 @@ func (tApp *tuiApp) ShowMasterKeyView(hint string) {
 
 			form := tview.NewForm()
 			if hint != "" {
-				form.AddTextView("MasterKeyHint", hint, 0, 1, false, false)
+				form.AddTextView("MasterPasswordHint", hint, 0, 1, false, false)
 			}
 
-			form.AddPasswordField("MasterKey", "", 40, '#', func(mKey string) {
+			form.AddPasswordField("MasterPassword", "", 40, '#', func(mKey string) {
 				masterKey = mKey
 			}).
 				AddButton("Enter", func() {

@@ -798,14 +798,12 @@ func TestRegistration_InitMasterKey(t *testing.T) {
 
 		currentID := domain.SessionID("currentID")
 
-		encryptedMasterKey := "EncryptedMasterKey"
-		masterKeyHint := "MasterKeyHint"
+		masterPasswordHint := "MasterPasswordHint"
 		helloEncrypted := "HelloEncrypted"
 		encryptedOTPKey := "asdasdasd!iasd"
 
 		keyData := &domain.MasterKeyData{
-			EncryptedMasterKey: encryptedMasterKey,
-			MasterKeyHint:      masterKeyHint,
+			MasterPasswordHint: masterPasswordHint,
 			HelloEncrypted:     helloEncrypted,
 		}
 
@@ -832,8 +830,7 @@ func TestRegistration_InitMasterKey(t *testing.T) {
 				assert.Equal(t, data.EMail, fullData.EMail)
 				assert.Equal(t, data.PasswordHash, fullData.PasswordHash)
 				assert.Equal(t, data.PasswordSalt, fullData.PasswordSalt)
-				assert.Equal(t, keyData.EncryptedMasterKey, fullData.EncryptedMasterKey)
-				assert.Equal(t, keyData.MasterKeyHint, fullData.MasterKeyHint)
+				assert.Equal(t, keyData.MasterPasswordHint, fullData.MasterPasswordHint)
 				assert.Equal(t, keyData.HelloEncrypted, fullData.HelloEncrypted)
 				return nil
 			})
@@ -851,13 +848,11 @@ func TestRegistration_InitMasterKey(t *testing.T) {
 
 		currentID := domain.SessionID("currentID")
 
-		encryptedMasterKey := "EncryptedMasterKey"
-		masterKeyHint := "MasterKeyHint"
+		masterPasswordHint := "MasterPasswordHint"
 		helloEncrypted := "HelloEncrypted"
 
 		keyData := &domain.MasterKeyData{
-			EncryptedMasterKey: encryptedMasterKey,
-			MasterKeyHint:      masterKeyHint,
+			MasterPasswordHint: masterPasswordHint,
 			HelloEncrypted:     helloEncrypted,
 		}
 
@@ -880,13 +875,11 @@ func TestRegistration_InitMasterKey(t *testing.T) {
 
 		currentID := domain.SessionID("currentID")
 
-		encryptedMasterKey := "EncryptedMasterKey"
-		masterKeyHint := "MasterKeyHint"
+		masterPasswordHint := "MasterPasswordHint"
 		helloEncrypted := "HelloEncrypted"
 
 		keyData := &domain.MasterKeyData{
-			EncryptedMasterKey: encryptedMasterKey,
-			MasterKeyHint:      masterKeyHint,
+			MasterPasswordHint: masterPasswordHint,
 			HelloEncrypted:     helloEncrypted,
 		}
 
@@ -908,14 +901,12 @@ func TestRegistration_InitMasterKey(t *testing.T) {
 
 		currentID := domain.SessionID("currentID")
 
-		encryptedMasterKey := "EncryptedMasterKey"
-		masterKeyHint := "MasterKeyHint"
+		masterPasswordHint := "MasterPasswordHint"
 		helloEncrypted := "HelloEncrypted"
 		encryptedOTPKey := "asdasdasd!iasd"
 
 		keyData := &domain.MasterKeyData{
-			EncryptedMasterKey: encryptedMasterKey,
-			MasterKeyHint:      masterKeyHint,
+			MasterPasswordHint: masterPasswordHint,
 			HelloEncrypted:     helloEncrypted,
 		}
 
@@ -945,14 +936,12 @@ func TestRegistration_InitMasterKey(t *testing.T) {
 
 		currentID := domain.SessionID("currentID")
 
-		encryptedMasterKey := "EncryptedMasterKey"
-		masterKeyHint := "MasterKeyHint"
+		masterPasswordHint := "MasterPasswordHint"
 		helloEncrypted := "HelloEncrypted"
 		encryptedOTPKey := "asdasdasd!iasd"
 
 		keyData := &domain.MasterKeyData{
-			EncryptedMasterKey: encryptedMasterKey,
-			MasterKeyHint:      masterKeyHint,
+			MasterPasswordHint: masterPasswordHint,
 			HelloEncrypted:     helloEncrypted,
 		}
 

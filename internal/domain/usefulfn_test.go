@@ -2,7 +2,6 @@ package domain_test
 
 import (
 	"bytes"
-	"crypto/rand"
 	"errors"
 	"testing"
 	"time"
@@ -48,7 +47,7 @@ func TestCheckAuthPasswordComplexityLevel(t *testing.T) {
 	}
 }
 
-func TestCheckMasterKeyPasswordComplexityLevel(t *testing.T) {
+func TestCheckMasterPasswordComplexityLevel(t *testing.T) {
 	testData := []struct {
 		name string
 		pass string
@@ -75,7 +74,7 @@ func TestCheckMasterKeyPasswordComplexityLevel(t *testing.T) {
 
 	for _, test := range testData {
 		t.Run(test.name, func(t *testing.T) {
-			ok := domain.CheckMasterKeyPasswordComplexityLevel(test.pass)
+			ok := domain.CheckMasterPasswordComplexityLevel(test.pass)
 			assert.Equal(t, test.res, ok)
 		})
 	}
@@ -326,39 +325,37 @@ func TestValidate(t *testing.T) {
 
 func TestHelloWorld(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
-		generated, err := domain.GenerateHello(rand.Read)
+		hello := domain.Random32ByteString()
+		pass := "IK0exasdF!"
+
+		generated, err := domain.EncryptHello(pass, hello)
 		require.NoError(t, err)
 
-		ok, err := domain.CheckHello(generated)
+		err = domain.DecryptHello(pass, generated)
 		require.NoError(t, err)
-		require.True(t, ok)
 	})
 
-	t.Run("saltErr", func(t *testing.T) {
-		generated, err := domain.GenerateHello(testErrSaltFn)
+	t.Run("wrong_pass", func(t *testing.T) {
+		hello := domain.Random32ByteString()
+		pass := "IK0exasdF!"
+
+		generated, err := domain.EncryptHello(pass, hello)
+		require.NoError(t, err)
+
+		err = domain.DecryptHello(pass+"?", generated)
+		require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
+	})
+
+	t.Run("wrong_hello", func(t *testing.T) {
+		hello := domain.Random32ByteString()
+		pass := "IK0exasdF!"
+
+		generated, err := domain.EncryptHello(pass, hello)
+		require.NoError(t, err)
+
+		err = domain.DecryptHello(pass, generated+"?")
 		require.ErrorIs(t, err, domain.ErrServerInternal)
-		assert.Empty(t, generated)
 	})
-
-	t.Run("false", func(t *testing.T) {
-		ok, err := domain.CheckHello("jFG4UOPJEJoS+tm3Z5cGZ2hlbGxvIGZyb20gR29waEtlZXBlciEhIQ==")
-		require.NoError(t, err)
-		require.False(t, ok)
-	})
-
-	t.Run("b64_err", func(t *testing.T) {
-		ok, err := domain.CheckHello("9COumBoRUEFVXbFYg5LM1GhlbGxvIGZyb20gR29waEtlRXBlciEh=")
-		require.Error(t, err, domain.ErrClientDataIncorrect)
-		require.False(t, ok)
-	})
-
-	t.Run("wrong_length", func(t *testing.T) {
-		ok, err := domain.CheckHello("9COu")
-		require.Error(t, err, domain.ErrClientDataIncorrect)
-		require.False(t, ok)
-	})
-
-	//	ok, err = domain.CheckHelloWorld()
 
 }
 

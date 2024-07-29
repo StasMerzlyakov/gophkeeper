@@ -45,7 +45,6 @@ type RegistrationHelper interface {
 	ValidateAccountPass(pass string, hashB64 string, saltB64 string) (bool, error)
 	NewSessionID() domain.SessionID
 	ValidateOTPCode(keyURL string, passcode string) (bool, error)
-	GenerateHello() (string, error)
 	CreateJWTToken(userID domain.UserID) (domain.JWTToken, error)
 	ParseJWTToken(jwtToken domain.JWTToken) (domain.UserID, error)
 }

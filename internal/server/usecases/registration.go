@@ -223,8 +223,7 @@ func (reg *registrator) InitMasterKey(ctx context.Context, currentID domain.Sess
 		PasswordHash:       regData.PasswordHash,
 		PasswordSalt:       regData.PasswordSalt,
 		EncryptedOTPKey:    regData.EncryptedOTPKey,
-		EncryptedMasterKey: mKey.EncryptedMasterKey,
-		MasterKeyHint:      mKey.MasterKeyHint,
+		MasterPasswordHint: mKey.MasterPasswordHint,
 		HelloEncrypted:     mKey.HelloEncrypted,
 	}
 

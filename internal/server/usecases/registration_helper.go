@@ -51,14 +51,6 @@ func (rg *regHelper) ValidateOTPCode(keyURL string, passcode string) (bool, erro
 	return domain.ValidateOTPCode(keyURL, passcode)
 }
 
-func (rg *regHelper) GenerateHello() (string, error) {
-	return domain.GenerateHello(rg.salfFn)
-}
-
-func (rg *regHelper) CheckHello(toCheck string) (bool, error) {
-	return domain.CheckHello(toCheck)
-}
-
 func (rg *regHelper) CreateJWTToken(userID domain.UserID) (domain.JWTToken, error) {
 	return domain.CreateJWTToken([]byte(rg.conf.TokenSecret), rg.conf.TokenExp, userID)
 }

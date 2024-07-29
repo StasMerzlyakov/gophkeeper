@@ -273,44 +273,31 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 
 	t.Run("ok", func(t *testing.T) {
 		keyData := &domain.UnencryptedMasterKeyData{
-			MasterKeyPassword: "MasterKeyPassword",
-			MasterKeyHint:     "MasterKeyHint",
+			MasterPassword:     "MasterPassword",
+			MasterPasswordHint: "MasterPasswordHint",
 		}
 
 		mockHelper := NewMockRegHelper(ctrl)
-		mockHelper.EXPECT().CheckMasterKeyPasswordComplexityLevel(gomock.Any()).DoAndReturn(func(str string) bool {
-			require.Equal(t, keyData.MasterKeyPassword, str)
+		mockHelper.EXPECT().CheckMasterPasswordComplexityLevel(gomock.Any()).DoAndReturn(func(str string) bool {
+			require.Equal(t, keyData.MasterPassword, str)
 			return true
 		}).Times(1)
 
 		rndString := "f1d66fA6Id7gUnQNo4imvp/USizQsg=="
 		mockHelper.EXPECT().Random32ByteString().Return(rndString)
 
-		encryptedMasterKey := "encryptedMasterKey"
-		mockHelper.EXPECT().EncryptMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, plaintext string) (string, error) {
-			assert.Equal(t, secretKey, keyData.MasterKeyPassword)
-			assert.Equal(t, plaintext, rndString)
-			return encryptedMasterKey, nil
-		})
-
-		helloStr := "helloStr"
-		mockHelper.EXPECT().GenerateHello().Return(helloStr, nil)
-
 		helloEncrypted := "helloEncrypted"
-
-		mockHelper.EXPECT().EncryptShortData(gomock.Any(), gomock.Any()).DoAndReturn(func(hello []byte, masteKey string) (string, error) {
-			assert.Equal(t, helloStr, string(hello))
-			assert.Equal(t, masteKey, rndString)
+		mockHelper.EXPECT().EncryptHello(gomock.Any(), gomock.Any()).DoAndReturn(func(masterPassword, plaintext string) (string, error) {
+			assert.Equal(t, masterPassword, keyData.MasterPassword)
+			assert.Equal(t, plaintext, rndString)
 			return helloEncrypted, nil
 		})
 
 		mockSrv := NewMockRegServer(ctrl)
 		mockSrv.EXPECT().InitMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, mData *domain.MasterKeyData) error {
 
-			assert.Equal(t, encryptedMasterKey, mData.EncryptedMasterKey)
-			assert.Equal(t, keyData.MasterKeyHint, mData.MasterKeyHint)
 			assert.Equal(t, helloEncrypted, mData.HelloEncrypted)
-
+			assert.Equal(t, keyData.MasterPasswordHint, mData.MasterPasswordHint)
 			return nil
 		}).Times(1)
 
@@ -323,13 +310,13 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 
 	t.Run("validate_err", func(t *testing.T) {
 		keyData := &domain.UnencryptedMasterKeyData{
-			MasterKeyPassword: "MasterKeyPassword",
-			MasterKeyHint:     "MasterKeyHint",
+			MasterPassword:     "MasterPassword",
+			MasterPasswordHint: "MasterPasswordHint",
 		}
 
 		mockHelper := NewMockRegHelper(ctrl)
-		mockHelper.EXPECT().CheckMasterKeyPasswordComplexityLevel(gomock.Any()).DoAndReturn(func(str string) bool {
-			require.Equal(t, keyData.MasterKeyPassword, str)
+		mockHelper.EXPECT().CheckMasterPasswordComplexityLevel(gomock.Any()).DoAndReturn(func(str string) bool {
+			require.Equal(t, keyData.MasterPassword, str)
 			return false
 		}).Times(1)
 
@@ -342,13 +329,13 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 
 	t.Run("encrypt_err", func(t *testing.T) {
 		keyData := &domain.UnencryptedMasterKeyData{
-			MasterKeyPassword: "MasterKeyPassword",
-			MasterKeyHint:     "MasterKeyHint",
+			MasterPassword:     "MasterPassword",
+			MasterPasswordHint: "MasterPasswordHint",
 		}
 
 		mockHelper := NewMockRegHelper(ctrl)
-		mockHelper.EXPECT().CheckMasterKeyPasswordComplexityLevel(gomock.Any()).DoAndReturn(func(str string) bool {
-			require.Equal(t, keyData.MasterKeyPassword, str)
+		mockHelper.EXPECT().CheckMasterPasswordComplexityLevel(gomock.Any()).DoAndReturn(func(str string) bool {
+			require.Equal(t, keyData.MasterPassword, str)
 			return true
 		}).Times(1)
 
@@ -356,84 +343,9 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 		mockHelper.EXPECT().Random32ByteString().Return(rndString)
 
 		testErr := errors.New("testErr")
-		mockHelper.EXPECT().EncryptMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, plaintext string) (string, error) {
-			assert.Equal(t, secretKey, keyData.MasterKeyPassword)
+		mockHelper.EXPECT().EncryptHello(gomock.Any(), gomock.Any()).DoAndReturn(func(masterPassword, plaintext string) (string, error) {
+			assert.Equal(t, masterPassword, keyData.MasterPassword)
 			assert.Equal(t, plaintext, rndString)
-			return "", testErr
-		})
-
-		mockView := NewMockRegView(ctrl)
-		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
-			assert.ErrorIs(t, err, testErr)
-		}).Times(1)
-
-		reg := app.NewRegistrator().RegView(mockView).RegHelper(mockHelper)
-		reg.InitMasterKey(context.Background(), keyData)
-	})
-
-	t.Run("generate_hello_err", func(t *testing.T) {
-		keyData := &domain.UnencryptedMasterKeyData{
-			MasterKeyPassword: "MasterKeyPassword",
-			MasterKeyHint:     "MasterKeyHint",
-		}
-
-		mockHelper := NewMockRegHelper(ctrl)
-		mockHelper.EXPECT().CheckMasterKeyPasswordComplexityLevel(gomock.Any()).DoAndReturn(func(str string) bool {
-			require.Equal(t, keyData.MasterKeyPassword, str)
-			return true
-		}).Times(1)
-
-		rndString := "f1d66fA6Id7gUnQNo4imvp/USizQsg=="
-		mockHelper.EXPECT().Random32ByteString().Return(rndString)
-
-		encryptedMasterKey := "encryptedMasterKey"
-		mockHelper.EXPECT().EncryptMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, plaintext string) (string, error) {
-			assert.Equal(t, secretKey, keyData.MasterKeyPassword)
-			assert.Equal(t, plaintext, rndString)
-			return encryptedMasterKey, nil
-		})
-
-		testErr := errors.New("testErr")
-		mockHelper.EXPECT().GenerateHello().Return("", testErr)
-
-		mockView := NewMockRegView(ctrl)
-		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
-			assert.ErrorIs(t, err, testErr)
-		}).Times(1)
-
-		reg := app.NewRegistrator().RegView(mockView).RegHelper(mockHelper)
-		reg.InitMasterKey(context.Background(), keyData)
-	})
-
-	t.Run("encrypt_aes256_err", func(t *testing.T) {
-		keyData := &domain.UnencryptedMasterKeyData{
-			MasterKeyPassword: "MasterKeyPassword",
-			MasterKeyHint:     "MasterKeyHint",
-		}
-
-		mockHelper := NewMockRegHelper(ctrl)
-		mockHelper.EXPECT().CheckMasterKeyPasswordComplexityLevel(gomock.Any()).DoAndReturn(func(str string) bool {
-			require.Equal(t, keyData.MasterKeyPassword, str)
-			return true
-		}).Times(1)
-
-		rndString := "f1d66fA6Id7gUnQNo4imvp/USizQsg=="
-		mockHelper.EXPECT().Random32ByteString().Return(rndString)
-
-		encryptedMasterKey := "encryptedMasterKey"
-		mockHelper.EXPECT().EncryptMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, plaintext string) (string, error) {
-			assert.Equal(t, secretKey, keyData.MasterKeyPassword)
-			assert.Equal(t, plaintext, rndString)
-			return encryptedMasterKey, nil
-		})
-
-		helloStr := "helloStr"
-		mockHelper.EXPECT().GenerateHello().Return(helloStr, nil)
-
-		testErr := errors.New("testErr")
-		mockHelper.EXPECT().EncryptShortData(gomock.Any(), gomock.Any()).DoAndReturn(func(hello []byte, masteKey string) (string, error) {
-			assert.Equal(t, helloStr, string(hello))
-			assert.Equal(t, masteKey, rndString)
 			return "", testErr
 		})
 
@@ -447,35 +359,25 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 	})
 
 	t.Run("init_key_err", func(t *testing.T) {
+
 		keyData := &domain.UnencryptedMasterKeyData{
-			MasterKeyPassword: "MasterKeyPassword",
-			MasterKeyHint:     "MasterKeyHint",
+			MasterPassword:     "MasterPassword",
+			MasterPasswordHint: "MasterPasswordHint",
 		}
 
 		mockHelper := NewMockRegHelper(ctrl)
-		mockHelper.EXPECT().CheckMasterKeyPasswordComplexityLevel(gomock.Any()).DoAndReturn(func(str string) bool {
-			require.Equal(t, keyData.MasterKeyPassword, str)
+		mockHelper.EXPECT().CheckMasterPasswordComplexityLevel(gomock.Any()).DoAndReturn(func(str string) bool {
+			require.Equal(t, keyData.MasterPassword, str)
 			return true
 		}).Times(1)
 
 		rndString := "f1d66fA6Id7gUnQNo4imvp/USizQsg=="
 		mockHelper.EXPECT().Random32ByteString().Return(rndString)
 
-		encryptedMasterKey := "encryptedMasterKey"
-		mockHelper.EXPECT().EncryptMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, plaintext string) (string, error) {
-			assert.Equal(t, secretKey, keyData.MasterKeyPassword)
-			assert.Equal(t, plaintext, rndString)
-			return encryptedMasterKey, nil
-		})
-
-		helloStr := "helloStr"
-		mockHelper.EXPECT().GenerateHello().Return(helloStr, nil)
-
 		helloEncrypted := "helloEncrypted"
-
-		mockHelper.EXPECT().EncryptShortData(gomock.Any(), gomock.Any()).DoAndReturn(func(hello []byte, masteKey string) (string, error) {
-			assert.Equal(t, helloStr, string(hello))
-			assert.Equal(t, masteKey, rndString)
+		mockHelper.EXPECT().EncryptHello(gomock.Any(), gomock.Any()).DoAndReturn(func(masterPassword, plaintext string) (string, error) {
+			assert.Equal(t, masterPassword, keyData.MasterPassword)
+			assert.Equal(t, plaintext, rndString)
 			return helloEncrypted, nil
 		})
 
@@ -483,10 +385,8 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 		testErr := errors.New("testErr")
 		mockSrv.EXPECT().InitMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, mData *domain.MasterKeyData) error {
 
-			assert.Equal(t, encryptedMasterKey, mData.EncryptedMasterKey)
-			assert.Equal(t, keyData.MasterKeyHint, mData.MasterKeyHint)
 			assert.Equal(t, helloEncrypted, mData.HelloEncrypted)
-
+			assert.Equal(t, keyData.MasterPasswordHint, mData.MasterPasswordHint)
 			return testErr
 		}).Times(1)
 

@@ -117,45 +117,31 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 		mockVier := NewMockLoginView(ctrl)
 		mockVier.EXPECT().ShowDataAccessView().Times(1)
 
-		masterKeyPassword := "masterKeyPassword"
+		masterPassword := "masterPassword"
 
 		helloData := &domain.HelloData{
-			EncryptedMasterKey: "encryptedMasterKey",
 			HelloEncrypted:     "helloEncrypted",
-			MasterKeyPassHint:  "masterKeyHint",
+			MasterPasswordHint: "masterPasswordHint",
 		}
 
 		mockSrv := NewMockLoginServer(ctrl)
 		mockSrv.EXPECT().GetHelloData(gomock.Any()).Return(helloData, nil).Times(1)
 
 		mockHlp := NewMockLoginHelper(ctrl)
-		masterKey := "masterKey"
 
-		mockHlp.EXPECT().DecryptMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) (string, error) {
-			assert.Equal(t, masterKeyPassword, secretKey)
-			assert.Equal(t, helloData.EncryptedMasterKey, ciphertext)
-			return masterKey, nil
-		}).Times(1)
-
-		helloDecrypted := "hello"
-		mockHlp.EXPECT().DecryptShortData(gomock.Any(), gomock.Any()).DoAndReturn(func(ciphertext string, passphrase string) ([]byte, error) {
-			assert.Equal(t, masterKey, passphrase)
+		mockHlp.EXPECT().DecryptHello(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) error {
+			assert.Equal(t, masterPassword, secretKey)
 			assert.Equal(t, helloData.HelloEncrypted, ciphertext)
-			return []byte(helloDecrypted), nil
-		}).Times(1)
-
-		mockHlp.EXPECT().CheckHello(gomock.Any()).DoAndReturn(func(helloDecrypted string) (bool, error) {
-			assert.Equal(t, helloDecrypted, helloDecrypted)
-			return true, nil
+			return nil
 		}).Times(1)
 
 		mockStorage := NewMockAppStorage(ctrl)
-		mockStorage.EXPECT().SetMasterKey(gomock.Any()).Do(func(mKey string) {
-			require.Equal(t, masterKey, mKey)
+		mockStorage.EXPECT().SetMasterPassword(gomock.Any()).Do(func(mKey string) {
+			require.Equal(t, masterPassword, mKey)
 		})
 
 		loginer := app.NewLoginer().LoginSever(mockSrv).LoginView(mockVier).LoginHelper(mockHlp).LoginStorage(mockStorage)
-		loginer.CheckMasterKey(context.Background(), masterKeyPassword)
+		loginer.CheckMasterKey(context.Background(), masterPassword)
 	})
 
 	t.Run("getHelloData_err", func(t *testing.T) {
@@ -176,161 +162,36 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 	})
 
 	t.Run("decryptMasterKey_err", func(t *testing.T) {
+
 		mockVier := NewMockLoginView(ctrl)
 		testErr := errors.New("testErr")
 		mockVier.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
 			assert.ErrorIs(t, err, testErr)
 		}).Times(1)
 
-		masterKeyPassword := "masterKeyPassword"
+		masterPassword := "masterPassword"
 
 		helloData := &domain.HelloData{
-			EncryptedMasterKey: "encryptedMasterKey",
 			HelloEncrypted:     "helloEncrypted",
-			MasterKeyPassHint:  "masterKeyHint",
+			MasterPasswordHint: "masterPasswordHint",
 		}
+
+		mockVier.EXPECT().ShowMasterKeyView(gomock.Any()).Do(func(hint string) {
+			assert.Equal(t, helloData.MasterPasswordHint, hint)
+		}).Times(1)
 
 		mockSrv := NewMockLoginServer(ctrl)
 		mockSrv.EXPECT().GetHelloData(gomock.Any()).Return(helloData, nil).Times(1)
 
 		mockHlp := NewMockLoginHelper(ctrl)
 
-		mockHlp.EXPECT().DecryptMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) (string, error) {
-			assert.Equal(t, masterKeyPassword, secretKey)
-			assert.Equal(t, helloData.EncryptedMasterKey, ciphertext)
-			return "", testErr
-		}).Times(1)
-
-		loginer := app.NewLoginer().LoginSever(mockSrv).LoginView(mockVier).LoginHelper(mockHlp)
-		loginer.CheckMasterKey(context.Background(), masterKeyPassword)
-	})
-
-	t.Run("decryptData_err", func(t *testing.T) {
-		mockVier := NewMockLoginView(ctrl)
-		testErr := errors.New("testErr")
-		mockVier.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
-			assert.ErrorIs(t, err, testErr)
-		}).Times(1)
-
-		masterKeyPassword := "masterKeyPassword"
-
-		helloData := &domain.HelloData{
-			EncryptedMasterKey: "encryptedMasterKey",
-			HelloEncrypted:     "helloEncrypted",
-			MasterKeyPassHint:  "masterKeyHint",
-		}
-
-		mockSrv := NewMockLoginServer(ctrl)
-		mockSrv.EXPECT().GetHelloData(gomock.Any()).Return(helloData, nil).Times(1)
-
-		mockHlp := NewMockLoginHelper(ctrl)
-
-		masterKey := "masterKey"
-
-		mockHlp.EXPECT().DecryptMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) (string, error) {
-			assert.Equal(t, masterKeyPassword, secretKey)
-			assert.Equal(t, helloData.EncryptedMasterKey, ciphertext)
-			return masterKey, nil
-		}).Times(1)
-
-		mockHlp.EXPECT().DecryptShortData(gomock.Any(), gomock.Any()).DoAndReturn(func(ciphertext string, passphrase string) ([]byte, error) {
-			assert.Equal(t, masterKey, passphrase)
+		mockHlp.EXPECT().DecryptHello(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) error {
+			assert.Equal(t, masterPassword, secretKey)
 			assert.Equal(t, helloData.HelloEncrypted, ciphertext)
-			return nil, testErr
+			return testErr
 		}).Times(1)
 
 		loginer := app.NewLoginer().LoginSever(mockSrv).LoginView(mockVier).LoginHelper(mockHlp)
-		loginer.CheckMasterKey(context.Background(), masterKeyPassword)
-	})
-
-	t.Run("checkHello_err", func(t *testing.T) {
-		mockVier := NewMockLoginView(ctrl)
-		testErr := errors.New("testErr")
-		mockVier.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
-			assert.ErrorIs(t, err, testErr)
-		}).Times(1)
-
-		masterKeyPassword := "masterKeyPassword"
-
-		helloData := &domain.HelloData{
-			EncryptedMasterKey: "encryptedMasterKey",
-			HelloEncrypted:     "helloEncrypted",
-			MasterKeyPassHint:  "masterKeyHint",
-		}
-
-		mockSrv := NewMockLoginServer(ctrl)
-		mockSrv.EXPECT().GetHelloData(gomock.Any()).Return(helloData, nil).Times(1)
-
-		mockHlp := NewMockLoginHelper(ctrl)
-		masterKey := "masterKey"
-
-		mockHlp.EXPECT().DecryptMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) (string, error) {
-			assert.Equal(t, masterKeyPassword, secretKey)
-			assert.Equal(t, helloData.EncryptedMasterKey, ciphertext)
-			return masterKey, nil
-		}).Times(1)
-
-		helloDecrypted := "hello"
-		mockHlp.EXPECT().DecryptShortData(gomock.Any(), gomock.Any()).DoAndReturn(func(ciphertext string, passphrase string) ([]byte, error) {
-			assert.Equal(t, masterKey, passphrase)
-			assert.Equal(t, helloData.HelloEncrypted, ciphertext)
-			return []byte(helloDecrypted), nil
-		}).Times(1)
-
-		mockHlp.EXPECT().CheckHello(gomock.Any()).DoAndReturn(func(helloDecrypted string) (bool, error) {
-			assert.Equal(t, helloDecrypted, helloDecrypted)
-			return false, testErr
-		}).Times(1)
-
-		loginer := app.NewLoginer().LoginSever(mockSrv).LoginView(mockVier).LoginHelper(mockHlp)
-		loginer.CheckMasterKey(context.Background(), masterKeyPassword)
-	})
-
-	t.Run("checkHello_false", func(t *testing.T) {
-
-		masterKeyPassword := "masterKeyPassword"
-
-		helloData := &domain.HelloData{
-			EncryptedMasterKey: "encryptedMasterKey",
-			HelloEncrypted:     "helloEncrypted",
-			MasterKeyPassHint:  "masterKeyHint",
-		}
-
-		mockSrv := NewMockLoginServer(ctrl)
-		mockSrv.EXPECT().GetHelloData(gomock.Any()).Return(helloData, nil).Times(1)
-
-		mockHlp := NewMockLoginHelper(ctrl)
-		masterKey := "masterKey"
-
-		mockHlp.EXPECT().DecryptMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(secretKey string, ciphertext string) (string, error) {
-			assert.Equal(t, masterKeyPassword, secretKey)
-			assert.Equal(t, helloData.EncryptedMasterKey, ciphertext)
-			return masterKey, nil
-		}).Times(1)
-
-		helloDecrypted := "hello"
-		mockHlp.EXPECT().DecryptShortData(gomock.Any(), gomock.Any()).DoAndReturn(func(ciphertext string, passphrase string) ([]byte, error) {
-			assert.Equal(t, masterKey, passphrase)
-			assert.Equal(t, helloData.HelloEncrypted, ciphertext)
-			return []byte(helloDecrypted), nil
-		}).Times(1)
-
-		mockHlp.EXPECT().CheckHello(gomock.Any()).DoAndReturn(func(helloDecrypted string) (bool, error) {
-			assert.Equal(t, helloDecrypted, helloDecrypted)
-			return false, nil
-		}).Times(1)
-
-		mockVier := NewMockLoginView(ctrl)
-
-		mockVier.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
-			assert.ErrorIs(t, err, domain.ErrAuthDataIncorrect)
-		}).Times(1)
-
-		mockVier.EXPECT().ShowMasterKeyView(gomock.Any()).Do(func(msg string) {
-			assert.Equal(t, helloData.MasterKeyPassHint, msg)
-		}).Times(1)
-
-		loginer := app.NewLoginer().LoginSever(mockSrv).LoginView(mockVier).LoginHelper(mockHlp)
-		loginer.CheckMasterKey(context.Background(), masterKeyPassword)
+		loginer.CheckMasterKey(context.Background(), masterPassword)
 	})
 }

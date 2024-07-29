@@ -11,14 +11,14 @@ func NewStorage() *simpleStorage {
 }
 
 type simpleStorage struct {
-	masterKey string
-	status    domain.ClientStatus
+	masterPassword string
+	status         domain.ClientStatus
 }
 
-func (ss *simpleStorage) SetMasterKey(masterKey string) {
-	ss.masterKey = masterKey
+func (ss *simpleStorage) SetMasterPassword(masterPassword string) {
+	ss.masterPassword = masterPassword
 }
 
-func (ss *simpleStorage) GetMasterKey() string {
-	return ss.masterKey
+func (ss *simpleStorage) GetMasterPassword() string {
+	return ss.masterPassword
 }

@@ -102,12 +102,4 @@ func TestRegistrationHelper(t *testing.T) {
 
 		assert.True(t, ok)
 	})
-
-	t.Run("hello_test", func(t *testing.T) {
-		hello, err := helper.GenerateHello()
-		require.NoError(t, err)
-		ok, err := helper.CheckHello(hello)
-		require.NoError(t, err)
-		require.True(t, ok)
-	})
 }

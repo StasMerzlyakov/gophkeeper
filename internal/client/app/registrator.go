@@ -110,15 +110,15 @@ func (reg *registrator) PassOTP(ctx context.Context, otpPass *domain.OTPPass) {
 func (reg *registrator) InitMasterKey(ctx context.Context, mKey *domain.UnencryptedMasterKeyData) {
 	log := GetMainLogger()
 
-	if !reg.helper.CheckMasterKeyPasswordComplexityLevel(mKey.MasterKeyPassword) {
+	if !reg.helper.CheckMasterPasswordComplexityLevel(mKey.MasterPassword) {
 		err := fmt.Errorf("%w - master key too slow", domain.ErrClientDataIncorrect)
 		log.Info(err.Error())
 		reg.view.ShowMsg(err.Error())
 		return
 	}
 
-	masterKey := reg.helper.Random32ByteString()
-	encryptedMasterKey, err := reg.helper.EncryptMasterKey(mKey.MasterKeyPassword, masterKey)
+	helloStr := reg.helper.Random32ByteString()
+	helloEncrypted, err := reg.helper.EncryptHello(mKey.MasterPassword, helloStr)
 	if err != nil {
 		err = fmt.Errorf("%w - initMasterKey err", err)
 		log.Error(err)
@@ -126,26 +126,9 @@ func (reg *registrator) InitMasterKey(ctx context.Context, mKey *domain.Unencryp
 		return
 	}
 
-	helloStr, err := reg.helper.GenerateHello()
-	if err != nil {
-		err = fmt.Errorf("%w - generateHello err", err)
-		log.Error(err)
-		reg.view.ShowError(err)
-		return
-	}
-
-	helloEncr, err := reg.helper.EncryptShortData([]byte(helloStr), masterKey)
-	if err != nil {
-		err = fmt.Errorf("%w - encryptShortData err", err)
-		log.Error(err)
-		reg.view.ShowError(err)
-		return
-	}
-
 	mData := &domain.MasterKeyData{
-		EncryptedMasterKey: encryptedMasterKey,
-		MasterKeyHint:      mKey.MasterKeyHint,
-		HelloEncrypted:     helloEncr,
+		MasterPasswordHint: mKey.MasterPasswordHint,
+		HelloEncrypted:     helloEncrypted,
 	}
 
 	if err := reg.srv.InitMasterKey(ctx, mData); err != nil {

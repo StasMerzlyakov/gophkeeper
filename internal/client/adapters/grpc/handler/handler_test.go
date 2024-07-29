@@ -121,8 +121,7 @@ func TestHandler(t *testing.T) {
 
 	t.Run("initMasterKey_ok", func(t *testing.T) {
 		mKey := &domain.MasterKeyData{
-			EncryptedMasterKey: "EncryptedMasterKey",
-			MasterKeyHint:      "MasterKeyHint",
+			MasterPasswordHint: "MasterPasswordHint",
 			HelloEncrypted:     "HelloEncrypted",
 		}
 
@@ -132,8 +131,7 @@ func TestHandler(t *testing.T) {
 
 		rgHandler.setMasterKeyFn = func(ctx context.Context, req *proto.MasterKeyRequest) (*proto.MasterKeyResponse, error) {
 			assert.Equal(t, req.SessionId, currentSessID)
-			assert.Equal(t, req.EncryptedMasterKey, mKey.EncryptedMasterKey)
-			assert.Equal(t, req.MasterKeyPassHint, mKey.MasterKeyHint)
+			assert.Equal(t, req.MasterPasswordHint, mKey.MasterPasswordHint)
 			assert.Equal(t, req.HelloEncrypted, mKey.HelloEncrypted)
 			return &proto.MasterKeyResponse{}, nil
 		}
@@ -199,8 +197,7 @@ func TestHandler(t *testing.T) {
 
 		resp := &proto.HelloResponse{
 			HelloEncrypted:     "HelloEncrypted",
-			EncryptedMasterKey: "EncryptedMasterKey",
-			MasterKeyPassHint:  "MasterKeyPassHint",
+			MasterPasswordHint: "MasterPasswordHint",
 		}
 		dtAccessor.helloFn = func(ctx context.Context, req *proto.HelloRequest) (*proto.HelloResponse, error) {
 			md, ok := metadata.FromIncomingContext(ctx)
@@ -219,7 +216,6 @@ func TestHandler(t *testing.T) {
 		assert.Equal(t, jwtTolen, hnd.JWTToken())
 
 		assert.Equal(t, resp.HelloEncrypted, data.HelloEncrypted)
-		assert.Equal(t, resp.EncryptedMasterKey, data.EncryptedMasterKey)
-		assert.Equal(t, resp.MasterKeyPassHint, data.MasterKeyPassHint)
+		assert.Equal(t, resp.MasterPasswordHint, data.MasterPasswordHint)
 	})
 }

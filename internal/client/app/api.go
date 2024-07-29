@@ -13,8 +13,8 @@ type Pinger interface {
 }
 
 type AppStorage interface {
-	SetMasterKey(masterKey string)
-	GetMasterKey() string
+	SetMasterPassword(masterPassword string)
+	GetMasterPassword() string
 }
 
 type RegServer interface {
@@ -36,10 +36,8 @@ type RegView interface {
 type RegHelper interface {
 	ParseEMail(address string) bool
 	CheckAuthPasswordComplexityLevel(pass string) bool
-	CheckMasterKeyPasswordComplexityLevel(pass string) bool
-	EncryptMasterKey(masterKeyPass string, masterKey string) (string, error)
-	GenerateHello() (string, error)
-	EncryptShortData(data []byte, masterKey string) (string, error)
+	CheckMasterPasswordComplexityLevel(pass string) bool
+	EncryptHello(masterPass string, hello string) (string, error)
 	Random32ByteString() string
 }
 
@@ -70,9 +68,7 @@ type LoginView interface {
 }
 
 type LoginHelper interface {
-	DecryptMasterKey(masterKeyPass string, encryptedMasterKey string) (string, error)
-	DecryptShortData(ciphertext string, masterKey string) ([]byte, error)
-	CheckHello(chk string) (bool, error)
+	DecryptHello(masterPassword string, helloEncrypted string) error
 }
 
 type Server interface {

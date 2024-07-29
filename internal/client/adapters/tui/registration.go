@@ -100,10 +100,10 @@ func (tApp *tuiApp) ShowRegMasterKeyView() {
 				AddItem(
 					tview.NewForm().
 						AddInputField("MasterKeyHint", "", 40, nil, func(hint string) {
-							masterKeyData.MasterKeyHint = hint
+							masterKeyData.MasterPasswordHint = hint
 						}).
 						AddPasswordField("MasterKey", "", 40, '#', func(password string) {
-							masterKeyData.MasterKeyPassword = password
+							masterKeyData.MasterPassword = password
 						}).
 						AddButton("Enter", func() {
 							tApp.controller.RegInitMasterKey(masterKeyData)

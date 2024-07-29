@@ -25,34 +25,18 @@ func (h *helper) CheckAuthPasswordComplexityLevel(email string) bool {
 	return domain.CheckAuthPasswordComplexityLevel(email)
 }
 
-func (h *helper) CheckMasterKeyPasswordComplexityLevel(pass string) bool {
-	return domain.CheckMasterKeyPasswordComplexityLevel(pass)
+func (h *helper) CheckMasterPasswordComplexityLevel(pass string) bool {
+	return domain.CheckMasterPasswordComplexityLevel(pass)
 }
 
 func (h *helper) Random32ByteString() string {
 	return domain.Random32ByteString()
 }
 
-func (h *helper) GenerateHello() (string, error) {
-	return domain.GenerateHello(h.salfFn)
+func (h *helper) EncryptHello(masterPassword, hello string) (string, error) {
+	return domain.EncryptHello(masterPassword, hello)
 }
 
-func (h *helper) CheckHello(chk string) (bool, error) {
-	return domain.CheckHello(chk)
-}
-
-func (h *helper) EncryptMasterKey(masterKeyPass string, masterKey string) (string, error) {
-	return domain.EncryptMasterKey(masterKeyPass, masterKey)
-}
-
-func (h *helper) DecryptMasterKey(masterKeyPass string, encryptedMasterKey string) (string, error) {
-	return domain.DecryptMasterKey(masterKeyPass, encryptedMasterKey)
-}
-
-func (h *helper) DecryptShortData(ciphertext string, masterKey string) ([]byte, error) {
-	return domain.DecryptShortData(ciphertext, masterKey)
-}
-
-func (h *helper) EncryptShortData(data []byte, masterKey string) (string, error) {
-	return domain.EncryptShortData(data, masterKey)
+func (h *helper) DecryptHello(masterPassword, helloEncrypted string) error {
+	return domain.DecryptHello(masterPassword, helloEncrypted)
 }

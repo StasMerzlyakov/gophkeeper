@@ -32,7 +32,6 @@ const (
 	TOTPPeriod    = 30
 	TOTPDigits    = otp.DigitsSix
 	TOTPAlgorithm = otp.AlgorithmSHA512
-	HelloWorld    = "Hello from GophKeeper!!!"
 	SaltSize      = 16
 )
 
@@ -83,10 +82,10 @@ func CheckAuthPasswordComplexityLevel(pass string) bool {
 
 // Minimal client data encryption password complexity level
 // https://github.com/wagslane/go-password-validator
-const minMasterPasswordKeyEntropyBits = 80
+const minMasterPasswordEntropyBits = 80
 
-func CheckMasterKeyPasswordComplexityLevel(pass string) bool {
-	if err := pasVld.Validate(pass, minMasterPasswordKeyEntropyBits); err != nil {
+func CheckMasterPasswordComplexityLevel(pass string) bool {
+	if err := pasVld.Validate(pass, minMasterPasswordEntropyBits); err != nil {
 		return false
 	}
 	return true
@@ -212,14 +211,17 @@ func ValidateAccountPass(pass string, hashB64 string, saltB64 string) (bool, err
 	return true, nil
 }
 
-// EncryptMasterKey is used to secure master key on client side
-func EncryptMasterKey(masterKeyPass string, masterKey string) (string, error) {
-	return encryptData(masterKeyPass, masterKey)
+// EncryptHello is used in registration process
+func EncryptHello(masterPass string, hello string) (string, error) {
+	return encryptData(masterPass, hello)
 }
 
-// DecryptMasterKey is used to restore master key on client side
-func DecryptMasterKey(secretKey string, encryptedMasterKey string) (string, error) {
-	return decryptData(secretKey, encryptedMasterKey)
+// DecryptHello is used to check masterPass is true
+func DecryptHello(masterPass string, encryptedHello string) error {
+	if _, err := decryptData(masterPass, encryptedHello); err != nil {
+		return fmt.Errorf("%w - hello is not restored", err)
+	}
+	return nil
 }
 
 // EncryptOTPKey is used to secure qr code on server side
@@ -292,7 +294,7 @@ func decryptData(password string, encrypted string) (string, error) {
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err)
+		return "", fmt.Errorf("%w wrong key", ErrServerInternal)
 	}
 
 	if len(ciphertext) < aes.BlockSize {
@@ -312,7 +314,7 @@ func decryptData(password string, encrypted string) (string, error) {
 	mac.Write(plaintext)
 	expectedMac := mac.Sum(nil)
 	if !hmac.Equal(extractedMac, expectedMac) {
-		return "", fmt.Errorf("%w hmac not equal", ErrServerInternal)
+		return "", fmt.Errorf("%w hmac not equal", ErrClientDataIncorrect)
 	}
 
 	return string(plaintext), nil
@@ -360,37 +362,6 @@ func ValidateOTPCode(keyURL string, otpPassCode string) (bool, error) {
 
 	valid, err := totp.ValidateCustom(otpPassCode, key.Secret(), time.Now(), validOpts)
 	return valid, err
-}
-
-// GenerateHello generate hello string with salt
-func GenerateHello(saltFn SaltFn) (string, error) {
-
-	salt := make([]byte, SaltSize)
-	_, err := saltFn(salt)
-	if err != nil {
-		return "", fmt.Errorf("%w GenerateHelloWorld generate salt err - %s", ErrServerInternal, err.Error())
-	}
-
-	var bytesToGen bytes.Buffer
-	bytesToGen.Write(salt)
-	bytesToGen.Write([]byte(HelloWorld))
-	return base64.StdEncoding.EncodeToString(bytesToGen.Bytes()), nil
-
-}
-
-// CheckHello check hello string
-func CheckHello(chk string) (bool, error) {
-	bytes, err := base64.StdEncoding.DecodeString(chk)
-	if err != nil {
-		return false, fmt.Errorf("%w CheckHelloWorld decode err %s", ErrServerInternal, err.Error())
-	}
-
-	if len(bytes) <= SaltSize {
-		return false, fmt.Errorf("%w CheckHelloWorld decode err - unexpected input size", ErrServerInternal)
-	}
-
-	bytes = bytes[SaltSize:]
-	return string(bytes) == HelloWorld, nil
 }
 
 // CreateJWTToken

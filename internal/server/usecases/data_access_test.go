@@ -20,18 +20,16 @@ func TestDataAccessor_GetHelloData(t *testing.T) {
 
 		mockStorage := NewMockStateFullStorage(ctrl)
 		encryptedKey := &domain.HelloData{
-			EncryptedMasterKey: "masterKey",
 			HelloEncrypted:     "encryptedKey",
-			MasterKeyPassHint:  "masterKeyHint",
+			MasterPasswordHint: "masterPasswordHint",
 		}
 		mockStorage.EXPECT().GetHelloData(gomock.Any()).Times(1).Return(encryptedKey, nil)
 		da := usecases.NewDataAccessor(nil).StateFullStorage(mockStorage)
 
 		res, err := da.GetHelloData(context.Background())
 		require.NoError(t, err)
-		assert.Equal(t, encryptedKey.EncryptedMasterKey, res.EncryptedMasterKey)
 		assert.Equal(t, encryptedKey.HelloEncrypted, res.HelloEncrypted)
-		assert.Equal(t, encryptedKey.MasterKeyPassHint, res.MasterKeyPassHint)
+		assert.Equal(t, encryptedKey.MasterPasswordHint, res.MasterPasswordHint)
 	})
 
 	t.Run("err", func(t *testing.T) {

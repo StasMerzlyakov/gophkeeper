@@ -9,10 +9,10 @@ import (
 
 func TestApp(t *testing.T) {
 
-	t.Run("masterKey", func(t *testing.T) {
+	t.Run("masterPassword", func(t *testing.T) {
 		app := storage.NewStorage()
-		mKey := "MasterKey"
-		app.SetMasterKey(mKey)
-		assert.Equal(t, mKey, app.GetMasterKey())
+		mKey := "MasterPassword"
+		app.SetMasterPassword(mKey)
+		assert.Equal(t, mKey, app.GetMasterPassword())
 	})
 }
