@@ -25,13 +25,13 @@ func TestRegistrator_CheckEmail(t *testing.T) {
 			return true
 		}).Times(1)
 
-		mockSrv := NewMockRegServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 		mockSrv.EXPECT().CheckEMail(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, str string) (domain.EMailStatus, error) {
 			require.Equal(t, email, str)
 			return domain.EMailAvailable, nil
 		}).Times(1)
 
-		mockView := NewMockRegView(ctrl)
+		mockView := NewMockAppView(ctrl)
 		mockView.EXPECT().ShowMsg(gomock.Any()).Times(1)
 
 		reg := app.NewRegistrator().RegHelper(mockHelper).RegServer(mockSrv).RegView(mockView)
@@ -46,7 +46,7 @@ func TestRegistrator_CheckEmail(t *testing.T) {
 			return false
 		}).Times(1)
 
-		mockView := NewMockRegView(ctrl)
+		mockView := NewMockAppView(ctrl)
 		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
 			require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 		}).Times(1)
@@ -65,13 +65,13 @@ func TestRegistrator_CheckEmail(t *testing.T) {
 		}).Times(1)
 
 		testErr := errors.New("testErr")
-		mockSrv := NewMockRegServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 		mockSrv.EXPECT().CheckEMail(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, str string) (domain.EMailStatus, error) {
 			require.Equal(t, email, str)
 			return domain.EMailAvailable, testErr
 		}).Times(1)
 
-		mockView := NewMockRegView(ctrl)
+		mockView := NewMockAppView(ctrl)
 		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
 			require.ErrorIs(t, err, testErr)
 		}).Times(1)
@@ -88,13 +88,13 @@ func TestRegistrator_CheckEmail(t *testing.T) {
 			return true
 		}).Times(1)
 
-		mockSrv := NewMockRegServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 		mockSrv.EXPECT().CheckEMail(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, str string) (domain.EMailStatus, error) {
 			require.Equal(t, email, str)
 			return domain.EMailBusy, nil
 		}).Times(1)
 
-		mockView := NewMockRegView(ctrl)
+		mockView := NewMockAppView(ctrl)
 		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
 			require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 		}).Times(1)
@@ -128,12 +128,12 @@ func TestRegistrator_Registrate(t *testing.T) {
 			return true
 		}).Times(1)
 
-		mockSrv := NewMockRegServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 		mockSrv.EXPECT().Registrate(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, data *domain.EMailData) error {
 			return nil
 		}).Times(1)
 
-		mockView := NewMockRegView(ctrl)
+		mockView := NewMockAppView(ctrl)
 		mockView.EXPECT().ShowRegOTPView().Times(1)
 
 		reg := app.NewRegistrator().RegHelper(mockHelper).RegServer(mockSrv).RegView(mockView)
@@ -154,7 +154,7 @@ func TestRegistrator_Registrate(t *testing.T) {
 			return false
 		}).Times(1)
 
-		mockView := NewMockRegView(ctrl)
+		mockView := NewMockAppView(ctrl)
 		mockView.EXPECT().ShowMsg(gomock.Any())
 
 		reg := app.NewRegistrator().RegHelper(mockHelper).RegView(mockView)
@@ -178,7 +178,7 @@ func TestRegistrator_Registrate(t *testing.T) {
 			return false
 		}).Times(1)
 
-		mockView := NewMockRegView(ctrl)
+		mockView := NewMockAppView(ctrl)
 		mockView.EXPECT().ShowMsg(gomock.Any())
 
 		reg := app.NewRegistrator().RegHelper(mockHelper).RegView(mockView)
@@ -202,13 +202,13 @@ func TestRegistrator_Registrate(t *testing.T) {
 			return true
 		}).Times(1)
 
-		mockSrv := NewMockRegServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 		testErr := errors.New("testErr")
 		mockSrv.EXPECT().Registrate(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, data *domain.EMailData) error {
 			return testErr
 		}).Times(1)
 
-		mockView := NewMockRegView(ctrl)
+		mockView := NewMockAppView(ctrl)
 		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
 			require.ErrorIs(t, err, testErr)
 		}).Times(1)
@@ -229,13 +229,13 @@ func TestRegistrator_PassOTP(t *testing.T) {
 			Pass: "otpPass",
 		}
 
-		mockSrv := NewMockRegServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 		mockSrv.EXPECT().PassRegOTP(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, pass string) error {
 			assert.Equal(t, otpPass.Pass, pass)
 			return nil
 		}).Times(1)
 
-		mockView := NewMockRegView(ctrl)
+		mockView := NewMockAppView(ctrl)
 		mockView.EXPECT().ShowRegMasterKeyView().Times(1)
 
 		reg := app.NewRegistrator().RegServer(mockSrv).RegView(mockView)
@@ -249,14 +249,14 @@ func TestRegistrator_PassOTP(t *testing.T) {
 			Pass: "otpPass",
 		}
 
-		mockSrv := NewMockRegServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 		testErr := errors.New("testErr")
 		mockSrv.EXPECT().PassRegOTP(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, pass string) error {
 			assert.Equal(t, otpPass.Pass, pass)
 			return testErr
 		}).Times(1)
 
-		mockView := NewMockRegView(ctrl)
+		mockView := NewMockAppView(ctrl)
 		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
 			require.ErrorIs(t, err, testErr)
 		}).Times(1)
@@ -293,7 +293,7 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			return helloEncrypted, nil
 		})
 
-		mockSrv := NewMockRegServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 		mockSrv.EXPECT().InitMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, mData *domain.MasterKeyData) error {
 
 			assert.Equal(t, helloEncrypted, mData.HelloEncrypted)
@@ -301,7 +301,7 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			return nil
 		}).Times(1)
 
-		mockView := NewMockRegView(ctrl)
+		mockView := NewMockAppView(ctrl)
 		mockView.EXPECT().ShowLoginView().Times(1)
 
 		reg := app.NewRegistrator().RegServer(mockSrv).RegView(mockView).RegHelper(mockHelper)
@@ -320,7 +320,7 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			return false
 		}).Times(1)
 
-		mockView := NewMockRegView(ctrl)
+		mockView := NewMockAppView(ctrl)
 		mockView.EXPECT().ShowMsg(gomock.Any()).Times(1)
 
 		reg := app.NewRegistrator().RegView(mockView).RegHelper(mockHelper)
@@ -349,7 +349,7 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			return "", testErr
 		})
 
-		mockView := NewMockRegView(ctrl)
+		mockView := NewMockAppView(ctrl)
 		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
 			assert.ErrorIs(t, err, testErr)
 		}).Times(1)
@@ -381,7 +381,7 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			return helloEncrypted, nil
 		})
 
-		mockSrv := NewMockRegServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 		testErr := errors.New("testErr")
 		mockSrv.EXPECT().InitMasterKey(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, mData *domain.MasterKeyData) error {
 
@@ -390,7 +390,7 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			return testErr
 		}).Times(1)
 
-		mockView := NewMockRegView(ctrl)
+		mockView := NewMockAppView(ctrl)
 		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
 			assert.ErrorIs(t, err, testErr)
 		}).Times(1)

@@ -31,9 +31,7 @@ func NewApp(conf *config.ClientConf) *tuiApp {
 	return &tuiApp{}
 }
 
-var _ app.InfoView = (*tuiApp)(nil)
-var _ app.LoginView = (*tuiApp)(nil)
-var _ app.RegView = (*tuiApp)(nil)
+var _ app.AppView = (*tuiApp)(nil)
 
 func (tApp *tuiApp) SetController(controller Controller) *tuiApp {
 	tApp.controller = controller

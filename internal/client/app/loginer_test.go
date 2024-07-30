@@ -18,14 +18,14 @@ func TestLoginer_Login(t *testing.T) {
 	defer ctrl.Finish()
 
 	t.Run("ok", func(t *testing.T) {
-		mockVier := NewMockLoginView(ctrl)
+		mockVier := NewMockAppView(ctrl)
 		mockVier.EXPECT().ShowLogOTPView().Times(1)
 
 		loginData := &domain.EMailData{
 			EMail:    "email",
 			Password: "pass",
 		}
-		mockSrv := NewMockLoginServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 		mockSrv.EXPECT().Login(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, data *domain.EMailData) error {
 			assert.Equal(t, loginData.EMail, data.EMail)
 			assert.Equal(t, loginData.Password, data.Password)
@@ -37,7 +37,7 @@ func TestLoginer_Login(t *testing.T) {
 	})
 
 	t.Run("err", func(t *testing.T) {
-		mockVier := NewMockLoginView(ctrl)
+		mockVier := NewMockAppView(ctrl)
 
 		testErr := errors.New("testErr")
 		mockVier.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
@@ -48,7 +48,7 @@ func TestLoginer_Login(t *testing.T) {
 			EMail:    "email",
 			Password: "pass",
 		}
-		mockSrv := NewMockLoginServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 
 		mockSrv.EXPECT().Login(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, data *domain.EMailData) error {
 			assert.Equal(t, loginData.EMail, data.EMail)
@@ -67,7 +67,7 @@ func TestLoginer_PassOTP(t *testing.T) {
 	defer ctrl.Finish()
 
 	t.Run("ok", func(t *testing.T) {
-		mockVier := NewMockLoginView(ctrl)
+		mockVier := NewMockAppView(ctrl)
 		mockVier.EXPECT().ShowMasterKeyView(gomock.Any()).Do(func(msg string) {
 			assert.Equal(t, msg, "")
 		}).Times(1)
@@ -76,7 +76,7 @@ func TestLoginer_PassOTP(t *testing.T) {
 			Pass: "otpPass",
 		}
 
-		mockSrv := NewMockLoginServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 		mockSrv.EXPECT().PassLoginOTP(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, pass string) error {
 			assert.Equal(t, otpPass.Pass, pass)
 			return nil
@@ -87,7 +87,7 @@ func TestLoginer_PassOTP(t *testing.T) {
 	})
 
 	t.Run("err", func(t *testing.T) {
-		mockVier := NewMockLoginView(ctrl)
+		mockVier := NewMockAppView(ctrl)
 
 		testErr := errors.New("testErr")
 		mockVier.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
@@ -97,7 +97,7 @@ func TestLoginer_PassOTP(t *testing.T) {
 		otpPass := &domain.OTPPass{
 			Pass: "otpPass",
 		}
-		mockSrv := NewMockLoginServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 		mockSrv.EXPECT().PassLoginOTP(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, pass string) error {
 			assert.Equal(t, otpPass.Pass, pass)
 			return testErr
@@ -114,7 +114,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 	defer ctrl.Finish()
 
 	t.Run("ok", func(t *testing.T) {
-		mockVier := NewMockLoginView(ctrl)
+		mockVier := NewMockAppView(ctrl)
 		mockVier.EXPECT().ShowDataAccessView().Times(1)
 
 		masterPassword := "masterPassword"
@@ -124,7 +124,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 			MasterPasswordHint: "masterPasswordHint",
 		}
 
-		mockSrv := NewMockLoginServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 		mockSrv.EXPECT().GetHelloData(gomock.Any()).Return(helloData, nil).Times(1)
 
 		mockHlp := NewMockDomainHelper(ctrl)
@@ -145,7 +145,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 	})
 
 	t.Run("getHelloData_err", func(t *testing.T) {
-		mockVier := NewMockLoginView(ctrl)
+		mockVier := NewMockAppView(ctrl)
 		testErr := errors.New("testErr")
 		mockVier.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
 			assert.ErrorIs(t, err, testErr)
@@ -153,7 +153,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 
 		masterKeyPassword := "masterKeyPassword"
 
-		mockSrv := NewMockLoginServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 
 		mockSrv.EXPECT().GetHelloData(gomock.Any()).Return(nil, testErr).Times(1)
 
@@ -163,7 +163,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 
 	t.Run("decryptMasterKey_err", func(t *testing.T) {
 
-		mockVier := NewMockLoginView(ctrl)
+		mockVier := NewMockAppView(ctrl)
 		testErr := errors.New("testErr")
 		mockVier.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
 			assert.ErrorIs(t, err, testErr)
@@ -180,7 +180,7 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 			assert.Equal(t, helloData.MasterPasswordHint, hint)
 		}).Times(1)
 
-		mockSrv := NewMockLoginServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 		mockSrv.EXPECT().GetHelloData(gomock.Any()).Return(helloData, nil).Times(1)
 
 		mockHlp := NewMockDomainHelper(ctrl)

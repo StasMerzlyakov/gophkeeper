@@ -6,7 +6,7 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
-//go:generate mockgen -destination "./generated_mocks_test.go" -package ${GOPACKAGE}_test . Server,InfoView,Pinger,RegServer,RegView,DomainHelper,LoginServer,LoginView,AppStorage
+//go:generate mockgen -destination "./generated_mocks_test.go" -package ${GOPACKAGE}_test . AppServer,AppView,Pinger,DomainHelper,AppStorage
 
 type Pinger interface {
 	Ping(ctx context.Context) error
@@ -27,22 +27,6 @@ type AppStorage interface {
 	GetUserPasswordDataList() []string
 }
 
-type RegServer interface {
-	CheckEMail(ctx context.Context, email string) (domain.EMailStatus, error)
-	Registrate(ctx context.Context, data *domain.EMailData) error
-	PassRegOTP(ctx context.Context, otpPass string) error
-	InitMasterKey(ctx context.Context, mKey *domain.MasterKeyData) error
-}
-
-type RegView interface {
-	ShowLoginView()
-	ShowError(err error)
-	ShowMsg(msg string)
-	ShowRegView()
-	ShowRegOTPView()
-	ShowRegMasterKeyView()
-}
-
 type DomainHelper interface {
 	ParseEMail(address string) bool
 	CheckAuthPasswordComplexityLevel(pass string) bool
@@ -54,13 +38,7 @@ type DomainHelper interface {
 	CheckUserPasswordData(data *domain.UserPasswordData) error
 }
 
-type LoginServer interface {
-	Login(ctx context.Context, data *domain.EMailData) error
-	PassLoginOTP(ctx context.Context, otpPass string) error
-	GetHelloData(ctx context.Context) (*domain.HelloData, error)
-}
-
-type InfoView interface {
+type AppView interface {
 	ShowError(err error)
 	ShowMsg(msg string)
 	ShowLogOTPView()
@@ -74,15 +52,7 @@ type InfoView interface {
 	ShowBankCardView(bankCard *domain.BankCard)
 }
 
-type LoginView interface {
-	ShowLogOTPView()
-	ShowError(err error)
-	ShowMsg(msg string)
-	ShowMasterKeyView(hint string)
-	ShowDataAccessView()
-}
-
-type Server interface {
+type AppServer interface {
 	Stop()
 	Ping(ctx context.Context) error
 	CheckEMail(ctx context.Context, email string) (domain.EMailStatus, error)

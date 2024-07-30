@@ -60,7 +60,7 @@ func (ac *appController) CheckServerStatus() {
 				log.Info("ping success")
 				if ac.status == domain.ClientStatusOffline {
 					ac.status = domain.ClientStatusOnline
-					ac.infoView.ShowMsg("Server is online")
+					ac.appView.ShowMsg("Server is online")
 				}
 			}
 		} else {
@@ -77,8 +77,8 @@ func (ac *appController) Stop() {
 	ac.wg.Wait()
 }
 
-func (ac *appController) SetInfoView(view InfoView) *appController {
-	ac.infoView = view
+func (ac *appController) SetInfoView(view AppView) *appController {
+	ac.appView = view
 	ac.loginer.LoginView(view)
 	ac.registrator.RegView(view)
 	return ac
@@ -97,7 +97,7 @@ func (ac *appController) SetAppStorage(storage AppStorage) *appController {
 	return ac
 }
 
-func (ac *appController) SetServer(server Server) *appController {
+func (ac *appController) SetServer(server AppServer) *appController {
 	ac.pinger.SetPinger(server)
 	ac.loginer.LoginSever(server)
 	ac.registrator.RegServer(server)
@@ -108,12 +108,12 @@ func (ac *appController) SetServer(server Server) *appController {
 type appController struct {
 	conf        *config.ClientConf
 	status      domain.ClientStatus
-	infoView    InfoView
+	appView     AppView
 	helper      DomainHelper
 	loginer     *loginer
 	pinger      *pinger
 	registrator *registrator
-	server      Server
+	server      AppServer
 	exitChan    chan struct{}
 	wg          sync.WaitGroup
 	storage     AppStorage
@@ -143,7 +143,7 @@ func (ac *appController) invokeFnHlp(fn func(ctx context.Context), showErr bool)
 	case <-timedCtx.Done():
 		ac.status = domain.ClientStatusOffline
 		if showErr {
-			ac.infoView.ShowError(fmt.Errorf("%w server timeout", domain.ErrClientServerTimeout))
+			ac.appView.ShowError(fmt.Errorf("%w server timeout", domain.ErrClientServerTimeout))
 		}
 	case <-ac.exitChan:
 		return
@@ -156,7 +156,7 @@ func (ac *appController) invokeFn(fn func(ctx context.Context), runStatus domain
 	go func() {
 		if ac.status != runStatus {
 			if msg != "" {
-				ac.infoView.ShowMsg(msg)
+				ac.appView.ShowMsg(msg)
 			}
 		} else {
 			ac.invokeFnHlp(fn, showErr)
@@ -205,14 +205,14 @@ func (ac *appController) AddBankCard(bankCardView *domain.BankCardView) {
 
 		expMonth, err := strconv.Atoi(bankCardView.ExpiryMonth)
 		if err != nil {
-			ac.infoView.ShowMsg("Wrong month value")
+			ac.appView.ShowMsg("Wrong month value")
 			return
 		}
 		bankCard.ExpiryMonth = expMonth
 
 		expEear, err := strconv.Atoi(bankCardView.ExpiryYear)
 		if err != nil {
-			ac.infoView.ShowMsg("Wrong year value")
+			ac.appView.ShowMsg("Wrong year value")
 			return
 		}
 		if expEear < 100 {
@@ -221,14 +221,14 @@ func (ac *appController) AddBankCard(bankCardView *domain.BankCardView) {
 		bankCard.ExpiryYear = expEear
 
 		if err := ac.helper.CheckBankCardData(bankCard); err != nil {
-			ac.infoView.ShowMsg(fmt.Sprintf("Wrong card data %v", err.Error()))
+			ac.appView.ShowMsg(fmt.Sprintf("Wrong card data %v", err.Error()))
 			return
 		}
 
 		if err := ac.storage.AddBankCard(bankCard); err != nil {
 			panic(err)
 		}
-		ac.infoView.ShowBankCardListView(ac.storage.GetBankCardNumberList())
+		ac.appView.ShowBankCardListView(ac.storage.GetBankCardNumberList())
 	}()
 }
 func (ac *appController) UpdateBankCard(bankCardView *domain.BankCardView) {
@@ -240,14 +240,14 @@ func (ac *appController) UpdateBankCard(bankCardView *domain.BankCardView) {
 
 		expMonth, err := strconv.Atoi(bankCardView.ExpiryMonth)
 		if err != nil {
-			ac.infoView.ShowMsg("Wrong month value")
+			ac.appView.ShowMsg("Wrong month value")
 			return
 		}
 		bankCard.ExpiryMonth = expMonth
 
 		expEear, err := strconv.Atoi(bankCardView.ExpiryYear)
 		if err != nil {
-			ac.infoView.ShowMsg("Wrong year value")
+			ac.appView.ShowMsg("Wrong year value")
 			return
 		}
 		if expEear < 100 {
@@ -256,14 +256,14 @@ func (ac *appController) UpdateBankCard(bankCardView *domain.BankCardView) {
 		bankCard.ExpiryYear = expEear
 
 		if err := ac.helper.CheckBankCardData(bankCard); err != nil {
-			ac.infoView.ShowMsg(fmt.Sprintf("Wrong card data %v", err.Error()))
+			ac.appView.ShowMsg(fmt.Sprintf("Wrong card data %v", err.Error()))
 			return
 		}
 
 		if err := ac.storage.UpdateBankCard(bankCard); err != nil {
 			panic(err)
 		}
-		ac.infoView.ShowBankCardListView(ac.storage.GetBankCardNumberList())
+		ac.appView.ShowBankCardListView(ac.storage.GetBankCardNumberList())
 	}()
 }
 
@@ -272,7 +272,7 @@ func (ac *appController) DeleteBankCard(number string) {
 		if err := ac.storage.DeleteBankCard(number); err != nil {
 			panic(err)
 		}
-		ac.infoView.ShowBankCardListView(ac.storage.GetBankCardNumberList())
+		ac.appView.ShowBankCardListView(ac.storage.GetBankCardNumberList())
 	}()
 }
 
@@ -281,7 +281,7 @@ func (ac *appController) GetBankCard(number string) {
 		if card, err := ac.storage.GetBankCard(number); err != nil {
 			panic(err)
 		} else {
-			ac.infoView.ShowBankCardView(card)
+			ac.appView.ShowBankCardView(card)
 		}
 	}()
 }
@@ -289,12 +289,12 @@ func (ac *appController) GetBankCard(number string) {
 func (ac *appController) ShowBankCard(num string) {
 	go func() {
 		if num == "" {
-			ac.infoView.ShowBankCardView(nil)
+			ac.appView.ShowBankCardView(nil)
 		} else {
 			if data, err := ac.storage.GetBankCard(num); err != nil {
 				panic(err)
 			} else {
-				ac.infoView.ShowBankCardView(data)
+				ac.appView.ShowBankCardView(data)
 			}
 		}
 	}()
@@ -302,7 +302,7 @@ func (ac *appController) ShowBankCard(num string) {
 
 func (ac *appController) ShowBankCardList() {
 	go func() {
-		ac.infoView.ShowBankCardListView(ac.storage.GetBankCardNumberList())
+		ac.appView.ShowBankCardListView(ac.storage.GetBankCardNumberList())
 	}()
 }
 

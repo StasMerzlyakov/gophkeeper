@@ -18,7 +18,7 @@ func TestController(t *testing.T) {
 
 	t.Run("start_stop", func(t *testing.T) {
 
-		mockSrv := NewMockServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 		mockSrv.EXPECT().Ping(gomock.Any()).Return(nil).AnyTimes()
 		mockSrv.EXPECT().Stop().Times(1)
 
@@ -34,7 +34,7 @@ func TestController(t *testing.T) {
 
 	t.Run("start_stop_restore", func(t *testing.T) {
 
-		mockSrv := NewMockServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 
 		conf := &config.ClientConf{
 			InterationTimeout: 1 * time.Second,
@@ -57,7 +57,7 @@ func TestController(t *testing.T) {
 			return nil
 		})
 
-		mockView := NewMockInfoView(ctrl)
+		mockView := NewMockAppView(ctrl)
 
 		mockView.EXPECT().ShowLogOTPView().Times(1)
 
@@ -87,7 +87,7 @@ func TestController(t *testing.T) {
 
 	t.Run("start_stop_offline", func(t *testing.T) {
 
-		mockSrv := NewMockServer(ctrl)
+		mockSrv := NewMockAppServer(ctrl)
 
 		conf := &config.ClientConf{
 			InterationTimeout: 1 * time.Second,
@@ -112,7 +112,7 @@ func TestController(t *testing.T) {
 			return nil
 		})
 
-		mockView := NewMockInfoView(ctrl)
+		mockView := NewMockAppView(ctrl)
 
 		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
 			assert.ErrorIs(t, err, domain.ErrClientServerTimeout)

@@ -42,8 +42,7 @@ func NewHandler(conf *config.ClientConf) (*handler, error) {
 	}, nil
 }
 
-var _ app.RegServer = (*handler)(nil)
-var _ app.LoginServer = (*handler)(nil)
+var _ app.AppServer = (*handler)(nil)
 
 type handler struct {
 	conn         *grpc.ClientConn

@@ -10,12 +10,12 @@ func NewLoginer() *loginer {
 	return &loginer{}
 }
 
-func (lg *loginer) LoginSever(logSrv LoginServer) *loginer {
+func (lg *loginer) LoginSever(logSrv AppServer) *loginer {
 	lg.logSrv = logSrv
 	return lg
 }
 
-func (lg *loginer) LoginView(logView LoginView) *loginer {
+func (lg *loginer) LoginView(logView AppView) *loginer {
 	lg.logView = logView
 	return lg
 }
@@ -31,8 +31,8 @@ func (lg *loginer) LoginStorage(storage AppStorage) *loginer {
 }
 
 type loginer struct {
-	logSrv  LoginServer
-	logView LoginView
+	logSrv  AppServer
+	logView AppView
 	helper  DomainHelper
 	storage AppStorage
 }

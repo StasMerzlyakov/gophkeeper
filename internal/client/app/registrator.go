@@ -11,12 +11,12 @@ func NewRegistrator() *registrator {
 	return &registrator{}
 }
 
-func (reg *registrator) RegServer(srv RegServer) *registrator {
+func (reg *registrator) RegServer(srv AppServer) *registrator {
 	reg.srv = srv
 	return reg
 }
 
-func (reg *registrator) RegView(view RegView) *registrator {
+func (reg *registrator) RegView(view AppView) *registrator {
 	reg.view = view
 	return reg
 }
@@ -27,8 +27,8 @@ func (reg *registrator) RegHelper(helper DomainHelper) *registrator {
 }
 
 type registrator struct {
-	srv    RegServer
-	view   RegView
+	srv    AppServer
+	view   AppView
 	helper DomainHelper
 }
 
