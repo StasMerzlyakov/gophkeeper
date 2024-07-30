@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
@@ -15,92 +16,59 @@ func (lg *loginer) LoginSever(logSrv AppServer) *loginer {
 	return lg
 }
 
-func (lg *loginer) LoginView(logView AppView) *loginer {
-	lg.logView = logView
-	return lg
-}
-
 func (lg *loginer) LoginHelper(helper DomainHelper) *loginer {
 	lg.helper = helper
 	return lg
 }
 
-func (lg *loginer) LoginStorage(storage AppStorage) *loginer {
-	lg.storage = storage
-	return lg
-}
-
 type loginer struct {
-	logSrv  AppServer
-	logView AppView
-	helper  DomainHelper
-	storage AppStorage
+	logSrv AppServer
+	helper DomainHelper
 }
 
-func (lg *loginer) Login(ctx context.Context, data *domain.EMailData) {
+func (lg *loginer) Login(ctx context.Context, data *domain.EMailData) error {
 	log := GetMainLogger()
 
 	log.Debugf("login %v start", data.EMail)
 
 	if err := lg.logSrv.Login(ctx, data); err != nil {
-		lg.logView.ShowError(err)
-		return
+		err := fmt.Errorf("%w - login error", err)
+		log.Warn(err.Error())
+		return err
 	}
-
-	select {
-	case <-ctx.Done():
-		log.Errorf("context done %v", ctx.Err().Error())
-		return
-	default:
-		log.Debugf("login %v succes", data.EMail)
-		lg.logView.ShowLogOTPView()
-	}
+	log.Debugf("login %v success", data.EMail)
+	return nil
 }
 
-func (lg *loginer) PassOTP(ctx context.Context, otpPass *domain.OTPPass) {
+func (lg *loginer) PassOTP(ctx context.Context, otpPass *domain.OTPPass) error {
 	log := GetMainLogger()
 	log.Debugf("passOTP start")
 	if err := lg.logSrv.PassLoginOTP(ctx, otpPass.Pass); err != nil {
-		lg.logView.ShowError(err)
-		return
+		err := fmt.Errorf("%w - passOTP error", err)
+		log.Warn(err.Error())
+		return err
 	}
-
-	select {
-	case <-ctx.Done():
-		log.Errorf("context done %v", ctx.Err().Error())
-		return
-	default:
-		log.Debugf("passOTP success")
-		lg.logView.ShowMasterKeyView("")
-	}
+	log.Debugf("passOTP success")
+	return nil
 }
 
-func (lg *loginer) CheckMasterKey(ctx context.Context, masterPassword string) {
-	log.Debugf("checkMasterKey start")
+// CheckMasterKey return nil, "" if ok;  error and hint if error and hint available
+func (lg *loginer) CheckMasterKey(ctx context.Context, masterPassword string) (error, string) {
+	log.Debug("checkMasterKey start")
 	helloData, err := lg.logSrv.GetHelloData(ctx)
 	if err != nil {
-		log.Errorf("checkMasterKey err - getHelloData %v", err.Error())
-		lg.logView.ShowError(err)
-		return
+		err := fmt.Errorf("%w - checkMasterKey err", err)
+		log.Warn(err.Error())
+		return err, ""
 	}
 
 	err = lg.helper.DecryptHello(masterPassword, helloData.HelloEncrypted)
 	if err != nil {
-		log.Errorf("checkMasterKey err - decryptHello %v", err.Error())
-		lg.logView.ShowError(err)
-		lg.logView.ShowMasterKeyView(helloData.MasterPasswordHint)
-		return
+		err := fmt.Errorf("%w checkMasterKey err", err)
+		log.Warn(err.Error())
+		return err, helloData.MasterPasswordHint
 	}
 
-	log.Debugf("hello decrypted success")
-
-	select {
-	case <-ctx.Done():
-		log.Errorf("checkMasterKey err - context done %v", ctx.Err().Error())
-		return
-	default:
-		log.Debugf("checkMasterKey success")
-		lg.storage.SetMasterPassword(masterPassword)
-		lg.logView.ShowDataAccessView()
-	}
+	log.Debug("checkMasterKey success")
+	return nil, ""
 }

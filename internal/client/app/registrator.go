@@ -16,11 +16,6 @@ func (reg *registrator) RegServer(srv AppServer) *registrator {
 	return reg
 }
 
-func (reg *registrator) RegView(view AppView) *registrator {
-	reg.view = view
-	return reg
-}
-
 func (reg *registrator) RegHelper(helper DomainHelper) *registrator {
 	reg.helper = helper
 	return reg
@@ -28,102 +23,82 @@ func (reg *registrator) RegHelper(helper DomainHelper) *registrator {
 
 type registrator struct {
 	srv    AppServer
-	view   AppView
 	helper DomainHelper
 }
 
-func (reg *registrator) CheckEmail(ctx context.Context, email string) {
+func (reg *registrator) CheckEmail(ctx context.Context, email string) error {
+	log := GetMainLogger()
 	if !reg.helper.ParseEMail(email) {
-		reg.view.ShowError(fmt.Errorf("%w - wrong email format", domain.ErrClientDataIncorrect))
-		return
+		log.Warn("check email - wrong email format")
+		return fmt.Errorf("%w - wrong email format", domain.ErrClientDataIncorrect)
 	}
 
 	if status, err := reg.srv.CheckEMail(ctx, email); err != nil {
-		reg.view.ShowError(err)
-
+		err := fmt.Errorf("%w check email err", err)
+		log.Warn(err.Error())
+		return err
 	} else {
 		if status == domain.EMailBusy {
-			reg.view.ShowError(fmt.Errorf("%w - email is busy", domain.ErrClientDataIncorrect))
+			log.Warn("check email - email is busy")
+			return fmt.Errorf("%w - email is busy", domain.ErrClientDataIncorrect)
 		} else {
-			reg.view.ShowMsg("email avaliable")
+			log.Warn("email is available")
+			return nil
 		}
 	}
 }
 
-func (reg *registrator) Registrate(ctx context.Context, data *domain.EMailData) {
+func (reg *registrator) Registrate(ctx context.Context, data *domain.EMailData) error {
 	log := GetMainLogger()
 
 	log.Debugf("regstration %v start", data.EMail)
 	if !reg.helper.ParseEMail(data.EMail) {
-		err := fmt.Sprintf("registration %v err wrong email format", data.EMail)
-		log.Errorf(err)
-		reg.view.ShowMsg(err)
-		return
+		err := fmt.Errorf("%w registration err - wrong email format", domain.ErrClientDataIncorrect)
+		log.Warn(err.Error())
+		return err
 	}
 
 	if !reg.helper.CheckAuthPasswordComplexityLevel(data.Password) {
-		err := "registration err - password too slow"
-		log.Errorf(err)
-		reg.view.ShowMsg(err)
-		return
+		err := fmt.Errorf("%w registration err - password too slow", domain.ErrClientDataIncorrect)
+		log.Warn(err.Error())
+		return err
 	}
 
 	if err := reg.srv.Registrate(ctx, data); err != nil {
-		log.Errorf("registration err - %v", err.Error())
-		reg.view.ShowError(err)
-		return
+		err := fmt.Errorf("%w registration err", err)
+		log.Warn(err.Error())
+		return err
 	}
-
-	select {
-	case <-ctx.Done():
-		GetMainLogger().Errorf("registration err - context id done - %v", ctx.Err().Error())
-		return
-	default:
-		GetMainLogger().Infof("registration of %v started", data.EMail)
-		reg.view.ShowRegOTPView()
-	}
-
+	return nil
 }
 
-func (reg *registrator) PassOTP(ctx context.Context, otpPass *domain.OTPPass) {
+func (reg *registrator) PassOTP(ctx context.Context, otpPass *domain.OTPPass) error {
 	log := GetMainLogger()
-
 	log.Debugf("passOTP start")
 
 	if err := reg.srv.PassRegOTP(ctx, otpPass.Pass); err != nil {
-		err = fmt.Errorf("%w - passOTP err", err)
-		log.Error(err)
-		reg.view.ShowError(err)
-		return
+		err := fmt.Errorf("%w - passOTP err", err)
+		log.Warn(err.Error())
+		return err
 	}
-	select {
-	case <-ctx.Done():
-		log.Errorf("context done %v", ctx.Err().Error())
-		return
-	default:
-		log.Debugf("passOTP success")
-		reg.view.ShowRegMasterKeyView()
-	}
-
+	return nil
 }
 
-func (reg *registrator) InitMasterKey(ctx context.Context, mKey *domain.UnencryptedMasterKeyData) {
+func (reg *registrator) InitMasterKey(ctx context.Context, mKey *domain.UnencryptedMasterKeyData) error {
 	log := GetMainLogger()
 
 	if !reg.helper.CheckMasterPasswordComplexityLevel(mKey.MasterPassword) {
-		err := fmt.Errorf("%w - master key too slow", domain.ErrClientDataIncorrect)
-		log.Info(err.Error())
-		reg.view.ShowMsg(err.Error())
-		return
+		err := fmt.Errorf("%w - initMasterKey err - key too slow", domain.ErrClientDataIncorrect)
+		log.Warn(err.Error())
+		return err
 	}
 
 	helloStr := reg.helper.Random32ByteString()
 	helloEncrypted, err := reg.helper.EncryptHello(mKey.MasterPassword, helloStr)
 	if err != nil {
-		err = fmt.Errorf("%w - initMasterKey err", err)
-		log.Error(err)
-		reg.view.ShowError(err)
-		return
+		err := fmt.Errorf("%w - initMasterKey err", err)
+		log.Warn(err.Error())
+		return err
 	}
 
 	mData := &domain.MasterKeyData{
@@ -132,16 +107,9 @@ func (reg *registrator) InitMasterKey(ctx context.Context, mKey *domain.Unencryp
 	}
 
 	if err := reg.srv.InitMasterKey(ctx, mData); err != nil {
-		err = fmt.Errorf("%w - server err", err)
-		log.Error(err)
-		reg.view.ShowError(err)
-		return
+		err = fmt.Errorf("%w - initMasterKey err", err)
+		log.Warn(err.Error())
+		return err
 	}
-
-	select {
-	case <-ctx.Done():
-		return
-	default:
-		reg.view.ShowLoginView()
-	}
+	return nil
 }

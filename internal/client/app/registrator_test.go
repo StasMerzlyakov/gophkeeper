@@ -31,11 +31,9 @@ func TestRegistrator_CheckEmail(t *testing.T) {
 			return domain.EMailAvailable, nil
 		}).Times(1)
 
-		mockView := NewMockAppView(ctrl)
-		mockView.EXPECT().ShowMsg(gomock.Any()).Times(1)
-
-		reg := app.NewRegistrator().RegHelper(mockHelper).RegServer(mockSrv).RegView(mockView)
-		reg.CheckEmail(context.Background(), email)
+		reg := app.NewRegistrator().RegHelper(mockHelper).RegServer(mockSrv)
+		err := reg.CheckEmail(context.Background(), email)
+		require.NoError(t, err)
 	})
 
 	t.Run("parseEmail_err", func(t *testing.T) {
@@ -46,13 +44,9 @@ func TestRegistrator_CheckEmail(t *testing.T) {
 			return false
 		}).Times(1)
 
-		mockView := NewMockAppView(ctrl)
-		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
-			require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
-		}).Times(1)
-
-		reg := app.NewRegistrator().RegHelper(mockHelper).RegView(mockView)
-		reg.CheckEmail(context.Background(), email)
+		reg := app.NewRegistrator().RegHelper(mockHelper)
+		err := reg.CheckEmail(context.Background(), email)
+		require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 	})
 
 	t.Run("checkEmail_err", func(t *testing.T) {
@@ -71,13 +65,9 @@ func TestRegistrator_CheckEmail(t *testing.T) {
 			return domain.EMailAvailable, testErr
 		}).Times(1)
 
-		mockView := NewMockAppView(ctrl)
-		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
-			require.ErrorIs(t, err, testErr)
-		}).Times(1)
-
-		reg := app.NewRegistrator().RegHelper(mockHelper).RegServer(mockSrv).RegView(mockView)
-		reg.CheckEmail(context.Background(), email)
+		reg := app.NewRegistrator().RegHelper(mockHelper).RegServer(mockSrv)
+		err := reg.CheckEmail(context.Background(), email)
+		require.ErrorIs(t, err, testErr)
 	})
 
 	t.Run("email_busy", func(t *testing.T) {
@@ -94,14 +84,11 @@ func TestRegistrator_CheckEmail(t *testing.T) {
 			return domain.EMailBusy, nil
 		}).Times(1)
 
-		mockView := NewMockAppView(ctrl)
-		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
-			require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
-		}).Times(1)
-
-		reg := app.NewRegistrator().RegHelper(mockHelper).RegServer(mockSrv).RegView(mockView)
-		reg.CheckEmail(context.Background(), email)
+		reg := app.NewRegistrator().RegHelper(mockHelper).RegServer(mockSrv)
+		err := reg.CheckEmail(context.Background(), email)
+		require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 	})
+
 }
 
 func TestRegistrator_Registrate(t *testing.T) {
@@ -133,11 +120,9 @@ func TestRegistrator_Registrate(t *testing.T) {
 			return nil
 		}).Times(1)
 
-		mockView := NewMockAppView(ctrl)
-		mockView.EXPECT().ShowRegOTPView().Times(1)
-
-		reg := app.NewRegistrator().RegHelper(mockHelper).RegServer(mockSrv).RegView(mockView)
-		reg.Registrate(context.Background(), emailData)
+		reg := app.NewRegistrator().RegHelper(mockHelper).RegServer(mockSrv)
+		err := reg.Registrate(context.Background(), emailData)
+		require.NoError(t, err)
 	})
 
 	t.Run("wrong_email", func(t *testing.T) {
@@ -154,15 +139,12 @@ func TestRegistrator_Registrate(t *testing.T) {
 			return false
 		}).Times(1)
 
-		mockView := NewMockAppView(ctrl)
-		mockView.EXPECT().ShowMsg(gomock.Any())
-
-		reg := app.NewRegistrator().RegHelper(mockHelper).RegView(mockView)
-		reg.Registrate(context.Background(), emailData)
+		reg := app.NewRegistrator().RegHelper(mockHelper)
+		err := reg.Registrate(context.Background(), emailData)
+		require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 	})
 
 	t.Run("validate_pass_err", func(t *testing.T) {
-
 		emailData := &domain.EMailData{
 			EMail:    "email",
 			Password: "pass",
@@ -177,12 +159,9 @@ func TestRegistrator_Registrate(t *testing.T) {
 			require.Equal(t, emailData.Password, str)
 			return false
 		}).Times(1)
-
-		mockView := NewMockAppView(ctrl)
-		mockView.EXPECT().ShowMsg(gomock.Any())
-
-		reg := app.NewRegistrator().RegHelper(mockHelper).RegView(mockView)
-		reg.Registrate(context.Background(), emailData)
+		reg := app.NewRegistrator().RegHelper(mockHelper)
+		err := reg.Registrate(context.Background(), emailData)
+		require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 	})
 
 	t.Run("registrate_err", func(t *testing.T) {
@@ -208,13 +187,9 @@ func TestRegistrator_Registrate(t *testing.T) {
 			return testErr
 		}).Times(1)
 
-		mockView := NewMockAppView(ctrl)
-		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
-			require.ErrorIs(t, err, testErr)
-		}).Times(1)
-
-		reg := app.NewRegistrator().RegServer(mockSrv).RegHelper(mockHelper).RegView(mockView)
-		reg.Registrate(context.Background(), emailData)
+		reg := app.NewRegistrator().RegServer(mockSrv).RegHelper(mockHelper)
+		err := reg.Registrate(context.Background(), emailData)
+		require.ErrorIs(t, err, testErr)
 	})
 }
 
@@ -235,12 +210,10 @@ func TestRegistrator_PassOTP(t *testing.T) {
 			return nil
 		}).Times(1)
 
-		mockView := NewMockAppView(ctrl)
-		mockView.EXPECT().ShowRegMasterKeyView().Times(1)
+		reg := app.NewRegistrator().RegServer(mockSrv)
 
-		reg := app.NewRegistrator().RegServer(mockSrv).RegView(mockView)
-
-		reg.PassOTP(context.Background(), otpPass)
+		err := reg.PassOTP(context.Background(), otpPass)
+		require.NoError(t, err)
 	})
 
 	t.Run("err", func(t *testing.T) {
@@ -256,13 +229,9 @@ func TestRegistrator_PassOTP(t *testing.T) {
 			return testErr
 		}).Times(1)
 
-		mockView := NewMockAppView(ctrl)
-		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
-			require.ErrorIs(t, err, testErr)
-		}).Times(1)
-
-		reg := app.NewRegistrator().RegServer(mockSrv).RegView(mockView)
-		reg.PassOTP(context.Background(), otpPass)
+		reg := app.NewRegistrator().RegServer(mockSrv)
+		err := reg.PassOTP(context.Background(), otpPass)
+		require.ErrorIs(t, err, testErr)
 	})
 
 }
@@ -301,11 +270,9 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			return nil
 		}).Times(1)
 
-		mockView := NewMockAppView(ctrl)
-		mockView.EXPECT().ShowLoginView().Times(1)
-
-		reg := app.NewRegistrator().RegServer(mockSrv).RegView(mockView).RegHelper(mockHelper)
-		reg.InitMasterKey(context.Background(), keyData)
+		reg := app.NewRegistrator().RegServer(mockSrv).RegHelper(mockHelper)
+		err := reg.InitMasterKey(context.Background(), keyData)
+		require.NoError(t, err)
 	})
 
 	t.Run("validate_err", func(t *testing.T) {
@@ -320,11 +287,9 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			return false
 		}).Times(1)
 
-		mockView := NewMockAppView(ctrl)
-		mockView.EXPECT().ShowMsg(gomock.Any()).Times(1)
-
-		reg := app.NewRegistrator().RegView(mockView).RegHelper(mockHelper)
-		reg.InitMasterKey(context.Background(), keyData)
+		reg := app.NewRegistrator().RegHelper(mockHelper)
+		err := reg.InitMasterKey(context.Background(), keyData)
+		require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 	})
 
 	t.Run("encrypt_err", func(t *testing.T) {
@@ -349,13 +314,9 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			return "", testErr
 		})
 
-		mockView := NewMockAppView(ctrl)
-		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
-			assert.ErrorIs(t, err, testErr)
-		}).Times(1)
-
-		reg := app.NewRegistrator().RegView(mockView).RegHelper(mockHelper)
-		reg.InitMasterKey(context.Background(), keyData)
+		reg := app.NewRegistrator().RegHelper(mockHelper)
+		err := reg.InitMasterKey(context.Background(), keyData)
+		require.ErrorIs(t, err, testErr)
 	})
 
 	t.Run("init_key_err", func(t *testing.T) {
@@ -390,12 +351,9 @@ func TestRegistrator_InitMasterKey(t *testing.T) {
 			return testErr
 		}).Times(1)
 
-		mockView := NewMockAppView(ctrl)
-		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
-			assert.ErrorIs(t, err, testErr)
-		}).Times(1)
-
-		reg := app.NewRegistrator().RegServer(mockSrv).RegView(mockView).RegHelper(mockHelper)
-		reg.InitMasterKey(context.Background(), keyData)
+		reg := app.NewRegistrator().RegServer(mockSrv).RegHelper(mockHelper)
+		err := reg.InitMasterKey(context.Background(), keyData)
+		require.ErrorIs(t, err, testErr)
 	})
+
 }

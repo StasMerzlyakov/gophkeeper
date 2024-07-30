@@ -70,6 +70,9 @@ func (h *handler) JWTToken() string {
 	return h.jwtToken
 }
 
+func (h *handler) Start() {
+}
+
 func (h *handler) Stop() {
 	if err := h.conn.Close(); err != nil {
 		panic(err)

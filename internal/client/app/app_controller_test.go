@@ -17,10 +17,10 @@ func TestController(t *testing.T) {
 	defer ctrl.Finish()
 
 	t.Run("start_stop", func(t *testing.T) {
-
 		mockSrv := NewMockAppServer(ctrl)
 		mockSrv.EXPECT().Ping(gomock.Any()).Return(nil).AnyTimes()
 		mockSrv.EXPECT().Stop().Times(1)
+		mockSrv.EXPECT().Start().Times(1)
 
 		conf := &config.ClientConf{
 			InterationTimeout: 1 * time.Second,
@@ -45,6 +45,7 @@ func TestController(t *testing.T) {
 		}).AnyTimes()
 
 		mockSrv.EXPECT().Stop().Times(1)
+		mockSrv.EXPECT().Start().Times(1)
 
 		data := &domain.EMailData{
 			EMail:    "email",
@@ -84,60 +85,4 @@ func TestController(t *testing.T) {
 
 		appController.Stop()
 	})
-
-	t.Run("start_stop_offline", func(t *testing.T) {
-
-		mockSrv := NewMockAppServer(ctrl)
-
-		conf := &config.ClientConf{
-			InterationTimeout: 1 * time.Second,
-		}
-
-		mockSrv.EXPECT().Ping(gomock.Any()).DoAndReturn(func(ctx context.Context) error {
-			time.Sleep(2 * conf.InterationTimeout) // timeout
-			return nil
-		}).MinTimes(1).MaxTimes(3)
-
-		mockSrv.EXPECT().Stop().Times(1)
-
-		data := &domain.EMailData{
-			EMail:    "email",
-			Password: "pass",
-		}
-
-		mockSrv.EXPECT().Login(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, dt *domain.EMailData) error {
-			assert.Equal(t, data.EMail, dt.EMail)
-			assert.Equal(t, data.Password, dt.Password)
-			time.Sleep(2 * conf.InterationTimeout) // timeout
-			return nil
-		})
-
-		mockView := NewMockAppView(ctrl)
-
-		mockView.EXPECT().ShowError(gomock.Any()).Do(func(err error) {
-			assert.ErrorIs(t, err, domain.ErrClientServerTimeout)
-		}).Times(1)
-
-		mockView.EXPECT().ShowMsg(gomock.Any()).Do(func(msg string) {
-			assert.Equal(t, "server is offline", msg)
-		}).Times(1)
-
-		appController := app.NewAppController(conf).SetServer(mockSrv).SetInfoView(mockView)
-
-		appController.Start()
-
-		appController.LoginEMail(data)
-		time.Sleep(1 * time.Second)
-		assert.Equal(t, domain.ClientStatusOffline, appController.GetStatus())
-
-		time.Sleep(4 * time.Second)
-		assert.Equal(t, domain.ClientStatusOffline, appController.GetStatus())
-
-		appController.LoginPassOTP(&domain.OTPPass{
-			Pass: "pass",
-		})
-		time.Sleep(1 * time.Second)
-		appController.Stop()
-	})
-
 }

@@ -54,6 +54,7 @@ type AppView interface {
 
 type AppServer interface {
 	Stop()
+	Start()
 	Ping(ctx context.Context) error
 	CheckEMail(ctx context.Context, email string) (domain.EMailStatus, error)
 	Registrate(ctx context.Context, data *domain.EMailData) error

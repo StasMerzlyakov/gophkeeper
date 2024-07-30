@@ -149,6 +149,18 @@ func (mr *MockAppServerMockRecorder) Registrate(arg0, arg1 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Registrate", reflect.TypeOf((*MockAppServer)(nil).Registrate), arg0, arg1)
 }
 
+// Start mocks base method.
+func (m *MockAppServer) Start() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Start")
+}
+
+// Start indicates an expected call of Start.
+func (mr *MockAppServerMockRecorder) Start() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockAppServer)(nil).Start))
+}
+
 // Stop mocks base method.
 func (m *MockAppServer) Stop() {
 	m.ctrl.T.Helper()
