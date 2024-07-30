@@ -34,7 +34,7 @@ func (tApp *tuiApp) ShowUserPasswordDataView(data *domain.UserPasswordData) {
 							AddInputField("Login", "", 40, nil, func(login string) {
 								data.Login = login
 							}).
-							AddPasswordField("Password", "", 6, '#', func(pass string) {
+							AddPasswordField("Password", "", 40, '#', func(pass string) {
 								data.Passwrod = pass
 							}).
 							AddButton("Save", func() {
@@ -69,7 +69,7 @@ func (tApp *tuiApp) ShowUserPasswordDataView(data *domain.UserPasswordData) {
 							AddInputField("Login", data.Login, 40, nil, func(login string) {
 								data.Login = login
 							}).
-							AddPasswordField("Password", data.Passwrod, 6, '#', func(pass string) {
+							AddPasswordField("Password", data.Passwrod, 40, '#', func(pass string) {
 								data.Passwrod = pass
 							}).
 							AddButton("Save", func() {

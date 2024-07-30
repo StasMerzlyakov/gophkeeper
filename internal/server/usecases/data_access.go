@@ -42,30 +42,123 @@ func (da *dataAccessor) GetHelloData(ctx context.Context) (*domain.HelloData, er
 }
 
 func (da *dataAccessor) GetBankCardList(ctx context.Context) ([]domain.EncryptedBankCard, error) {
-	return da.stflStorage.GetBankCardList(ctx)
+	log := domain.GetCtxLogger(ctx)
+	action := domain.GetAction(1)
+
+	log.Debugw(action, "msg", fmt.Sprintf("%s start", action))
+	data, err := da.stflStorage.GetBankCardList(ctx)
+	if err != nil {
+		err := fmt.Errorf("%s err %w", action, err)
+		log.Infow(action, "err", err.Error())
+		return nil, err
+	}
+
+	log.Debugw(action, "msg", fmt.Sprintf("%s success", action))
+	return data, nil
 }
 
 func (da *dataAccessor) CreateBankCard(ctx context.Context, bnkCard *domain.EncryptedBankCard) error {
-	return da.stflStorage.CreateBankCard(ctx, bnkCard)
+	log := domain.GetCtxLogger(ctx)
+	action := domain.GetAction(1)
+
+	log.Debugw(action, "msg", fmt.Sprintf("%s start", action))
+	if err := da.stflStorage.CreateBankCard(ctx, bnkCard); err != nil {
+		err := fmt.Errorf("%s err %w", action, err)
+		log.Infow(action, "err", err.Error())
+		return err
+	}
+
+	log.Debugw(action, "msg", fmt.Sprintf("%s success", action))
+	return nil
 }
 
 func (da *dataAccessor) UpdateBankCard(ctx context.Context, bnkCard *domain.EncryptedBankCard) error {
-	return da.stflStorage.UpdateBankCard(ctx, bnkCard)
+	log := domain.GetCtxLogger(ctx)
+	action := domain.GetAction(1)
+
+	log.Debugw(action, "msg", fmt.Sprintf("%s start", action))
+	if err := da.stflStorage.UpdateBankCard(ctx, bnkCard); err != nil {
+		err := fmt.Errorf("%s err %w", action, err)
+		log.Infow(action, "err", err.Error())
+		return err
+	}
+
+	log.Debugw(action, "msg", fmt.Sprintf("%s success", action))
+	return nil
 }
 
 func (da *dataAccessor) DeleteBankCard(ctx context.Context, number string) error {
-	return da.stflStorage.DeleteBankCard(ctx, number)
+	log := domain.GetCtxLogger(ctx)
+	action := domain.GetAction(1)
+
+	log.Debugw(action, "msg", fmt.Sprintf("%s start", action))
+	if err := da.stflStorage.DeleteBankCard(ctx, number); err != nil {
+		err := fmt.Errorf("%s err %w", action, err)
+		log.Infow(action, "err", err.Error())
+		return err
+	}
+
+	log.Debugw(action, "msg", fmt.Sprintf("%s success", action))
+	return nil
 }
 
 func (da *dataAccessor) GetUserPasswordDataList(ctx context.Context) ([]domain.EncryptedUserPasswordData, error) {
-	return da.stflStorage.GetUserPasswordDataList(ctx)
+	log := domain.GetCtxLogger(ctx)
+	action := domain.GetAction(1)
+
+	log.Debugw(action, "msg", fmt.Sprintf("%s start", action))
+	data, err := da.stflStorage.GetUserPasswordDataList(ctx)
+	if err != nil {
+		err := fmt.Errorf("%s err %w", action, err)
+		log.Infow(action, "err", err.Error())
+		return nil, err
+	}
+
+	log.Debugw(action, "msg", fmt.Sprintf("%s success", action))
+	return data, nil
 }
+
 func (da *dataAccessor) CreateUserPasswordData(ctx context.Context, bnkCard *domain.EncryptedUserPasswordData) error {
-	return da.stflStorage.CreateUserPasswordData(ctx, bnkCard)
+	log := domain.GetCtxLogger(ctx)
+	action := domain.GetAction(1)
+
+	log.Debugw(action, "msg", fmt.Sprintf("%s start", action))
+	if err := da.stflStorage.CreateUserPasswordData(ctx, bnkCard); err != nil {
+		err := fmt.Errorf("%s err %w", action, err)
+		log.Infow(action, "err", err.Error())
+		return err
+	}
+
+	log.Debugw(action, "msg", fmt.Sprintf("%s success", action))
+	return nil
 }
+
 func (da *dataAccessor) UpdateUserPasswordData(ctx context.Context, bnkCard *domain.EncryptedUserPasswordData) error {
-	return da.stflStorage.UpdateUserPasswordData(ctx, bnkCard)
+	log := domain.GetCtxLogger(ctx)
+	action := domain.GetAction(1)
+
+	log.Debugw(action, "msg", fmt.Sprintf("%s start", action))
+	if err := da.stflStorage.UpdateUserPasswordData(ctx, bnkCard); err != nil {
+		err := fmt.Errorf("%s err %w", action, err)
+		log.Infow(action, "err", err.Error())
+		return err
+	}
+
+	log.Debugw(action, "msg", fmt.Sprintf("%s success", action))
+	return nil
 }
+
 func (da *dataAccessor) DeleteUserPasswordData(ctx context.Context, hint string) error {
-	return da.stflStorage.DeleteUserPasswordData(ctx, hint)
+	log := domain.GetCtxLogger(ctx)
+	action := domain.GetAction(1)
+
+	log.Debugw(action, "msg", fmt.Sprintf("%s start", action))
+	if err := da.stflStorage.DeleteUserPasswordData(ctx, hint); err != nil {
+		err := fmt.Errorf("%s err %w", action, err)
+		log.Infow(action, "err", err.Error())
+		return err
+	}
+
+	log.Debugw(action, "msg", fmt.Sprintf("%s success", action))
+	return nil
 }

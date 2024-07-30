@@ -29,6 +29,7 @@ func TestMain(m *testing.M) {
 }
 
 func shutdown(ctx context.Context) {
+
 	if postgresContainer != nil {
 		if err := postgresContainer.Terminate(ctx); err != nil {
 			log.Fatalf("failed to terminate container: %s", err)

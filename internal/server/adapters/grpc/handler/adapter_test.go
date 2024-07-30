@@ -143,3 +143,9 @@ func loadTLSCredentials(caFile string) (credentials.TransportCredentials, error)
 
 	return credentials.NewTLS(config), nil
 }
+
+func TestConfiguration(t *testing.T) {
+	srv := handler.NewGRPCHandler(nil)
+	srv2 := srv.AuthService(nil).DataAccessor(nil).RegHandler(nil)
+	require.True(t, srv2 == srv) // the same object
+}

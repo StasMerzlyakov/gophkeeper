@@ -145,5 +145,7 @@ func (st *storage) Ping(ctx context.Context) error {
 }
 
 func (st *storage) Close() {
-	st.pPool.Close()
+	if st.pPool != nil {
+		st.pPool.Reset()
+	}
 }

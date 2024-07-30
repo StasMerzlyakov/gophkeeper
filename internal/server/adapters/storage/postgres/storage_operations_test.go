@@ -28,6 +28,7 @@ func TestStorageOperations(t *testing.T) {
 	})
 
 	defer func() {
+		storage.Close()
 		err = clear(ctx)
 		require.NoError(t, err)
 	}()
