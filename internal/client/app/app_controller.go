@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"crypto/rand"
+	"errors"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
@@ -135,7 +136,7 @@ func (ac *appController) RegInitMasterKey(mKey *domain.UnencryptedMasterKeyData)
 	})
 }
 
-func (ac *appController) ShowBankCardList() {
+func (ac *appController) GetBankCardList() {
 	ac.invokeFn(func(ctx context.Context) error {
 		if err := ac.dataAccessor.GetBankCardList(ctx); err != nil {
 			ac.appView.ShowMsg(err.Error())
@@ -146,7 +147,6 @@ func (ac *appController) ShowBankCardList() {
 	}, func() {
 		nmbrs := ac.storage.GetBankCardNumberList()
 		ac.appView.ShowBankCardListView(nmbrs)
-
 	})
 }
 
@@ -159,11 +159,15 @@ func (ac *appController) AddBankCard(bankCardView *domain.BankCardView) {
 			}
 
 			if err := ac.dataAccessor.AddBankCard(ctx, bankCard); err != nil {
+				if errors.Is(err, domain.ErrClientDataIncorrect) {
+					return err
+				}
 				ac.appView.ShowMsg(err.Error())
 			}
-			ac.ShowBankCardList() // show always
 			return nil
-		}, nil)
+		}, func() {
+			ac.GetBankCardList()
+		})
 }
 
 func (ac *appController) UpdateBankCard(bankCardView *domain.BankCardView) {
@@ -175,14 +179,15 @@ func (ac *appController) UpdateBankCard(bankCardView *domain.BankCardView) {
 			}
 
 			if err := ac.dataAccessor.UpdateBankCard(ctx, bankCard); err != nil {
+				if errors.Is(err, domain.ErrClientDataIncorrect) {
+					return err
+				}
 				ac.appView.ShowMsg(err.Error())
 			}
-			ac.ShowBankCardList() // show always
 			return nil
 		},
 		func() {
-			nmbrs := ac.storage.GetBankCardNumberList()
-			ac.appView.ShowBankCardListView(nmbrs)
+			ac.GetBankCardList()
 		})
 }
 
@@ -192,58 +197,94 @@ func (ac *appController) DeleteBankCard(number string) {
 			if err := ac.dataAccessor.DeleteBankCard(ctx, number); err != nil {
 				ac.appView.ShowMsg(err.Error())
 			}
-			ac.ShowBankCardList() // show always
+			return nil
+		}, func() {
+			ac.GetBankCardList()
+		})
+}
+
+func (ac *appController) GetBankCard(num string) {
+	ac.invokeFn(
+		func(ctx context.Context) error {
+			if num == "" {
+				ac.appView.ShowBankCardView(nil)
+			} else {
+				if data, err := ac.storage.GetBankCard(num); err != nil {
+					ac.appView.ShowMsg(err.Error())
+					ac.appView.ShowBankCardView(nil)
+				} else {
+					ac.appView.ShowBankCardView(data)
+				}
+			}
 			return nil
 		}, nil)
 }
 
-func (ac *appController) GetBankCard(number string) {
-	go func() {
-		if card, err := ac.storage.GetBankCard(number); err != nil {
-			panic(err)
-		} else {
-			ac.appView.ShowBankCardView(card)
-		}
-	}()
-}
-
-func (ac *appController) ShowBankCard(num string) {
-	go func() {
-		if num == "" {
-			ac.appView.ShowBankCardView(nil)
-		} else {
-			if data, err := ac.storage.GetBankCard(num); err != nil {
-				panic(err)
+func (ac *appController) GetUserPasswordData(hint string) {
+	ac.invokeFn(
+		func(ctx context.Context) error {
+			if hint == "" {
+				ac.appView.ShowUserPasswordDataView(nil)
 			} else {
-				ac.appView.ShowBankCardView(data)
+				if data, err := ac.storage.GetUpdatePasswordData(hint); err != nil {
+					ac.appView.ShowMsg(err.Error())
+					ac.appView.ShowBankCardView(nil)
+				} else {
+					ac.appView.ShowUserPasswordDataView(data)
+				}
 			}
+			return nil
+		}, nil)
+}
+
+func (ac *appController) GetUserPasswordDataList() {
+	ac.invokeFn(func(ctx context.Context) error {
+		if err := ac.dataAccessor.GetUserPasswordDataList(ctx); err != nil {
+			ac.appView.ShowMsg(err.Error())
 		}
-	}()
-}
-
-func (ac *appController) ShowUserPasswordData(hint string) {
-	panic("TODO")
-}
-
-func (ac *appController) ShowUserPasswordDataList() {
-	panic("TODO")
+		return nil
+	}, func() {
+		nmbrs := ac.storage.GetUserPasswordDataList()
+		ac.appView.ShowUserPasswordDataListView(nmbrs) // show always
+	})
 }
 
 func (ac *appController) AddUserPasswordData(data *domain.UserPasswordData) {
-	if err := ac.storage.AddUserPasswordData(data); err != nil {
-		panic(err)
-	}
+	ac.invokeFn(
+		func(ctx context.Context) error {
+			if err := ac.dataAccessor.AddUserPasswordData(ctx, data); err != nil {
+				if errors.Is(err, domain.ErrClientDataIncorrect) {
+					return err
+				}
+				ac.appView.ShowMsg(err.Error())
+			}
+			return nil
+		}, func() {
+			ac.GetUserPasswordDataList()
+		})
 }
 func (ac *appController) UpdatePasswordData(data *domain.UserPasswordData) {
-	if err := ac.storage.UpdatePasswordData(data); err != nil {
-		panic(err)
-	}
+	ac.invokeFn(
+		func(ctx context.Context) error {
+			if err := ac.dataAccessor.UpdateUserPasswordData(ctx, data); err != nil {
+				if errors.Is(err, domain.ErrClientDataIncorrect) {
+					return err
+				}
+				ac.appView.ShowMsg(err.Error())
+			}
+			return nil
+		}, func() {
+			ac.GetUserPasswordDataList()
+		})
 }
 func (ac *appController) DeleteUpdatePasswordData(hint string) {
-	if err := ac.storage.DeleteUpdatePasswordData(hint); err != nil {
-		panic(err)
-	}
-}
-func (ac *appController) GetUpdatePasswordData(hint string) {
-	panic("TODO")
+	ac.invokeFn(
+		func(ctx context.Context) error {
+			if err := ac.dataAccessor.DeleteUserPasswordData(ctx, hint); err != nil {
+				ac.appView.ShowMsg(err.Error())
+			}
+			return nil
+		}, func() {
+			ac.GetUserPasswordDataList()
+		})
 }

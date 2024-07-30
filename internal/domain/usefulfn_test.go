@@ -424,7 +424,6 @@ func TestEncryptionText(t *testing.T) {
 	require.NoError(t, err)
 
 	require.False(t, bytes.Equal([]byte(encrypted), []byte(encrypted2)))
-
 }
 
 func TestCheckBankCardData(t *testing.T) {

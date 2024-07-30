@@ -10,17 +10,15 @@ type Controller interface {
 	RegPassOTP(otpPass *domain.OTPPass)
 	RegInitMasterKey(mKey *domain.UnencryptedMasterKeyData)
 
-	ShowBankCardList()
-	ShowBankCard(num string)
+	GetBankCardList()
 	AddBankCard(bankCard *domain.BankCardView)
 	UpdateBankCard(bankCard *domain.BankCardView)
 	DeleteBankCard(number string)
 	GetBankCard(number string)
 
-	ShowUserPasswordDataList()
-	ShowUserPasswordData(hint string)
+	GetUserPasswordDataList()
 	AddUserPasswordData(data *domain.UserPasswordData)
 	UpdatePasswordData(data *domain.UserPasswordData)
 	DeleteUpdatePasswordData(hint string)
-	GetUpdatePasswordData(hint string)
+	GetUserPasswordData(hint string)
 }

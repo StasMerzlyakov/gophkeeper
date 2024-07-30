@@ -20,7 +20,7 @@ type authService struct {
 }
 
 func (aS *authService) Login(ctx context.Context, req *proto.LoginRequest) (*proto.LoginResponse, error) {
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 
 	data := &domain.EMailData{
 		EMail:    req.Email,
@@ -39,7 +39,7 @@ func (aS *authService) Login(ctx context.Context, req *proto.LoginRequest) (*pro
 }
 
 func (aS *authService) PassOTP(ctx context.Context, req *proto.PassOTPRequest) (*proto.AuthResponse, error) {
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 	jwtToken, err := aS.authService.CheckOTP(ctx, domain.SessionID(req.SessionId), req.Password)
 	if err != nil {
 		return nil, fmt.Errorf("%v err - %w", action, err)

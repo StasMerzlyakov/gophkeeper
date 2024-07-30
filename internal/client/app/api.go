@@ -54,6 +54,8 @@ type AppView interface {
 	ShowRegMasterKeyView()
 	ShowBankCardListView(cardsNumber []string)
 	ShowBankCardView(bankCard *domain.BankCard)
+	ShowUserPasswordDataListView(hints []string)
+	ShowUserPasswordDataView(data *domain.UserPasswordData)
 }
 
 type AppServer interface {

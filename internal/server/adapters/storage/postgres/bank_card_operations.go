@@ -11,7 +11,7 @@ import (
 
 func (st *storage) GetBankCardList(ctx context.Context) ([]domain.EncryptedBankCard, error) {
 	userID, err := domain.GetUserID(ctx)
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 	log := domain.GetCtxLogger(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("%w userID is not set", domain.ErrServerInternal)
@@ -52,7 +52,7 @@ func (st *storage) GetBankCardList(ctx context.Context) ([]domain.EncryptedBankC
 
 func (st *storage) CreateBankCard(ctx context.Context, bnkCard *domain.EncryptedBankCard) error {
 	userID, err := domain.GetUserID(ctx)
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 	log := domain.GetCtxLogger(ctx)
 	if err != nil {
 		log.Infow(action, "err", err.Error())
@@ -78,7 +78,7 @@ func (st *storage) CreateBankCard(ctx context.Context, bnkCard *domain.Encrypted
 
 func (st *storage) UpdateBankCard(ctx context.Context, bnkCard *domain.EncryptedBankCard) error {
 	userID, err := domain.GetUserID(ctx)
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 	log := domain.GetCtxLogger(ctx)
 	if err != nil {
 		log.Infow(action, "err", err.Error())
@@ -104,7 +104,7 @@ func (st *storage) UpdateBankCard(ctx context.Context, bnkCard *domain.Encrypted
 
 func (st *storage) DeleteBankCard(ctx context.Context, number string) error {
 	userID, err := domain.GetUserID(ctx)
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 	log := domain.GetCtxLogger(ctx)
 	if err != nil {
 		log.Infow(action, "err", err.Error())

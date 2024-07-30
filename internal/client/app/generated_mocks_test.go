@@ -442,6 +442,30 @@ func (mr *MockAppViewMockRecorder) ShowRegView() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowRegView", reflect.TypeOf((*MockAppView)(nil).ShowRegView))
 }
 
+// ShowUserPasswordDataListView mocks base method.
+func (m *MockAppView) ShowUserPasswordDataListView(arg0 []string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ShowUserPasswordDataListView", arg0)
+}
+
+// ShowUserPasswordDataListView indicates an expected call of ShowUserPasswordDataListView.
+func (mr *MockAppViewMockRecorder) ShowUserPasswordDataListView(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowUserPasswordDataListView", reflect.TypeOf((*MockAppView)(nil).ShowUserPasswordDataListView), arg0)
+}
+
+// ShowUserPasswordDataView mocks base method.
+func (m *MockAppView) ShowUserPasswordDataView(arg0 *domain.UserPasswordData) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ShowUserPasswordDataView", arg0)
+}
+
+// ShowUserPasswordDataView indicates an expected call of ShowUserPasswordDataView.
+func (mr *MockAppViewMockRecorder) ShowUserPasswordDataView(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowUserPasswordDataView", reflect.TypeOf((*MockAppView)(nil).ShowUserPasswordDataView), arg0)
+}
+
 // MockPinger is a mock of Pinger interface.
 type MockPinger struct {
 	ctrl     *gomock.Controller

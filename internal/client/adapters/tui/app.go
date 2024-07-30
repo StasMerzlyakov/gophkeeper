@@ -23,6 +23,9 @@ const (
 
 	BankCardPage     = "BankCardPage"
 	BankCardListPage = "BankCardListPage"
+
+	UserPasswordDataPage     = "UserPasswordDataPage"
+	UserPasswordDataListPage = "UserPasswordDataListPage"
 )
 
 func NewApp(conf *config.ClientConf) *tuiApp {
@@ -53,6 +56,9 @@ type tuiApp struct {
 
 	bankCardListFlex *tview.Flex
 	bankCardFlex     *tview.Flex
+
+	userPasswordDataListFlex *tview.Flex
+	userPasswordDataFlex     *tview.Flex
 }
 
 func (tApp *tuiApp) ShowError(err error) {
@@ -109,6 +115,9 @@ func (tApp *tuiApp) Start() error {
 	tApp.bankCardListFlex = tview.NewFlex()
 	tApp.bankCardFlex = tview.NewFlex()
 
+	tApp.userPasswordDataListFlex = tview.NewFlex()
+	tApp.userPasswordDataFlex = tview.NewFlex()
+
 	tApp.pages.AddPage(LoginEMailPage, tApp.loginFlex, true, false)
 	tApp.pages.AddPage(LoginOTPPage, tApp.loginOTPFlex, true, false)
 	tApp.pages.AddPage(LoginMKeyPage, tApp.loginMKeyFlex, true, false)
@@ -121,6 +130,9 @@ func (tApp *tuiApp) Start() error {
 
 	tApp.pages.AddPage(BankCardListPage, tApp.bankCardListFlex, true, false)
 	tApp.pages.AddPage(BankCardPage, tApp.bankCardFlex, true, false)
+
+	tApp.pages.AddPage(UserPasswordDataListPage, tApp.userPasswordDataListFlex, true, false)
+	tApp.pages.AddPage(UserPasswordDataPage, tApp.userPasswordDataFlex, true, false)
 
 	if err := tApp.app.SetRoot(tApp.pages, true).EnableMouse(false).Run(); err != nil {
 		log := app.GetMainLogger()

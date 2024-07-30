@@ -78,6 +78,12 @@ func (dcc *dataAccessor) AddBankCard(ctx context.Context, bankCard *domain.BankC
 	action := domain.GetAction(1)
 	log.Debugf("%v start", action)
 
+	if err := dcc.helper.CheckBankCardData(bankCard); err != nil {
+		err := fmt.Errorf("%w - %v error - wrong card data %v", domain.ErrClientDataIncorrect, action, err.Error())
+		log.Warn(err.Error())
+		return err
+	}
+
 	res, err := json.Marshal(bankCard)
 	if err != nil {
 		err := fmt.Errorf("%w - %v error - can't marshal data %v", domain.ErrClientInternal, action, err.Error())
@@ -113,6 +119,13 @@ func (dcc *dataAccessor) UpdateBankCard(ctx context.Context, bankCard *domain.Ba
 	log := GetMainLogger()
 	action := domain.GetAction(1)
 	log.Debugf("%v start", action)
+
+	if err := dcc.helper.CheckBankCardData(bankCard); err != nil {
+		err := fmt.Errorf("%w - %v error - wrong card data %v", domain.ErrClientDataIncorrect, action, err.Error())
+		log.Warn(err.Error())
+		return err
+	}
+
 	res, err := json.Marshal(bankCard)
 	if err != nil {
 		err := fmt.Errorf("%w - %v error - can't marshal data %v", domain.ErrClientInternal, action, err.Error())
@@ -150,6 +163,145 @@ func (dcc *dataAccessor) DeleteBankCard(ctx context.Context, number string) erro
 	log.Debugf("%v start", action)
 
 	if err := dcc.appServer.DeleteBankCard(ctx, number); err != nil {
+		err := fmt.Errorf("%w - %v error", err, action)
+		log.Warn(err.Error())
+		return err
+	}
+
+	log.Debugf("%v success", action)
+	return nil
+}
+
+func (dcc *dataAccessor) GetUserPasswordDataList(ctx context.Context) error {
+	log := GetMainLogger()
+	action := domain.GetAction(1)
+	log.Debugf("%v start", action)
+
+	masterPass := dcc.appStorage.GetMasterPassword()
+
+	encrList, err := dcc.appServer.GetUserPasswordDataList(ctx)
+	if err != nil {
+		err := fmt.Errorf("%w - %v error", err, action)
+		log.Warn(err.Error())
+		return err
+	}
+
+	var decryptedList []domain.UserPasswordData
+	for _, encr := range encrList {
+		content := encr.Content
+
+		encrypted, err := dcc.helper.DecryptShortData(masterPass, content)
+		if err != nil {
+			err := fmt.Errorf("%w - %v error - can't encrypt userPassData with hint %v", err, action, encr.Hint)
+			log.Warn(err.Error())
+			return err
+		}
+
+		var uPassData domain.UserPasswordData
+		if err := json.Unmarshal([]byte(encrypted), &uPassData); err != nil {
+			err := fmt.Errorf("%w - %v error - can't decode userPassData with hint %v", err, action, encr.Hint)
+			log.Warn(err.Error())
+			return err
+		}
+		decryptedList = append(decryptedList, uPassData)
+	}
+
+	dcc.appStorage.SetUserPasswordDatas(decryptedList)
+
+	log.Debugf("%v success", action)
+	return nil
+}
+
+func (dcc *dataAccessor) AddUserPasswordData(ctx context.Context, data *domain.UserPasswordData) error {
+	log := GetMainLogger()
+	action := domain.GetAction(1)
+	log.Debugf("%v start", action)
+
+	if err := dcc.helper.CheckUserPasswordData(data); err != nil {
+		err := fmt.Errorf("%w - %v error - wrong userPassword data %v", domain.ErrClientDataIncorrect, action, err.Error())
+		log.Warn(err.Error())
+		return err
+	}
+
+	res, err := json.Marshal(data)
+	if err != nil {
+		err := fmt.Errorf("%w - %v error - can't marshal data %v", domain.ErrClientInternal, action, err.Error())
+		log.Warn(err.Error())
+		return err
+	}
+	masterPass := dcc.appStorage.GetMasterPassword()
+
+	content, err := dcc.helper.EncryptShortData(masterPass, string(res))
+
+	if err != nil {
+		err := fmt.Errorf("%w - %v error - can't encrypt data %v", domain.ErrClientInternal, action, err.Error())
+		log.Warn(err.Error())
+		return err
+	}
+
+	err = dcc.appServer.CreateUserPasswordData(ctx, &domain.EncryptedUserPasswordData{
+		Hint:    data.Hint,
+		Content: content,
+	})
+
+	if err != nil {
+		err := fmt.Errorf("%w - %v error", err, action)
+		log.Warn(err.Error())
+		return err
+	}
+
+	log.Debugf("%v success", action)
+	return nil
+}
+
+func (dcc *dataAccessor) UpdateUserPasswordData(ctx context.Context, data *domain.UserPasswordData) error {
+	log := GetMainLogger()
+	action := domain.GetAction(1)
+	log.Debugf("%v start", action)
+
+	if err := dcc.helper.CheckUserPasswordData(data); err != nil {
+		err := fmt.Errorf("%w - %v error - wrong userPassword data %v", domain.ErrClientDataIncorrect, action, err.Error())
+		log.Warn(err.Error())
+		return err
+	}
+
+	res, err := json.Marshal(data)
+	if err != nil {
+		err := fmt.Errorf("%w - %v error - can't marshal data %v", domain.ErrClientInternal, action, err.Error())
+		log.Warn(err.Error())
+		return err
+	}
+	masterPass := dcc.appStorage.GetMasterPassword()
+
+	content, err := dcc.helper.EncryptShortData(masterPass, string(res))
+
+	if err != nil {
+		err := fmt.Errorf("%w - %v error - can't encrypt data %v", domain.ErrClientInternal, action, err.Error())
+		log.Warn(err.Error())
+		return err
+	}
+
+	err = dcc.appServer.UpdateUserPasswordData(ctx, &domain.EncryptedUserPasswordData{
+		Hint:    data.Hint,
+		Content: content,
+	})
+
+	if err != nil {
+		err := fmt.Errorf("%w - %v error", err, action)
+		log.Warn(err.Error())
+		return err
+	}
+
+	log.Debugf("%v success", action)
+	return nil
+}
+
+func (dcc *dataAccessor) DeleteUserPasswordData(ctx context.Context, hint string) error {
+	log := GetMainLogger()
+	action := domain.GetAction(1)
+	log.Debugf("%v start", action)
+
+	if err := dcc.appServer.DeleteUserPasswordData(ctx, hint); err != nil {
 		err := fmt.Errorf("%w - %v error", err, action)
 		log.Warn(err.Error())
 		return err

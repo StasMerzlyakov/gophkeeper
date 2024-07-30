@@ -20,7 +20,7 @@ type dataAccessor struct {
 }
 
 func (da *dataAccessor) Hello(ctx context.Context, req *proto.HelloRequest) (*proto.HelloResponse, error) {
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 
 	dd, err := da.accessor.GetHelloData(ctx)
 	if err != nil {
@@ -36,7 +36,7 @@ func (da *dataAccessor) Hello(ctx context.Context, req *proto.HelloRequest) (*pr
 }
 
 func (da *dataAccessor) GetBankCardList(ctx context.Context, req *proto.BankCardListRequest) (*proto.BankCardListResponse, error) {
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 
 	list, err := da.accessor.GetBankCardList(ctx)
 	if err != nil {
@@ -54,7 +54,7 @@ func (da *dataAccessor) GetBankCardList(ctx context.Context, req *proto.BankCard
 }
 
 func (da *dataAccessor) CreateBankCard(ctx context.Context, req *proto.CreateBankCardRequest) (*proto.CreateBankCardResponse, error) {
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 
 	encrBanckCard := &domain.EncryptedBankCard{
 		Number:  req.Number,
@@ -68,7 +68,7 @@ func (da *dataAccessor) CreateBankCard(ctx context.Context, req *proto.CreateBan
 }
 
 func (da *dataAccessor) DeleteBankCard(ctx context.Context, req *proto.DeleteBankCardRequest) (*proto.DeleteBankCardResponse, error) {
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 	err := da.accessor.DeleteBankCard(ctx, req.Number)
 
 	if err != nil {
@@ -78,7 +78,7 @@ func (da *dataAccessor) DeleteBankCard(ctx context.Context, req *proto.DeleteBan
 }
 
 func (da *dataAccessor) UpdateBankCard(ctx context.Context, req *proto.UpdateBankCardRequest) (*proto.UpdateBankCardResponse, error) {
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 	err := da.accessor.UpdateBankCard(ctx, &domain.EncryptedBankCard{
 		Number:  req.Number,
 		Content: req.Content,
@@ -91,7 +91,7 @@ func (da *dataAccessor) UpdateBankCard(ctx context.Context, req *proto.UpdateBan
 	return &proto.UpdateBankCardResponse{}, nil
 }
 func (da *dataAccessor) GetUserPasswordDataList(ctx context.Context, req *proto.UserPasswordDataRequest) (*proto.UserPasswordDataResponse, error) {
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 
 	list, err := da.accessor.GetUserPasswordDataList(ctx)
 	if err != nil {
@@ -109,7 +109,7 @@ func (da *dataAccessor) GetUserPasswordDataList(ctx context.Context, req *proto.
 }
 
 func (da *dataAccessor) CreateUserPasswordData(ctx context.Context, req *proto.CreateUserPasswordDataRequest) (*proto.CreateUserPasswordDataResponse, error) {
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 
 	usedData := &domain.EncryptedUserPasswordData{
 		Hint:    req.Hint,
@@ -123,7 +123,7 @@ func (da *dataAccessor) CreateUserPasswordData(ctx context.Context, req *proto.C
 }
 
 func (da *dataAccessor) DeleteUserPasswordData(ctx context.Context, req *proto.DeleteUserPasswordDataRequest) (*proto.DeleteUserPasswordDataResponse, error) {
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 	err := da.accessor.DeleteUserPasswordData(ctx, req.Hint)
 
 	if err != nil {
@@ -134,7 +134,7 @@ func (da *dataAccessor) DeleteUserPasswordData(ctx context.Context, req *proto.D
 
 func (da *dataAccessor) UpdateUserPasswordData(ctx context.Context, req *proto.UpdateUserPasswordDataRequest) (*proto.UpdateUserPasswordDataResponse, error) {
 
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 	err := da.accessor.UpdateUserPasswordData(ctx, &domain.EncryptedUserPasswordData{
 		Hint:    req.Hint,
 		Content: req.Content,

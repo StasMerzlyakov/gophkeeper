@@ -20,7 +20,7 @@ type regHandler struct {
 }
 
 func (rh *regHandler) CheckEMail(ctx context.Context, req *proto.CheckEMailRequest) (*proto.CheckEMailResponse, error) {
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 	status, err := rh.registrator.GetEMailStatus(ctx, req.Email)
 	if err != nil {
 		return nil, fmt.Errorf("%v err - %w", action, err)
@@ -39,7 +39,7 @@ func (rh *regHandler) CheckEMail(ctx context.Context, req *proto.CheckEMailReque
 }
 
 func (rh *regHandler) Registrate(ctx context.Context, req *proto.RegistrationRequest) (*proto.RegistrationResponse, error) {
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 	data := &domain.EMailData{
 		EMail:    req.Email,
 		Password: req.Password,
@@ -57,7 +57,7 @@ func (rh *regHandler) Registrate(ctx context.Context, req *proto.RegistrationReq
 	return resp, nil
 }
 func (rh *regHandler) PassOTP(ctx context.Context, req *proto.PassOTPRequest) (*proto.PassOTPResponse, error) {
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 	sID, err := rh.registrator.PassOTP(ctx, domain.SessionID(req.SessionId), req.Password)
 	if err != nil {
 		return nil, fmt.Errorf("%v err - %w", action, err)
@@ -70,7 +70,7 @@ func (rh *regHandler) PassOTP(ctx context.Context, req *proto.PassOTPRequest) (*
 	return resp, nil
 }
 func (rh *regHandler) SetMasterKey(ctx context.Context, req *proto.MasterKeyRequest) (*proto.MasterKeyResponse, error) {
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 	mKeyData := &domain.MasterKeyData{
 		MasterPasswordHint: req.MasterPasswordHint,
 		HelloEncrypted:     req.HelloEncrypted,

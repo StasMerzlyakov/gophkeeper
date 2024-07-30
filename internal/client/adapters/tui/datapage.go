@@ -26,9 +26,9 @@ func (tApp *tuiApp) ShowDataAccessView() {
 			dataTypesList.SetSelectedFunc(func(index int, name string, second_name string, shortcut rune) {
 				switch index {
 				case 0:
-					tApp.controller.ShowBankCardList()
+					tApp.controller.GetBankCardList()
 				default:
-					tApp.ShowMsg("TODO")
+					tApp.controller.GetUserPasswordDataList()
 				}
 			})
 

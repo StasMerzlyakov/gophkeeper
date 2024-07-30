@@ -58,6 +58,7 @@ func (tApp *tuiApp) ShowBankCardView(bankCard *domain.BankCard) {
 						return event
 					})
 				tApp.pages.SwitchToPage(BankCardPage)
+				log.Debug("NewBankCard shown")
 			} else {
 				log := app.GetMainLogger()
 				log.Debugf("ShowBankCard start %v", bankCard.Number)
@@ -106,8 +107,8 @@ func (tApp *tuiApp) ShowBankCardView(bankCard *domain.BankCard) {
 						return event
 					})
 				tApp.pages.SwitchToPage(BankCardPage)
+				log.Debug("EditBankCard shown")
 			}
-
 		})
 	}()
 }
@@ -129,7 +130,7 @@ func (tApp *tuiApp) ShowBankCardListView(cardsNumber []string) {
 			}
 
 			cardNumberList.SetSelectedFunc(func(index int, name string, second_name string, shortcut rune) {
-				tApp.controller.ShowBankCard(name)
+				tApp.controller.GetBankCard(name)
 			})
 
 			tApp.bankCardListFlex.
@@ -142,7 +143,7 @@ func (tApp *tuiApp) ShowBankCardListView(cardsNumber []string) {
 				SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 					switch event.Key() {
 					case tcell.KeyCtrlN:
-						tApp.controller.ShowBankCard("")
+						tApp.controller.GetBankCard("")
 					case tcell.KeyCtrlQ:
 						tApp.app.Stop()
 					case tcell.KeyCtrlB:
@@ -151,6 +152,7 @@ func (tApp *tuiApp) ShowBankCardListView(cardsNumber []string) {
 					return event
 				})
 			tApp.pages.SwitchToPage(BankCardListPage)
+			log.Debug("ShowBankCardListView shown")
 		})
 	}()
 }
