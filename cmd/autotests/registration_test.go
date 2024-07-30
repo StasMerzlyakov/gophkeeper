@@ -8,6 +8,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/StasMerzlyakov/gophkeeper/internal/client/adapters/grpc/handler"
+	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
+	"github.com/StasMerzlyakov/gophkeeper/internal/config"
+	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	"github.com/StasMerzlyakov/gophkeeper/internal/fork"
 	"github.com/stretchr/testify/suite"
 )
@@ -16,6 +20,7 @@ type RegistrationTest struct {
 	suite.Suite
 	gophKeeperProcess *fork.BackgroundProcess
 	serverPort        string
+	client            app.AppServer
 }
 
 var _ suite.SetupAllSuite = (*RegistrationTest)(nil)
@@ -23,7 +28,9 @@ var _ suite.TearDownAllSuite = (*RegistrationTest)(nil)
 
 func (suite *RegistrationTest) SetupSuite() {
 	suite.T().Logf("Запускаем тест на проверку регистрации")
+
 	suite.Require().NotEmpty(flagGophKeeperServerBinaryPath, "-gophkeeper-binary-path flag required")
+	suite.Require().NotEmpty(flagGophKeeperTlsCaCert, "-gophkeeper-tls-ca-cert flag required")
 	suite.Require().NotEmpty(flagGophKeeperTlsKey, "-gophkeeper-tls-key flag required")
 	suite.Require().NotEmpty(flagGophKeeperTlsCert, "-gophkeeper-tls-cert flag required")
 	suite.Require().NotEmpty(flagGophKeeperServerSecret, "-gophkeeper-server-secret non-empty flag required")
@@ -31,7 +38,27 @@ func (suite *RegistrationTest) SetupSuite() {
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 	suite.serverUp(ctx)
+	suite.clientUp(ctx)
+}
 
+func (suite *RegistrationTest) clientDown(context.Context) {
+	suite.client.Stop()
+}
+
+func (suite *RegistrationTest) clientUp(ctx context.Context) {
+	serverAddr := fmt.Sprintf("localhost:%s", suite.serverPort)
+
+	clntConf := &config.ClientConf{
+		ServerAddress: serverAddr,
+		CACert:        flagGophKeeperTlsCaCert,
+	}
+
+	var err error
+	suite.client, err = handler.NewHandler(clntConf)
+	suite.Require().NoErrorf(err, "Невозможно создать соединение сервером: %w", err)
+
+	err = suite.client.Ping(ctx)
+	suite.Require().NoErrorf(err, "Невозможно вызвать метод Ping на сервере: %w", err)
 }
 
 func (suite *RegistrationTest) serverUp(ctx context.Context) {
@@ -43,17 +70,10 @@ func (suite *RegistrationTest) serverUp(ctx context.Context) {
 		fork.WithArgs(args...),
 	)
 	err := suite.gophKeeperProcess.Start(ctx)
-	if err != nil {
-		suite.T().Errorf("Невозможно запустить процесс командой %q: %s. Переменные окружения: %+v, флаги командной строки: %+v", suite.gophKeeperProcess, err, envs, args)
-		return
-	}
+	suite.Require().NoErrorf(err, "Невозможно запустить процесс командой %q: %s. Переменные окружения: %+v, флаги командной строки: %+v", suite.gophKeeperProcess, err, envs, args)
 
 	err = suite.gophKeeperProcess.WaitPort(ctx, "tcp", suite.serverPort)
-	if err != nil {
-		suite.T().Logf("Не удалось дождаться пока порт %s станет доступен для запроса: %s", suite.serverPort, err)
-		return
-	}
-
+	suite.Require().NoErrorf(err, "Не удалось дождаться пока порт %s станет доступен для запроса: %s", suite.serverPort, err)
 }
 
 func (suite *RegistrationTest) getGophKeeperEnv() []string {
@@ -86,9 +106,12 @@ func (suite *RegistrationTest) getGophKeeperEnv() []string {
 }
 
 func (suite *RegistrationTest) TearDownSuite() {
+
 	if suite.gophKeeperProcess == nil {
 		return
 	}
+
+	suite.clientDown(context.Background())
 
 	exitCode, err := suite.gophKeeperProcess.Stop(syscall.SIGINT, syscall.SIGKILL)
 	if err != nil {
@@ -117,5 +140,34 @@ func (suite *RegistrationTest) TearDownSuite() {
 }
 
 func (suite *RegistrationTest) TestRegistration() {
+	suite.Run("registration_success", func() {
+
+		ctx := context.Background()
+
+		userEmail := "tester@yandex.ru"
+		userPassword := "testPasswordIKDe"
+		//userMasterPassword := "testMasterKey!~?{asd}"
+
+		// Проверка email
+		status, err := suite.client.CheckEMail(ctx, userEmail)
+		suite.Require().NoError(err, "Невозможно обратиться к сервису для проверки email: %w", err)
+		suite.Require().Equalf(domain.EMailAvailable, status, "Статус email не соответствует ожидаемому")
+
+		// Регистрация
+		err = suite.client.Registrate(ctx, &domain.EMailData{
+			EMail:    userEmail,
+			Password: userPassword,
+		})
+
+		suite.Require().NoError(err, "Ошибка при регистрации email: %w", err)
+
+		// Провека email
+		time.Sleep(3 * time.Second)
+
+		// С mockSmtp возникают проблемы. TODO - заменить на container
+		// msgs := smtpServer.MessagesAndPurge()
+		// suite.Require().True(len(msgs) == 1, "На smtp сервере не найдено сообщений")
+
+	})
 
 }
