@@ -37,8 +37,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 	t.Run("ok", func(t *testing.T) {
 		conf := &config.ServerConf{
-			DomainName:          "localhost",
-			ServerEncryptionKey: "secret_key",
+			DomainName:   "localhost",
+			ServerSecret: "secret_key",
 		}
 
 		data := &domain.EMailData{
@@ -103,8 +103,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 	t.Run("email_err", func(t *testing.T) {
 		conf := &config.ServerConf{
-			DomainName:          "localhost",
-			ServerEncryptionKey: "secret_key",
+			DomainName:   "localhost",
+			ServerSecret: "secret_key",
 		}
 
 		data := &domain.EMailData{
@@ -136,8 +136,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 	t.Run("email_busy", func(t *testing.T) {
 		conf := &config.ServerConf{
-			DomainName:          "localhost",
-			ServerEncryptionKey: "secret_key",
+			DomainName:   "localhost",
+			ServerSecret: "secret_key",
 		}
 
 		data := &domain.EMailData{
@@ -166,8 +166,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 	t.Run("check_email_err", func(t *testing.T) {
 		conf := &config.ServerConf{
-			DomainName:          "localhost",
-			ServerEncryptionKey: "secret_key",
+			DomainName:   "localhost",
+			ServerSecret: "secret_key",
 		}
 
 		data := &domain.EMailData{
@@ -196,8 +196,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 	t.Run("hash_passport_err", func(t *testing.T) {
 		conf := &config.ServerConf{
-			DomainName:          "localhost",
-			ServerEncryptionKey: "secret_key",
+			DomainName:   "localhost",
+			ServerSecret: "secret_key",
 		}
 
 		data := &domain.EMailData{
@@ -233,8 +233,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 	t.Run("generte_qr_err", func(t *testing.T) {
 		conf := &config.ServerConf{
-			DomainName:          "localhost",
-			ServerEncryptionKey: "secret_key",
+			DomainName:   "localhost",
+			ServerSecret: "secret_key",
 		}
 
 		data := &domain.EMailData{
@@ -276,8 +276,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 	t.Run("encrypt_data_err", func(t *testing.T) {
 		conf := &config.ServerConf{
-			DomainName:          "localhost",
-			ServerEncryptionKey: "secret_key",
+			DomainName:   "localhost",
+			ServerSecret: "secret_key",
 		}
 
 		data := &domain.EMailData{
@@ -322,8 +322,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 	t.Run("create_err", func(t *testing.T) {
 		conf := &config.ServerConf{
-			DomainName:          "localhost",
-			ServerEncryptionKey: "secret_key",
+			DomainName:   "localhost",
+			ServerSecret: "secret_key",
 		}
 
 		data := &domain.EMailData{
@@ -384,8 +384,8 @@ func TestRegistrator_Regisration(t *testing.T) {
 
 	t.Run("send_err", func(t *testing.T) {
 		conf := &config.ServerConf{
-			DomainName:          "localhost",
-			ServerEncryptionKey: "secret_key",
+			DomainName:   "localhost",
+			ServerSecret: "secret_key",
 		}
 
 		data := &domain.EMailData{
@@ -504,7 +504,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerEncryptionKey: "serverKey",
+			ServerSecret: "serverKey",
 		}
 		encryptedOTPKey := "asdasdasd!iasd"
 		decryptedOTPKey := "otp_key"
@@ -565,7 +565,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 	t.Run("load_err", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerEncryptionKey: "serverKey",
+			ServerSecret: "serverKey",
 		}
 		encryptedOTPKey := "asdasdasd!iasd"
 		otpPass := "123345"
@@ -596,7 +596,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 	t.Run("wrong_type_loaded", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerEncryptionKey: "serverKey",
+			ServerSecret: "serverKey",
 		}
 
 		encryptedOTPKey := "asdasdasd!iasd"
@@ -627,7 +627,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 	t.Run("decrypt_err", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerEncryptionKey: "serverKey",
+			ServerSecret: "serverKey",
 		}
 		encryptedOTPKey := "asdasdasd!iasd"
 
@@ -666,7 +666,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 	t.Run("validate_err", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerEncryptionKey: "serverKey",
+			ServerSecret: "serverKey",
 		}
 		encryptedOTPKey := "asdasdasd!iasd"
 		decryptedOTPKey := "otp_key"
@@ -706,7 +706,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 	t.Run("validate_pass_wrong", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerEncryptionKey: "serverKey",
+			ServerSecret: "serverKey",
 		}
 		encryptedOTPKey := "asdasdasd!iasd"
 		decryptedOTPKey := "otp_key"
@@ -745,7 +745,7 @@ func TestRegistrator_PassOTP(t *testing.T) {
 	t.Run("delete_and_create_err", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerEncryptionKey: "serverKey",
+			ServerSecret: "serverKey",
 		}
 		encryptedOTPKey := "asdasdasd!iasd"
 		decryptedOTPKey := "otp_key"

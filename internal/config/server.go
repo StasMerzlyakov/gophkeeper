@@ -10,58 +10,58 @@ import (
 )
 
 const (
-	ServerDefaultPort                = ":3200"
-	ServerDefaultTLSKey              = "../../keys/server-key.pem"
-	ServerDefaultTLSCert             = "../../keys/server-cert.pem"
-	ServerDefaultTokenExp            = 3 * time.Hour
-	ServerDefaultTokenSecret         = "secret"
-	ServerDefaultAuthStageTimeout    = 5 * time.Minute
-	ServerDefaultServerEncryptionKey = "ServerKey!12>Au{mL736}"
-	ServerDefaultDomainName          = "localhost"
-	ServerDefaultSMTPHost            = "localhost"
-	ServerDefaultSMTPPort            = 25
-	ServerDefaultServerEMail         = "localhost@localdomain"
-	ServerDefaultMaxConns            = 5
-	ServerDefaultMaxConnLifetime     = 5 * time.Minute
-	ServerDefaultMaxConnIdleTime     = 5 * time.Minute
-	ServerDefaultDatabaseURI         = "postgres://user:user@localhost:5432/gophkeeper"
+	ServerDefaultPort             = ":3200"
+	ServerDefaultTLSKey           = "../../keys/server-key.pem"
+	ServerDefaultTLSCert          = "../../keys/server-cert.pem"
+	ServerDefaultTokenExp         = 3 * time.Hour
+	ServerDefaultTokenSecret      = "secret"
+	ServerDefaultAuthStageTimeout = 5 * time.Minute
+	ServerDefaultServerSecret     = "ServerKey!12>Au{mL736}"
+	ServerDefaultDomainName       = "localhost"
+	ServerDefaultSMTPHost         = "localhost"
+	ServerDefaultSMTPPort         = 25
+	ServerDefaultServerEMail      = "localhost@localdomain"
+	ServerDefaultMaxConns         = 5
+	ServerDefaultMaxConnLifetime  = 5 * time.Minute
+	ServerDefaultMaxConnIdleTime  = 5 * time.Minute
+	ServerDefaultDatabaseDN       = "postgres://user:user@localhost:5432/gophkeeper"
 )
 
 type ServerConf struct {
-	Port                string        `env:"PORT" json:"port,omitempty"`
-	TLSKey              string        `env:"TLS_KEY" json:"tlsKey,omitempty"`
-	TLSCert             string        `env:"TLS_CERT" json:"tlsCert,omitempty"`
-	TokenExp            time.Duration `env:"JWT_EXP" json:"jwtExp,omitempty"`
-	TokenSecret         string        `env:"JWT_SECRET" json:"jwtSecret,omitempty"`
-	AuthStageTimeout    time.Duration `env:"AUTH_STAGE_TIMEOUT" json:"authTimeout,omitempty"`
-	ServerEncryptionKey string        `env:"SERVER_ENCRYPTION_KEY" json:"serverSecret,omitempty"`
-	DomainName          string        `env:"DOMAIN_NAME" json:"domainName,omitempty"`
-	SMTPHost            string        `env:"SMTP_HOST" json:"smtpHost,omitempty"`
-	SMTPPort            int           `env:"SMTP_PORT" json:"smtpPort,omitempty"`
-	ServerEMail         string        `env:"SERVER_EMAIL" json:"serverEmail,omitempty"`
-	DatabaseURI         string        `env:"DATABASE_URI" json:"dbDsn,omitempty"`
-	MaxConns            int           `env:"DATABASE_MAX_CONNS" json:"dbMaxConns,omitempty"`
-	MaxConnLifetime     time.Duration `env:"DATABASE_MAX_CONN_LIFE_TIME" json:"dbMaxConnLifeTime,omitempty"`
-	MaxConnIdleTime     time.Duration `env:"DATABASE_MAX_CONN_IDLE_TIME" json:"dbMaxConnIdleTime,omitempty"`
+	Port             string        `env:"PORT" json:"port,omitempty"`
+	TLSKey           string        `env:"TLS_KEY" json:"tlsKey,omitempty"`
+	TLSCert          string        `env:"TLS_CERT" json:"tlsCert,omitempty"`
+	TokenExp         time.Duration `env:"JWT_EXP" json:"jwtExp,omitempty"`
+	TokenSecret      string        `env:"JWT_SECRET" json:"jwtSecret,omitempty"`
+	AuthStageTimeout time.Duration `env:"AUTH_STAGE_TIMEOUT" json:"authTimeout,omitempty"`
+	ServerSecret     string        `env:"SERVER_SECRET" json:"serverSecret,omitempty"`
+	DomainName       string        `env:"DOMAIN_NAME" json:"domainName,omitempty"`
+	SMTPHost         string        `env:"SMTP_HOST" json:"smtpHost,omitempty"`
+	SMTPPort         int           `env:"SMTP_PORT" json:"smtpPort,omitempty"`
+	ServerEMail      string        `env:"SERVER_EMAIL" json:"serverEmail,omitempty"`
+	DatabaseDN       string        `env:"DATABASE_DN" json:"dbDN,omitempty"`
+	MaxConns         int           `env:"DATABASE_MAX_CONNS" json:"dbMaxConns,omitempty"`
+	MaxConnLifetime  time.Duration `env:"DATABASE_MAX_CONN_LIFE_TIME" json:"dbMaxConnLifeTime,omitempty"`
+	MaxConnIdleTime  time.Duration `env:"DATABASE_MAX_CONN_IDLE_TIME" json:"dbMaxConnIdleTime,omitempty"`
 }
 
 func defaultServConf() *ServerConf {
 	return &ServerConf{
-		Port:                ServerDefaultPort,
-		TLSKey:              ServerDefaultTLSKey,
-		TLSCert:             ServerDefaultTLSCert,
-		TokenExp:            ServerDefaultTokenExp,
-		TokenSecret:         ServerDefaultTokenSecret,
-		AuthStageTimeout:    ServerDefaultAuthStageTimeout,
-		ServerEncryptionKey: ServerDefaultServerEncryptionKey,
-		DomainName:          ServerDefaultDomainName,
-		SMTPHost:            ServerDefaultSMTPHost,
-		SMTPPort:            ServerDefaultSMTPPort,
-		ServerEMail:         ServerDefaultServerEMail,
-		MaxConns:            ServerDefaultMaxConns,
-		DatabaseURI:         ServerDefaultDatabaseURI,
-		MaxConnLifetime:     ServerDefaultMaxConnLifetime,
-		MaxConnIdleTime:     ServerDefaultMaxConnIdleTime,
+		Port:             ServerDefaultPort,
+		TLSKey:           ServerDefaultTLSKey,
+		TLSCert:          ServerDefaultTLSCert,
+		TokenExp:         ServerDefaultTokenExp,
+		TokenSecret:      ServerDefaultTokenSecret,
+		AuthStageTimeout: ServerDefaultAuthStageTimeout,
+		ServerSecret:     ServerDefaultServerSecret,
+		DomainName:       ServerDefaultDomainName,
+		SMTPHost:         ServerDefaultSMTPHost,
+		SMTPPort:         ServerDefaultSMTPPort,
+		ServerEMail:      ServerDefaultServerEMail,
+		MaxConns:         ServerDefaultMaxConns,
+		DatabaseDN:       ServerDefaultDatabaseDN,
+		MaxConnLifetime:  ServerDefaultMaxConnLifetime,
+		MaxConnIdleTime:  ServerDefaultMaxConnIdleTime,
 	}
 }
 

@@ -32,7 +32,7 @@ func (rg *regHelper) GenerateQR(userEmail string) (string, []byte, error) {
 }
 
 func (rg *regHelper) EncryptOTPKey(plaintext string) (string, error) {
-	return domain.EncryptOTPKey(rg.conf.ServerEncryptionKey, plaintext)
+	return domain.EncryptOTPKey(rg.conf.ServerSecret, plaintext)
 }
 
 func (rg *regHelper) ValidateAccountPass(pass string, hashB64 string, saltB64 string) (bool, error) {
@@ -40,7 +40,7 @@ func (rg *regHelper) ValidateAccountPass(pass string, hashB64 string, saltB64 st
 }
 
 func (rg *regHelper) DecryptOTPKey(ciphertext string) (string, error) {
-	return domain.DecryptOTPKey(rg.conf.ServerEncryptionKey, ciphertext)
+	return domain.DecryptOTPKey(rg.conf.ServerSecret, ciphertext)
 }
 
 func (rg *regHelper) NewSessionID() domain.SessionID {

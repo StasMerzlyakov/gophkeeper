@@ -221,7 +221,7 @@ func TestCheckServerSecretKey(t *testing.T) {
 	})
 
 	t.Run("default_ok", func(t *testing.T) {
-		secretKey := config.ServerDefaultServerEncryptionKey
+		secretKey := config.ServerDefaultServerSecret
 		err := domain.CheckServerSecretKeyComplexityLevel(secretKey)
 		require.NoError(t, err)
 	})

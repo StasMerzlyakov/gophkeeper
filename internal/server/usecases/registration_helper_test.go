@@ -22,8 +22,8 @@ var testOKSaltFn = func(p []byte) (n int, err error) {
 
 func TestRegistrationHelper(t *testing.T) {
 	srvConf := &config.ServerConf{
-		DomainName:          "issuer",
-		ServerEncryptionKey: "N1PCdw3M2B1TfJhoaY2mL736p2vCUc47",
+		DomainName:   "issuer",
+		ServerSecret: "N1PCdw3M2B1TfJhoaY2mL736p2vCUc47",
 	}
 	helper := usecases.NewRegistrationHelper(srvConf, testOKSaltFn)
 	t.Run("hash_password", func(t *testing.T) {

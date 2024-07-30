@@ -22,7 +22,7 @@ func TestBankCardOperations(t *testing.T) {
 
 	storage := postgres.NewStorage(ctx, &config.ServerConf{
 		MaxConns:        5,
-		DatabaseURI:     connString,
+		DatabaseDN:      connString,
 		MaxConnLifetime: 2 * time.Minute,
 		MaxConnIdleTime: 2 * time.Minute,
 	})

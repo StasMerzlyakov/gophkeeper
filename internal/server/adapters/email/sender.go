@@ -41,7 +41,7 @@ func (snd *sender) Connect(ctx context.Context) error {
 
 func (snd *sender) Close() error {
 	// quit sends the QUIT command and closes the connection to the server.
-	return snd.client.Close()
+	return snd.client.Quit()
 }
 
 const htmlBody = `<html>

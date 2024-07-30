@@ -185,7 +185,7 @@ func TestCheckOTP(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerEncryptionKey: "serverKey",
+			ServerSecret: "serverKey",
 		}
 		encryptedOTPKey := "asdasdasd!iasd"
 		decryptedOTPKey := "otp_key"
@@ -230,7 +230,7 @@ func TestCheckOTP(t *testing.T) {
 	t.Run("load_err", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerEncryptionKey: "serverKey",
+			ServerSecret: "serverKey",
 		}
 
 		otpPass := "123345"
@@ -252,7 +252,7 @@ func TestCheckOTP(t *testing.T) {
 	t.Run("wrong_data", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerEncryptionKey: "serverKey",
+			ServerSecret: "serverKey",
 		}
 
 		otpPass := "123345"
@@ -275,7 +275,7 @@ func TestCheckOTP(t *testing.T) {
 	t.Run("validate_pass_err", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerEncryptionKey: "serverKey",
+			ServerSecret: "serverKey",
 		}
 		encryptedOTPKey := "asdasdasd!iasd"
 		decryptedOTPKey := "otp_key"
@@ -315,7 +315,7 @@ func TestCheckOTP(t *testing.T) {
 	t.Run("otp_pass_fail", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerEncryptionKey: "serverKey",
+			ServerSecret: "serverKey",
 		}
 		encryptedOTPKey := "asdasdasd!iasd"
 		decryptedOTPKey := "otp_key"
@@ -354,7 +354,7 @@ func TestCheckOTP(t *testing.T) {
 	t.Run("jwt_create_err", func(t *testing.T) {
 		currentID := domain.SessionID("currentID")
 		conf := &config.ServerConf{
-			ServerEncryptionKey: "serverKey",
+			ServerSecret: "serverKey",
 		}
 		encryptedOTPKey := "asdasdasd!iasd"
 		decryptedOTPKey := "otp_key"

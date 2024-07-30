@@ -41,7 +41,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := domain.CheckServerSecretKeyComplexityLevel(conf.ServerEncryptionKey); err != nil {
+	if err := domain.CheckServerSecretKeyComplexityLevel(conf.ServerSecret); err != nil {
 		panic(err)
 	}
 

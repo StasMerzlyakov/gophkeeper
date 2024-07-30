@@ -29,7 +29,7 @@ func initializePGXConf(ctx context.Context, conf *config.ServerConf) *storage {
 
 	logger.Infow("initializePGXConf", "status", "start")
 
-	pConf, err := pgxpool.ParseConfig(conf.DatabaseURI)
+	pConf, err := pgxpool.ParseConfig(conf.DatabaseDN)
 	if err != nil {
 		panic(err)
 	}

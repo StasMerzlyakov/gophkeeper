@@ -1,4 +1,4 @@
-.PHONY: build proto clean test cover generate client
+.PHONY: build proto clean test cover generate client autotest
 
 build:
 	go mod tidy
@@ -20,9 +20,13 @@ client:
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X main.buildVersion=$(shell test `git tag --points-at HEAD` && git tag --points-at HEAD || echo N/A) \
 	    -X main.buildDate=$(shell date +'%Y-%m-%d') -X main.buildCommit=$(shell git rev-parse HEAD)" -buildvcs=false  -o=build/client_linux ./cmd/client/...
 
+autotests: server
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go test -c -tags=autotest -buildvcs=false -o=build/autotests ./cmd/autotests/...
+	./run_autotests.sh
+	
 test: clean
-	GOOS=linux GOARCH=amd64 go build -buildvcs=false -o=cmd/staticlint ./cmd/staticlint/...
-	cmd/staticlint/staticlint ./...
+	goos=linux goarch=amd64 go build -buildvcs=false -o=build/staticlint ./cmd/staticlint/...
+	build/staticlint ./...
 	go mod tidy
 	go clean -testcache
 	go test ./... -coverprofile cover.out

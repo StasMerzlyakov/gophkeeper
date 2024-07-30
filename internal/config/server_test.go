@@ -32,7 +32,7 @@ func TestLoadServConf(t *testing.T) {
 		assert.Equal(t, config.ServerDefaultTokenSecret, conf.TokenSecret)
 		assert.Equal(t, config.ServerDefaultAuthStageTimeout, conf.AuthStageTimeout)
 
-		assert.Equal(t, config.ServerDefaultServerEncryptionKey, conf.ServerEncryptionKey)
+		assert.Equal(t, config.ServerDefaultServerSecret, conf.ServerSecret)
 		assert.Equal(t, config.ServerDefaultDomainName, conf.DomainName)
 
 		assert.Equal(t, config.ServerDefaultSMTPHost, conf.SMTPHost)
@@ -78,7 +78,7 @@ func TestLoadServConf(t *testing.T) {
 		err = os.Setenv("AUTH_STAGE_TIMEOUT", "4m")
 		require.NoError(t, err)
 
-		err = os.Setenv("SERVER_ENCRYPTION_KEY", "key")
+		err = os.Setenv("SERVER_SECRET", "key")
 		require.NoError(t, err)
 
 		err = os.Setenv("DOMAIN_NAME", "example.com")
@@ -93,7 +93,7 @@ func TestLoadServConf(t *testing.T) {
 		err = os.Setenv("SERVER_EMAIL", "gopheer@localhost")
 		require.NoError(t, err)
 
-		err = os.Setenv("DATABASE_URI", "db_uri")
+		err = os.Setenv("DATABASE_DN", "db_uri")
 		require.NoError(t, err)
 
 		err = os.Setenv("DATABASE_MAX_CONNS", "3")
@@ -117,14 +117,14 @@ func TestLoadServConf(t *testing.T) {
 		assert.Equal(t, 1*time.Hour, conf.TokenExp)
 		assert.Equal(t, "pass", conf.TokenSecret)
 		assert.Equal(t, 4*time.Minute, conf.AuthStageTimeout)
-		assert.Equal(t, "key", conf.ServerEncryptionKey)
+		assert.Equal(t, "key", conf.ServerSecret)
 		assert.Equal(t, "example.com", conf.DomainName)
 
 		assert.Equal(t, "127.0.0.1", conf.SMTPHost)
 		assert.Equal(t, 26, conf.SMTPPort)
 		assert.Equal(t, "gopheer@localhost", conf.ServerEMail)
 
-		assert.Equal(t, "db_uri", conf.DatabaseURI)
+		assert.Equal(t, "db_uri", conf.DatabaseDN)
 		assert.Equal(t, 3, conf.MaxConns)
 		assert.Equal(t, 1*time.Minute, conf.MaxConnLifetime)
 		assert.Equal(t, 2*time.Minute, conf.MaxConnIdleTime)
