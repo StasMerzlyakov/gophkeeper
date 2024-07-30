@@ -1,5 +1,10 @@
 package domain
 
+import (
+	"fmt"
+	"strconv"
+)
+
 // EncryptedBankCard used on server side
 type EncryptedBankCard struct {
 	Number  string
@@ -12,6 +17,31 @@ type BankCardView struct {
 	ExpiryMonth string
 	ExpiryYear  string
 	CVV         string
+}
+
+func (bcv BankCardView) ToBankCard() (*BankCard, error) {
+	bankCard := &BankCard{
+		Number: bcv.Number,
+		CVV:    bcv.CVV,
+	}
+
+	expMonth, err := strconv.Atoi(bcv.ExpiryMonth)
+	if err != nil {
+		return nil, fmt.Errorf("bankCard data err - wrong expiryMoth value")
+	}
+	bankCard.ExpiryMonth = expMonth
+
+	expEear, err := strconv.Atoi(bcv.ExpiryYear)
+	if err != nil {
+		return nil, fmt.Errorf("bankCard data err - wrong expiryYear value")
+	}
+
+	if expEear < 100 {
+		expEear += 2000
+	}
+	bankCard.ExpiryYear = expEear
+
+	return bankCard, nil
 }
 
 // BankCard bank card data

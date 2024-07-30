@@ -8,7 +8,6 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"image/png"
 	"io"
@@ -106,50 +105,13 @@ func Random32ByteString() string {
 
 // EncryptShortData encrypt data on password
 // https://www.codemio.com/2023/05/advanced-golang-tutorials-aes-256.html
-func EncryptShortData(data []byte, masterKey string) (string, error) {
-
-	block, err := aes.NewCipher([]byte(masterKey))
-	if err != nil {
-		return "", err
-	}
-
-	ciphertext := make([]byte, aes.BlockSize+len(data))
-	iv := ciphertext[:aes.BlockSize]
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return "", err
-	}
-
-	stream := cipher.NewCFBEncrypter(block, iv)
-	stream.XORKeyStream(ciphertext[aes.BlockSize:], data)
-
-	return base64.StdEncoding.EncodeToString(ciphertext), nil
+func EncryptShortData(masterPass string, data string) (string, error) {
+	return encryptData(masterPass, data)
 }
 
 // DecryptShortData data on password
-func DecryptShortData(ciphertext string, masterKey string) ([]byte, error) {
-	key := []byte(masterKey)
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return nil, err
-	}
-
-	ciphertextBytes, err := base64.StdEncoding.DecodeString(ciphertext)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(ciphertextBytes) < aes.BlockSize {
-		return nil, errors.New("ciphertext too short")
-	}
-
-	iv := ciphertextBytes[:aes.BlockSize]
-	ciphertextBytes = ciphertextBytes[aes.BlockSize:]
-
-	stream := cipher.NewCFBDecrypter(block, iv)
-
-	stream.XORKeyStream(ciphertextBytes, ciphertextBytes)
-
-	return ciphertextBytes, nil
+func DecryptShortData(masterKey string, ciphertext string) (string, error) {
+	return decryptData(masterKey, ciphertext)
 }
 
 type SaltFn func(b []byte) (n int, err error)

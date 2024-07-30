@@ -411,16 +411,16 @@ func TestEncryptionText(t *testing.T) {
 
 	randomText := "hello world"
 
-	encrypted, err := domain.EncryptShortData([]byte(randomText), passphrase)
+	encrypted, err := domain.EncryptShortData(passphrase, randomText)
 	require.NoError(t, err)
 
-	data, err := domain.DecryptShortData(encrypted, passphrase)
+	data, err := domain.DecryptShortData(passphrase, encrypted)
 	require.NoError(t, err)
 
-	require.True(t, bytes.Equal([]byte(randomText), data))
+	require.Equal(t, randomText, data)
 
 	// check iv
-	encrypted2, err := domain.EncryptShortData([]byte(randomText), passphrase)
+	encrypted2, err := domain.EncryptShortData(passphrase, randomText)
 	require.NoError(t, err)
 
 	require.False(t, bytes.Equal([]byte(encrypted), []byte(encrypted2)))

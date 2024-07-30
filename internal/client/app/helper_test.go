@@ -1,9 +1,11 @@
 package app_test
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
+	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -110,7 +112,7 @@ func TestCheckMasterPasswordComplexityLevel(t *testing.T) {
 	}
 }
 
-func TestEncryptionText(t *testing.T) {
+func TestEncryptionHello(t *testing.T) {
 	helper := app.NewHelper(testOKSaltFn)
 	passphrase := helper.Random32ByteString()
 
@@ -121,5 +123,25 @@ func TestEncryptionText(t *testing.T) {
 
 	err = helper.DecryptHello(masterPass, encrypted)
 	require.NoError(t, err)
+}
 
+func TestEncryptionText(t *testing.T) {
+	passphrase := domain.Random32ByteString()
+	helper := app.NewHelper(testOKSaltFn)
+
+	randomText := "hello world"
+
+	encrypted, err := helper.EncryptShortData(passphrase, randomText)
+	require.NoError(t, err)
+
+	data, err := helper.DecryptShortData(passphrase, encrypted)
+	require.NoError(t, err)
+
+	require.Equal(t, randomText, data)
+
+	// check iv
+	encrypted2, err := helper.EncryptShortData(passphrase, randomText)
+	require.NoError(t, err)
+
+	require.False(t, bytes.Equal([]byte(encrypted), []byte(encrypted2)))
 }

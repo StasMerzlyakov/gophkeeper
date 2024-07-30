@@ -58,7 +58,10 @@ func main() {
 	// controller
 	appCtrl := app.NewAppController(conf)
 	defer appCtrl.Stop()
-	appCtrl.SetServer(helper).SetAppStorage(storage.NewStorage())
+
+	statusWrapper := app.NewStatusWrapper(conf, helper)
+
+	appCtrl.SetServer(statusWrapper).SetAppStorage(storage.NewStorage())
 
 	// view
 	tView := tui.NewApp(conf)

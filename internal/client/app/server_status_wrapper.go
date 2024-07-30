@@ -66,7 +66,7 @@ func (aw *serverStatusWrapper) ping(ctx context.Context) error {
 
 func (aw *serverStatusWrapper) invokeOnlineFn(ctx context.Context, fn func(ctx context.Context) error) error {
 	if aw.status != domain.ClientStatusOnline {
-		return fmt.Errorf("%w server is offline ?", domain.ErrServerIsNotResponding)
+		return fmt.Errorf("%w server is offline", domain.ErrServerIsNotResponding)
 	}
 	return aw.invokeFn(ctx, fn)
 }
@@ -162,4 +162,59 @@ func (aw *serverStatusWrapper) GetHelloData(ctx context.Context) (*domain.HelloD
 	}
 	retErr := aw.invokeOnlineFn(ctx, fn)
 	return data, retErr
+}
+
+func (aw *serverStatusWrapper) GetBankCardList(ctx context.Context) ([]domain.EncryptedBankCard, error) {
+	var data []domain.EncryptedBankCard
+	var err error
+	fn := func(ctx context.Context) error {
+		data, err = aw.server.GetBankCardList(ctx)
+		return err
+	}
+	retErr := aw.invokeOnlineFn(ctx, fn)
+	return data, retErr
+}
+func (aw *serverStatusWrapper) CreateBankCard(ctx context.Context, bnkCard *domain.EncryptedBankCard) error {
+	return aw.invokeOnlineFn(ctx, func(ctx context.Context) error {
+		return aw.server.CreateBankCard(ctx, bnkCard)
+	})
+}
+
+func (aw *serverStatusWrapper) UpdateBankCard(ctx context.Context, bnkCard *domain.EncryptedBankCard) error {
+	return aw.invokeOnlineFn(ctx, func(ctx context.Context) error {
+		return aw.server.UpdateBankCard(ctx, bnkCard)
+	})
+}
+
+func (aw *serverStatusWrapper) DeleteBankCard(ctx context.Context, number string) error {
+	return aw.invokeOnlineFn(ctx, func(ctx context.Context) error {
+		return aw.server.DeleteBankCard(ctx, number)
+	})
+}
+
+func (aw *serverStatusWrapper) GetUserPasswordDataList(ctx context.Context) ([]domain.EncryptedUserPasswordData, error) {
+	var data []domain.EncryptedUserPasswordData
+	var err error
+	fn := func(ctx context.Context) error {
+		data, err = aw.server.GetUserPasswordDataList(ctx)
+		return err
+	}
+	retErr := aw.invokeOnlineFn(ctx, fn)
+	return data, retErr
+}
+
+func (aw *serverStatusWrapper) CreateUserPasswordData(ctx context.Context, data *domain.EncryptedUserPasswordData) error {
+	return aw.invokeOnlineFn(ctx, func(ctx context.Context) error {
+		return aw.server.CreateUserPasswordData(ctx, data)
+	})
+}
+func (aw *serverStatusWrapper) UpdateUserPasswordData(ctx context.Context, data *domain.EncryptedUserPasswordData) error {
+	return aw.invokeOnlineFn(ctx, func(ctx context.Context) error {
+		return aw.server.UpdateUserPasswordData(ctx, data)
+	})
+}
+func (aw *serverStatusWrapper) DeleteUserPasswordData(ctx context.Context, hint string) error {
+	return aw.invokeOnlineFn(ctx, func(ctx context.Context) error {
+		return aw.server.DeleteUserPasswordData(ctx, hint)
+	})
 }

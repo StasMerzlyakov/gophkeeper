@@ -46,3 +46,10 @@ func (h *helper) EncryptHello(masterPassword, hello string) (string, error) {
 func (h *helper) DecryptHello(masterPassword, helloEncrypted string) error {
 	return domain.DecryptHello(masterPassword, helloEncrypted)
 }
+
+func (h *helper) EncryptShortData(masterKey string, data string) (string, error) {
+	return domain.EncryptShortData(masterKey, data)
+}
+func (h *helper) DecryptShortData(masterKey string, ciphertext string) (string, error) {
+	return domain.DecryptShortData(masterKey, ciphertext)
+}

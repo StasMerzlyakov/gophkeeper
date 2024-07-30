@@ -12,6 +12,8 @@ import (
 func (tApp *tuiApp) ShowBankCardView(bankCard *domain.BankCard) {
 	go func() {
 		tApp.app.QueueUpdateDraw(func() {
+			log := app.GetMainLogger()
+			log.Debug("ShowBankCardView start")
 			tApp.bankCardFlex.Clear()
 
 			if bankCard == nil {
@@ -85,6 +87,9 @@ func (tApp *tuiApp) ShowBankCardView(bankCard *domain.BankCard) {
 							}).
 							AddButton("Save", func() {
 								tApp.controller.UpdateBankCard(bankCardView)
+							}).
+							AddButton("Delete", func() {
+								tApp.controller.DeleteBankCard(bankCardView.Number)
 							}), 0, 1, true,
 					).
 					AddItem(

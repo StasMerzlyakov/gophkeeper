@@ -11,7 +11,7 @@ import (
 
 func (st *storage) GetUserPasswordDataList(ctx context.Context) ([]domain.EncryptedUserPasswordData, error) {
 	userID, err := domain.GetUserID(ctx)
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 	log := domain.GetCtxLogger(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("%w userID is not set", domain.ErrServerInternal)
@@ -52,7 +52,7 @@ func (st *storage) GetUserPasswordDataList(ctx context.Context) ([]domain.Encryp
 
 func (st *storage) CreateUserPasswordData(ctx context.Context, data *domain.EncryptedUserPasswordData) error {
 	userID, err := domain.GetUserID(ctx)
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 	log := domain.GetCtxLogger(ctx)
 	if err != nil {
 		log.Infow(action, "err", err.Error())
@@ -78,7 +78,7 @@ func (st *storage) CreateUserPasswordData(ctx context.Context, data *domain.Encr
 
 func (st *storage) UpdateUserPasswordData(ctx context.Context, data *domain.EncryptedUserPasswordData) error {
 	userID, err := domain.GetUserID(ctx)
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 	log := domain.GetCtxLogger(ctx)
 	if err != nil {
 		log.Infow(action, "err", err.Error())
@@ -104,7 +104,7 @@ func (st *storage) UpdateUserPasswordData(ctx context.Context, data *domain.Encr
 
 func (st *storage) DeleteUserPasswordData(ctx context.Context, hint string) error {
 	userID, err := domain.GetUserID(ctx)
-	action := domain.GetAction(0)
+	action := domain.GetAction(1)
 	log := domain.GetCtxLogger(ctx)
 	if err != nil {
 		log.Infow(action, "err", err.Error())

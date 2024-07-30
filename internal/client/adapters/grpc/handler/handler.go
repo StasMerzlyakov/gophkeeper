@@ -23,23 +23,20 @@ func NewHandler(conf *config.ClientConf) (*handler, error) {
 		return nil, fmt.Errorf("%w can't read CACert - %v", domain.ErrClientInternal, err.Error())
 	}
 
-	client, err := grpc.NewClient(conf.ServerAddress, grpc.WithTransportCredentials(cred))
+	h := &handler{}
+
+	client, err := grpc.NewClient(conf.ServerAddress, grpc.WithTransportCredentials(cred), grpc.WithUnaryInterceptor(h.JWTInterceptor))
 	if err != nil {
 		return nil, fmt.Errorf("%w can't create grpc client %v", domain.ErrClientInternal, err.Error())
 	}
 
-	pinger := proto.NewPingerClient(client)
-	loginer := proto.NewAuthServiceClient(client)
-	dataAccessor := proto.NewDataAccessorClient(client)
-	registrator := proto.NewRegistrationServiceClient(client)
+	h.conn = client
+	h.pinger = proto.NewPingerClient(client)
+	h.loginer = proto.NewAuthServiceClient(client)
+	h.dataAccessor = proto.NewDataAccessorClient(client)
+	h.registrator = proto.NewRegistrationServiceClient(client)
 
-	return &handler{
-		conn:         client,
-		pinger:       pinger,
-		dataAccessor: dataAccessor,
-		loginer:      loginer,
-		registrator:  registrator,
-	}, nil
+	return h, nil
 }
 
 var _ app.AppServer = (*handler)(nil)
@@ -176,20 +173,12 @@ func (h *handler) PassLoginOTP(ctx context.Context, otpPass string) error {
 	return nil
 }
 
-func (h *handler) GetHelloData(ctx context.Context) (*domain.HelloData, error) {
+func (h *handler) JWTInterceptor(ctx context.Context, method string, req interface{}, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 
-	req := &proto.HelloRequest{}
-	mdCtx := metadata.AppendToOutgoingContext(ctx, domain.AuthorizationMetadataTokenName, h.jwtToken)
-	resp, err := h.dataAccessor.Hello(mdCtx, req)
-	if err != nil {
-		return nil, fmt.Errorf("%w: get hello data err ", err)
+	if h.jwtToken != "" {
+		ctx = metadata.AppendToOutgoingContext(ctx, domain.AuthorizationMetadataTokenName, h.jwtToken)
 	}
-	data := &domain.HelloData{
-		HelloEncrypted:     resp.HelloEncrypted,
-		MasterPasswordHint: resp.MasterPasswordHint,
-	}
-
-	return data, nil
+	return invoker(ctx, method, req, reply, cc, opts...)
 }
 
 func loadTLSCredentials(caFile string) (credentials.TransportCredentials, error) {

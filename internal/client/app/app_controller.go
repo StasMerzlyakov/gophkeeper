@@ -3,8 +3,6 @@ package app
 import (
 	"context"
 	"crypto/rand"
-	"fmt"
-	"strconv"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
@@ -13,12 +11,12 @@ import (
 func NewAppController(conf *config.ClientConf) *appController {
 	helper := NewHelper(rand.Read)
 	cntr := &appController{
-		conf:        conf,
-		loginer:     NewLoginer().LoginHelper(helper),
-		registrator: NewRegistrator().RegHelper(helper),
+		conf:         conf,
+		loginer:      NewLoginer().LoginHelper(helper),
+		registrator:  NewRegistrator().RegHelper(helper),
+		dataAccessor: NewDataAccessor().DomainHelper(helper),
+		helper:       helper,
 	}
-
-	cntr.SetDomainHelper(helper)
 	return cntr
 }
 
@@ -41,13 +39,9 @@ func (ac *appController) SetInfoView(view AppView) *appController {
 	return ac
 }
 
-func (ac *appController) SetDomainHelper(helper DomainHelper) *appController {
-	ac.helper = helper
-	return ac
-}
-
 func (ac *appController) SetAppStorage(storage AppStorage) *appController {
 	ac.storage = storage
+	ac.dataAccessor.AppStorage(storage)
 	return ac
 }
 
@@ -55,17 +49,19 @@ func (ac *appController) SetServer(server AppServer) *appController {
 	ac.server = server
 	ac.loginer.LoginSever(server)
 	ac.registrator.RegServer(server)
+	ac.dataAccessor.AppSever(server)
 	return ac
 }
 
 type appController struct {
-	conf        *config.ClientConf
-	appView     AppView
-	helper      DomainHelper // не нужен
-	server      AppServer
-	loginer     *loginer
-	registrator *registrator
-	storage     AppStorage
+	conf         *config.ClientConf
+	appView      AppView
+	helper       DomainHelper // не нужен
+	server       AppServer
+	loginer      *loginer
+	registrator  *registrator
+	dataAccessor *dataAccessor
+	storage      AppStorage
 }
 
 func (ac *appController) invokeFn(fn func(ctx context.Context) error, successFn func()) {
@@ -74,7 +70,9 @@ func (ac *appController) invokeFn(fn func(ctx context.Context) error, successFn 
 		if err := fn(ctx); err != nil {
 			ac.appView.ShowMsg(err.Error())
 		} else {
-			successFn()
+			if successFn != nil {
+				successFn()
+			}
 		}
 	}()
 }
@@ -137,84 +135,66 @@ func (ac *appController) RegInitMasterKey(mKey *domain.UnencryptedMasterKeyData)
 	})
 }
 
-func (ac *appController) AddBankCard(bankCardView *domain.BankCardView) {
-	go func() {
-		bankCard := &domain.BankCard{
-			Number: bankCardView.Number,
-			CVV:    bankCardView.CVV,
+func (ac *appController) ShowBankCardList() {
+	ac.invokeFn(func(ctx context.Context) error {
+		if err := ac.dataAccessor.GetBankCardList(ctx); err != nil {
+			ac.appView.ShowMsg(err.Error())
+			nmbrs := ac.storage.GetBankCardNumberList()
+			ac.appView.ShowBankCardListView(nmbrs)
 		}
+		return nil
+	}, func() {
+		nmbrs := ac.storage.GetBankCardNumberList()
+		ac.appView.ShowBankCardListView(nmbrs)
 
-		expMonth, err := strconv.Atoi(bankCardView.ExpiryMonth)
-		if err != nil {
-			ac.appView.ShowMsg("Wrong month value")
-			return
-		}
-		bankCard.ExpiryMonth = expMonth
-
-		expEear, err := strconv.Atoi(bankCardView.ExpiryYear)
-		if err != nil {
-			ac.appView.ShowMsg("Wrong year value")
-			return
-		}
-		if expEear < 100 {
-			expEear += 2000
-		}
-		bankCard.ExpiryYear = expEear
-
-		if err := ac.helper.CheckBankCardData(bankCard); err != nil {
-			ac.appView.ShowMsg(fmt.Sprintf("Wrong card data %v", err.Error()))
-			return
-		}
-
-		if err := ac.storage.AddBankCard(bankCard); err != nil {
-			panic(err)
-		}
-		ac.appView.ShowBankCardListView(ac.storage.GetBankCardNumberList())
-	}()
+	})
 }
+
+func (ac *appController) AddBankCard(bankCardView *domain.BankCardView) {
+	ac.invokeFn(
+		func(ctx context.Context) error {
+			bankCard, err := bankCardView.ToBankCard()
+			if err != nil {
+				return err
+			}
+
+			if err := ac.dataAccessor.AddBankCard(ctx, bankCard); err != nil {
+				ac.appView.ShowMsg(err.Error())
+			}
+			ac.ShowBankCardList() // show always
+			return nil
+		}, nil)
+}
+
 func (ac *appController) UpdateBankCard(bankCardView *domain.BankCardView) {
-	go func() {
-		bankCard := &domain.BankCard{
-			Number: bankCardView.Number,
-			CVV:    bankCardView.CVV,
-		}
+	ac.invokeFn(
+		func(ctx context.Context) error {
+			bankCard, err := bankCardView.ToBankCard()
+			if err != nil {
+				return err
+			}
 
-		expMonth, err := strconv.Atoi(bankCardView.ExpiryMonth)
-		if err != nil {
-			ac.appView.ShowMsg("Wrong month value")
-			return
-		}
-		bankCard.ExpiryMonth = expMonth
-
-		expEear, err := strconv.Atoi(bankCardView.ExpiryYear)
-		if err != nil {
-			ac.appView.ShowMsg("Wrong year value")
-			return
-		}
-		if expEear < 100 {
-			expEear += 2000
-		}
-		bankCard.ExpiryYear = expEear
-
-		if err := ac.helper.CheckBankCardData(bankCard); err != nil {
-			ac.appView.ShowMsg(fmt.Sprintf("Wrong card data %v", err.Error()))
-			return
-		}
-
-		if err := ac.storage.UpdateBankCard(bankCard); err != nil {
-			panic(err)
-		}
-		ac.appView.ShowBankCardListView(ac.storage.GetBankCardNumberList())
-	}()
+			if err := ac.dataAccessor.UpdateBankCard(ctx, bankCard); err != nil {
+				ac.appView.ShowMsg(err.Error())
+			}
+			ac.ShowBankCardList() // show always
+			return nil
+		},
+		func() {
+			nmbrs := ac.storage.GetBankCardNumberList()
+			ac.appView.ShowBankCardListView(nmbrs)
+		})
 }
 
 func (ac *appController) DeleteBankCard(number string) {
-	go func() {
-		if err := ac.storage.DeleteBankCard(number); err != nil {
-			panic(err)
-		}
-		ac.appView.ShowBankCardListView(ac.storage.GetBankCardNumberList())
-	}()
+	ac.invokeFn(
+		func(ctx context.Context) error {
+			if err := ac.dataAccessor.DeleteBankCard(ctx, number); err != nil {
+				ac.appView.ShowMsg(err.Error())
+			}
+			ac.ShowBankCardList() // show always
+			return nil
+		}, nil)
 }
 
 func (ac *appController) GetBankCard(number string) {
@@ -238,12 +218,6 @@ func (ac *appController) ShowBankCard(num string) {
 				ac.appView.ShowBankCardView(data)
 			}
 		}
-	}()
-}
-
-func (ac *appController) ShowBankCardList() {
-	go func() {
-		ac.appView.ShowBankCardListView(ac.storage.GetBankCardNumberList())
 	}()
 }
 

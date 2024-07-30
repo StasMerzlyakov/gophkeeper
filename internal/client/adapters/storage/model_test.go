@@ -53,6 +53,17 @@ func TestApp(t *testing.T) {
 		require.NoError(t, err)
 
 		require.Equal(t, 0, len(app.GetBankCardNumberList()))
+
+		app.SetBankCards([]domain.BankCard{
+			{
+				Number:      "6250941006528599",
+				ExpiryMonth: 06,
+				ExpiryYear:  2026,
+				CVV:         "123",
+			},
+		})
+		require.Equal(t, 1, len(app.GetBankCardNumberList()))
+
 	})
 
 	t.Run("user_data_operations", func(t *testing.T) {
@@ -88,5 +99,15 @@ func TestApp(t *testing.T) {
 		require.NoError(t, err)
 
 		require.Equal(t, 0, len(app.GetUserPasswordDataList()))
+
+		app.SetUserPasswordDatas([]domain.UserPasswordData{
+			{
+				Hint:     "ya.ru",
+				Login:    "login",
+				Passwrod: "pass",
+			},
+		})
+		require.Equal(t, 1, len(app.GetUserPasswordDataList()))
+
 	})
 }

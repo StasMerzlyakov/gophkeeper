@@ -15,7 +15,9 @@ type Pinger interface {
 type AppStorage interface {
 	SetMasterPassword(masterPassword string)
 	GetMasterPassword() string
+	SetBankCards(cards []domain.BankCard)
 	AddBankCard(bankCard *domain.BankCard) error
+	SetUserPasswordDatas(datas []domain.UserPasswordData)
 	AddUserPasswordData(data *domain.UserPasswordData) error
 	UpdateBankCard(bankCard *domain.BankCard) error
 	UpdatePasswordData(data *domain.UserPasswordData) error
@@ -36,6 +38,8 @@ type DomainHelper interface {
 	DecryptHello(masterPassword string, helloEncrypted string) error
 	CheckBankCardData(data *domain.BankCard) error
 	CheckUserPasswordData(data *domain.UserPasswordData) error
+	EncryptShortData(masterKey string, data string) (string, error)
+	DecryptShortData(masterKey string, ciphertext string) (string, error)
 }
 
 type AppView interface {
@@ -63,4 +67,14 @@ type AppServer interface {
 	Login(ctx context.Context, data *domain.EMailData) error
 	PassLoginOTP(ctx context.Context, otpPass string) error
 	GetHelloData(ctx context.Context) (*domain.HelloData, error)
+
+	GetBankCardList(ctx context.Context) ([]domain.EncryptedBankCard, error)
+	CreateBankCard(ctx context.Context, bnkCard *domain.EncryptedBankCard) error
+	UpdateBankCard(ctx context.Context, bnkCard *domain.EncryptedBankCard) error
+	DeleteBankCard(ctx context.Context, number string) error
+
+	GetUserPasswordDataList(ctx context.Context) ([]domain.EncryptedUserPasswordData, error)
+	CreateUserPasswordData(ctx context.Context, data *domain.EncryptedUserPasswordData) error
+	UpdateUserPasswordData(ctx context.Context, data *domain.EncryptedUserPasswordData) error
+	DeleteUserPasswordData(ctx context.Context, hint string) error
 }

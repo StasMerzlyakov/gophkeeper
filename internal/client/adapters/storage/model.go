@@ -3,6 +3,7 @@ package storage
 import (
 	"fmt"
 
+	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
@@ -13,6 +14,8 @@ func NewStorage() *simpleStorage {
 		bankCards:        make(map[string]domain.BankCard),
 	}
 }
+
+var _ app.AppStorage = (*simpleStorage)(nil)
 
 type simpleStorage struct {
 	masterPassword   string
@@ -119,4 +122,18 @@ func (ss *simpleStorage) GetUserPasswordDataList() []string {
 		i++
 	}
 	return keys
+}
+
+func (ss *simpleStorage) SetBankCards(cards []domain.BankCard) {
+	ss.bankCards = make(map[string]domain.BankCard)
+	for _, card := range cards {
+		ss.bankCards[card.Number] = card
+	}
+}
+
+func (ss *simpleStorage) SetUserPasswordDatas(datas []domain.UserPasswordData) {
+	ss.userPasswordData = make(map[string]domain.UserPasswordData)
+	for _, data := range datas {
+		ss.userPasswordData[data.Hint] = data
+	}
 }
