@@ -8,6 +8,7 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
+// NewStorage create simple client storage.
 func NewStorage() *simpleStorage {
 	return &simpleStorage{
 		status:           domain.ClientStatusOnline,

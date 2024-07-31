@@ -322,18 +322,6 @@ func (mr *MockAppViewMockRecorder) ShowBankCardListView(arg0 interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowBankCardListView", reflect.TypeOf((*MockAppView)(nil).ShowBankCardListView), arg0)
 }
 
-// ShowBankCardView mocks base method.
-func (m *MockAppView) ShowBankCardView(arg0 *domain.BankCard) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "ShowBankCardView", arg0)
-}
-
-// ShowBankCardView indicates an expected call of ShowBankCardView.
-func (mr *MockAppViewMockRecorder) ShowBankCardView(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowBankCardView", reflect.TypeOf((*MockAppView)(nil).ShowBankCardView), arg0)
-}
-
 // ShowDataAccessView mocks base method.
 func (m *MockAppView) ShowDataAccessView() {
 	m.ctrl.T.Helper()
@@ -344,6 +332,30 @@ func (m *MockAppView) ShowDataAccessView() {
 func (mr *MockAppViewMockRecorder) ShowDataAccessView() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowDataAccessView", reflect.TypeOf((*MockAppView)(nil).ShowDataAccessView))
+}
+
+// ShowEditBankCardView mocks base method.
+func (m *MockAppView) ShowEditBankCardView(arg0 *domain.BankCard) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ShowEditBankCardView", arg0)
+}
+
+// ShowEditBankCardView indicates an expected call of ShowEditBankCardView.
+func (mr *MockAppViewMockRecorder) ShowEditBankCardView(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowEditBankCardView", reflect.TypeOf((*MockAppView)(nil).ShowEditBankCardView), arg0)
+}
+
+// ShowEditUserPasswordDataView mocks base method.
+func (m *MockAppView) ShowEditUserPasswordDataView(arg0 *domain.UserPasswordData) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ShowEditUserPasswordDataView", arg0)
+}
+
+// ShowEditUserPasswordDataView indicates an expected call of ShowEditUserPasswordDataView.
+func (mr *MockAppViewMockRecorder) ShowEditUserPasswordDataView(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowEditUserPasswordDataView", reflect.TypeOf((*MockAppView)(nil).ShowEditUserPasswordDataView), arg0)
 }
 
 // ShowError mocks base method.
@@ -406,6 +418,30 @@ func (mr *MockAppViewMockRecorder) ShowMsg(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowMsg", reflect.TypeOf((*MockAppView)(nil).ShowMsg), arg0)
 }
 
+// ShowNewBankCardView mocks base method.
+func (m *MockAppView) ShowNewBankCardView() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ShowNewBankCardView")
+}
+
+// ShowNewBankCardView indicates an expected call of ShowNewBankCardView.
+func (mr *MockAppViewMockRecorder) ShowNewBankCardView() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowNewBankCardView", reflect.TypeOf((*MockAppView)(nil).ShowNewBankCardView))
+}
+
+// ShowNewUserPasswordDataView mocks base method.
+func (m *MockAppView) ShowNewUserPasswordDataView() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ShowNewUserPasswordDataView")
+}
+
+// ShowNewUserPasswordDataView indicates an expected call of ShowNewUserPasswordDataView.
+func (mr *MockAppViewMockRecorder) ShowNewUserPasswordDataView() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowNewUserPasswordDataView", reflect.TypeOf((*MockAppView)(nil).ShowNewUserPasswordDataView))
+}
+
 // ShowRegMasterKeyView mocks base method.
 func (m *MockAppView) ShowRegMasterKeyView() {
 	m.ctrl.T.Helper()
@@ -452,18 +488,6 @@ func (m *MockAppView) ShowUserPasswordDataListView(arg0 []string) {
 func (mr *MockAppViewMockRecorder) ShowUserPasswordDataListView(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowUserPasswordDataListView", reflect.TypeOf((*MockAppView)(nil).ShowUserPasswordDataListView), arg0)
-}
-
-// ShowUserPasswordDataView mocks base method.
-func (m *MockAppView) ShowUserPasswordDataView(arg0 *domain.UserPasswordData) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "ShowUserPasswordDataView", arg0)
-}
-
-// ShowUserPasswordDataView indicates an expected call of ShowUserPasswordDataView.
-func (mr *MockAppViewMockRecorder) ShowUserPasswordDataView(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowUserPasswordDataView", reflect.TypeOf((*MockAppView)(nil).ShowUserPasswordDataView), arg0)
 }
 
 // MockPinger is a mock of Pinger interface.

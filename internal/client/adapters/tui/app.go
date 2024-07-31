@@ -21,10 +21,14 @@ const (
 
 	DataPageMain = "DataPageMain"
 
-	BankCardPage     = "BankCardPage"
+	NewBankCardPage  = "NewBankCardPage"
+	EditBankCardPage = "NewBankCardPage"
+
 	BankCardListPage = "BankCardListPage"
 
-	UserPasswordDataPage     = "UserPasswordDataPage"
+	NewUserPasswordDataPage  = "NewUserPasswordDataPage"
+	EditUserPasswordDataPage = "EditUserPasswordDataPage"
+
 	UserPasswordDataListPage = "UserPasswordDataListPage"
 )
 
@@ -34,7 +38,7 @@ func NewApp(conf *config.ClientConf) *tuiApp {
 
 var _ app.AppView = (*tuiApp)(nil)
 
-func (tApp *tuiApp) SetController(controller Controller) *tuiApp {
+func (tApp *tuiApp) SetController(controller ViewController) *tuiApp {
 	tApp.controller = controller
 	return tApp
 }
@@ -42,7 +46,7 @@ func (tApp *tuiApp) SetController(controller Controller) *tuiApp {
 type tuiApp struct {
 	app        *tview.Application
 	pages      *tview.Pages
-	controller Controller
+	controller ViewController
 
 	loginFlex     *tview.Flex
 	loginOTPFlex  *tview.Flex
@@ -55,10 +59,12 @@ type tuiApp struct {
 	dataMainFlex *tview.Flex
 
 	bankCardListFlex *tview.Flex
-	bankCardFlex     *tview.Flex
+	newBankCardFlex  *tview.Flex
+	editBankCardFlex *tview.Flex
 
 	userPasswordDataListFlex *tview.Flex
-	userPasswordDataFlex     *tview.Flex
+	newUserPasswordDataFlex  *tview.Flex
+	editUserPasswordDataFlex *tview.Flex
 }
 
 func (tApp *tuiApp) ShowError(err error) {
@@ -113,10 +119,12 @@ func (tApp *tuiApp) Start() error {
 
 	tApp.dataMainFlex = tview.NewFlex()
 	tApp.bankCardListFlex = tview.NewFlex()
-	tApp.bankCardFlex = tview.NewFlex()
+	tApp.newBankCardFlex = tview.NewFlex()
+	tApp.editBankCardFlex = tview.NewFlex()
 
 	tApp.userPasswordDataListFlex = tview.NewFlex()
-	tApp.userPasswordDataFlex = tview.NewFlex()
+	tApp.newUserPasswordDataFlex = tview.NewFlex()
+	tApp.editUserPasswordDataFlex = tview.NewFlex()
 
 	tApp.pages.AddPage(LoginEMailPage, tApp.loginFlex, true, false)
 	tApp.pages.AddPage(LoginOTPPage, tApp.loginOTPFlex, true, false)
@@ -129,10 +137,12 @@ func (tApp *tuiApp) Start() error {
 	tApp.pages.AddPage(DataPageMain, tApp.dataMainFlex, true, false)
 
 	tApp.pages.AddPage(BankCardListPage, tApp.bankCardListFlex, true, false)
-	tApp.pages.AddPage(BankCardPage, tApp.bankCardFlex, true, false)
+	tApp.pages.AddPage(NewBankCardPage, tApp.newBankCardFlex, true, false)
+	tApp.pages.AddPage(EditBankCardPage, tApp.editBankCardFlex, true, false)
 
 	tApp.pages.AddPage(UserPasswordDataListPage, tApp.userPasswordDataListFlex, true, false)
-	tApp.pages.AddPage(UserPasswordDataPage, tApp.userPasswordDataFlex, true, false)
+	tApp.pages.AddPage(NewUserPasswordDataPage, tApp.newUserPasswordDataFlex, true, false)
+	tApp.pages.AddPage(EditUserPasswordDataPage, tApp.editUserPasswordDataFlex, true, false)
 
 	if err := tApp.app.SetRoot(tApp.pages, true).EnableMouse(false).Run(); err != nil {
 		log := app.GetMainLogger()

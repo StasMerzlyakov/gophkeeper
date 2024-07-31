@@ -207,30 +207,29 @@ func (ac *appController) GetBankCard(num string) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			if num == "" {
-				ac.appView.ShowBankCardView(nil)
+				ac.appView.ShowNewBankCardView()
 			} else {
 				if data, err := ac.storage.GetBankCard(num); err != nil {
 					ac.appView.ShowMsg(err.Error())
-					ac.appView.ShowBankCardView(nil)
 				} else {
-					ac.appView.ShowBankCardView(data)
+					ac.appView.ShowEditBankCardView(data)
 				}
 			}
 			return nil
 		}, nil)
 }
 
+// GetUserPasswordData invoked by tui view
 func (ac *appController) GetUserPasswordData(hint string) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			if hint == "" {
-				ac.appView.ShowUserPasswordDataView(nil)
+				ac.appView.ShowNewUserPasswordDataView()
 			} else {
 				if data, err := ac.storage.GetUpdatePasswordData(hint); err != nil {
 					ac.appView.ShowMsg(err.Error())
-					ac.appView.ShowBankCardView(nil)
 				} else {
-					ac.appView.ShowUserPasswordDataView(data)
+					ac.appView.ShowEditUserPasswordDataView(data)
 				}
 			}
 			return nil
