@@ -30,7 +30,7 @@ func TestHello(t *testing.T) {
 
 		aService := handler.NewDataAccessor(mockService)
 
-		res, err := aService.Hello(context.Background(), &proto.HelloRequest{})
+		res, err := aService.Hello(context.Background(), nil)
 
 		require.Nil(t, err)
 		require.Equal(t, "hello", res.HelloEncrypted)
@@ -48,7 +48,7 @@ func TestHello(t *testing.T) {
 
 		aService := handler.NewDataAccessor(mockService)
 
-		_, err := aService.Hello(context.Background(), &proto.HelloRequest{})
+		_, err := aService.Hello(context.Background(), nil)
 
 		require.ErrorIs(t, err, testErr)
 	})
@@ -74,7 +74,7 @@ func TestBankCardOps(t *testing.T) {
 		}).Times(1)
 
 		aService := handler.NewDataAccessor(mockService)
-		resp, err := aService.GetBankCardList(context.Background(), &proto.BankCardListRequest{})
+		resp, err := aService.GetBankCardList(context.Background(), nil)
 		require.NoError(t, err)
 		require.Equal(t, 2, len(resp.Cards))
 
@@ -93,7 +93,7 @@ func TestBankCardOps(t *testing.T) {
 		}).Times(1)
 
 		aService := handler.NewDataAccessor(mockService)
-		resp, err := aService.GetBankCardList(context.Background(), &proto.BankCardListRequest{})
+		resp, err := aService.GetBankCardList(context.Background(), nil)
 		require.ErrorIs(t, err, testErr)
 		require.Nil(t, resp)
 	})
@@ -167,7 +167,7 @@ func TestUserPasswordDataOps(t *testing.T) {
 		}).Times(1)
 
 		aService := handler.NewDataAccessor(mockService)
-		resp, err := aService.GetUserPasswordDataList(context.Background(), &proto.UserPasswordDataRequest{})
+		resp, err := aService.GetUserPasswordDataList(context.Background(), nil)
 		require.NoError(t, err)
 		require.Equal(t, 2, len(resp.Datas))
 
@@ -186,7 +186,7 @@ func TestUserPasswordDataOps(t *testing.T) {
 		}).Times(1)
 
 		aService := handler.NewDataAccessor(mockService)
-		resp, err := aService.GetUserPasswordDataList(context.Background(), &proto.UserPasswordDataRequest{})
+		resp, err := aService.GetUserPasswordDataList(context.Background(), nil)
 		require.ErrorIs(t, err, testErr)
 		require.Nil(t, resp)
 	})

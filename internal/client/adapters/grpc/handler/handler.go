@@ -77,8 +77,7 @@ func (h *handler) Stop() {
 }
 
 func (h *handler) Ping(ctx context.Context) error {
-	req := &proto.PingRequest{}
-	_, err := h.pinger.Ping(ctx, req)
+	_, err := h.pinger.Ping(ctx, nil)
 	return err
 }
 

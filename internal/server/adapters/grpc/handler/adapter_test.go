@@ -48,8 +48,7 @@ func TestPingNoTls(t *testing.T) {
 
 	pinger := proto.NewPingerClient(client)
 
-	pingReq := proto.PingRequest{}
-	resp, err := pinger.Ping(ctx, &pingReq)
+	resp, err := pinger.Ping(ctx, nil)
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	srv.Stop()
@@ -87,8 +86,7 @@ func TestPingWithTls(t *testing.T) {
 
 	pinger := proto.NewPingerClient(client)
 
-	pingReq := proto.PingRequest{}
-	resp, err := pinger.Ping(ctx, &pingReq)
+	resp, err := pinger.Ping(ctx, nil)
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	srv.Stop()

@@ -8,6 +8,7 @@ require (
 	github.com/gdamore/tcell/v2 v2.7.1
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/golang/mock v1.6.0
+	github.com/golang/protobuf v1.5.4
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/jingyugao/rowserrcheck v1.1.1

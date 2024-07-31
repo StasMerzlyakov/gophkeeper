@@ -12,6 +12,7 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	"github.com/StasMerzlyakov/gophkeeper/internal/proto"
 	"github.com/StasMerzlyakov/gophkeeper/internal/server/adapters/grpc/interceptor"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	gp "google.golang.org/grpc/codes"
@@ -24,7 +25,7 @@ type testRequestIDPinger struct {
 	proto.UnimplementedPingerServer
 }
 
-func (tr *testRequestIDPinger) Ping(ctx context.Context, req *proto.PingRequest) (*proto.PingResponse, error) {
+func (tr *testRequestIDPinger) Ping(ctx context.Context, empty *empty.Empty) (*empty.Empty, error) {
 	val := ctx.Value(domain.LoggerKey)
 	if val == nil {
 		return nil, errors.New("LoggerKey is not exists in context")
@@ -34,7 +35,7 @@ func (tr *testRequestIDPinger) Ping(ctx context.Context, req *proto.PingRequest)
 		return nil, errors.New("LoggerKey has wrong type")
 	}
 
-	return &proto.PingResponse{}, nil
+	return nil, nil
 }
 
 func TestEncrichWithRequestIDInterceptor(t *testing.T) {
@@ -78,11 +79,8 @@ func TestEncrichWithRequestIDInterceptor(t *testing.T) {
 
 	pinger := proto.NewPingerClient(client)
 
-	pingReq := proto.PingRequest{}
-
-	resp, err := pinger.Ping(ctx, &pingReq)
+	_, err = pinger.Ping(ctx, nil)
 	require.NoError(t, err)
-	require.NotNil(t, resp)
 
 	stopFn()
 	wg.Wait()
@@ -93,8 +91,8 @@ type testErrPinger struct {
 	err error
 }
 
-func (tr *testErrPinger) Ping(ctx context.Context, req *proto.PingRequest) (*proto.PingResponse, error) {
-	return &proto.PingResponse{}, tr.err
+func (tr *testErrPinger) Ping(ctx context.Context, empty *empty.Empty) (*empty.Empty, error) {
+	return nil, tr.err
 }
 
 func TestErrorCodeInteceptor(t *testing.T) {
@@ -141,11 +139,8 @@ func TestErrorCodeInteceptor(t *testing.T) {
 
 		pinger := proto.NewPingerClient(client)
 
-		pingReq := proto.PingRequest{}
-
-		resp, err := pinger.Ping(ctx, &pingReq)
+		_, err = pinger.Ping(ctx, nil)
 		require.NoError(t, err)
-		require.NotNil(t, resp)
 
 		stopFn()
 		wg.Wait()
@@ -193,9 +188,7 @@ func TestErrorCodeInteceptor(t *testing.T) {
 
 		pinger := proto.NewPingerClient(client)
 
-		pingReq := proto.PingRequest{}
-
-		_, err = pinger.Ping(ctx, &pingReq)
+		_, err = pinger.Ping(ctx, nil)
 
 		e, ok := status.FromError(err)
 		require.True(t, ok)
@@ -250,12 +243,9 @@ func TestJWTInterceptor(t *testing.T) {
 
 		pinger := proto.NewPingerClient(client)
 
-		pingReq := proto.PingRequest{}
-
-		resp, err := pinger.Ping(ctx, &pingReq)
+		_, err = pinger.Ping(ctx, nil)
 
 		require.NoError(t, err)
-		require.NotNil(t, resp)
 		stopFn()
 		wg.Wait()
 	})
@@ -304,9 +294,7 @@ func TestJWTInterceptor(t *testing.T) {
 
 		pinger := proto.NewPingerClient(client)
 
-		pingReq := proto.PingRequest{}
-
-		_, err = pinger.Ping(ctx, &pingReq)
+		_, err = pinger.Ping(ctx, nil)
 		e, ok := status.FromError(err)
 		require.True(t, ok)
 
@@ -360,11 +348,9 @@ func TestJWTInterceptor(t *testing.T) {
 
 		pinger := proto.NewPingerClient(client)
 
-		pingReq := proto.PingRequest{}
-
 		authCtx := metadata.AppendToOutgoingContext(ctx, domain.AuthorizationMetadataTokenName, "wrong_token")
 
-		_, err = pinger.Ping(authCtx, &pingReq)
+		_, err = pinger.Ping(authCtx, nil)
 		e, ok := status.FromError(err)
 		require.True(t, ok)
 
@@ -418,13 +404,11 @@ func TestJWTInterceptor(t *testing.T) {
 
 		pinger := proto.NewPingerClient(client)
 
-		pingReq := proto.PingRequest{}
-
 		jwtTok, err := domain.CreateJWTToken([]byte(tokenSecret), 10*time.Second, 1)
 		require.NoError(t, err)
 		authCtx := metadata.AppendToOutgoingContext(ctx, domain.AuthorizationMetadataTokenName, string(jwtTok))
 
-		resp, err := pinger.Ping(authCtx, &pingReq)
+		resp, err := pinger.Ping(authCtx, nil)
 
 		require.NoError(t, err)
 		require.NotNil(t, resp)

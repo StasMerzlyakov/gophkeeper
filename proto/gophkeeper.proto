@@ -3,6 +3,7 @@ syntax = "proto3";
 package proto;
 
 import "validate/validate.proto";
+import "google/protobuf/empty.proto";
 
 option go_package = "internal/proto";
 
@@ -30,9 +31,6 @@ message MasterKeyRequest {
     string helloEncrypted = 3;
 }
 
-message MasterKeyResponse {
-}
-
 message CheckEMailRequest {
     string email = 1 [(validate.rules).string.email = true];
 }
@@ -49,7 +47,7 @@ service RegistrationService {
     rpc CheckEMail(CheckEMailRequest)  returns (CheckEMailResponse);
     rpc Registrate(RegistrationRequest) returns (RegistrationResponse);
     rpc PassOTP(PassOTPRequest) returns (PassOTPResponse);
-    rpc SetMasterKey(MasterKeyRequest) returns (MasterKeyResponse);
+    rpc SetMasterKey(MasterKeyRequest) returns (google.protobuf.Empty);
 };
 
 message LoginRequest {
@@ -70,15 +68,9 @@ service AuthService {
     rpc PassOTP(PassOTPRequest) returns (AuthResponse);
 };
 
-message PingRequest {}
-message PingResponse {}
-
 service Pinger {
-    rpc Ping(PingRequest) returns (PingResponse);
+    rpc Ping(google.protobuf.Empty) returns (google.protobuf.Empty);
 };
-
-
-message HelloRequest{}
 
 message HelloResponse{
     string helloEncrypted = 1;
@@ -90,9 +82,6 @@ message BankCard {
     string content = 2;
 }
 
-message BankCardListRequest {
-}
-
 message BankCardListResponse {
     repeated BankCard cards = 1;
 }
@@ -102,14 +91,8 @@ message CreateBankCardRequest {
     string content = 2;
 }
 
-message CreateBankCardResponse {
-}
-
 message DeleteBankCardRequest {
     string number = 1;
-}
-
-message DeleteBankCardResponse {
 }
 
 message UpdateBankCardRequest {
@@ -117,15 +100,9 @@ message UpdateBankCardRequest {
     string content = 2;
 }
 
-message UpdateBankCardResponse {
-}
-
 message UserPasswordData {
     string hint = 1;
     string content = 2;
-}
-
-message UserPasswordDataRequest {
 }
 
 message UserPasswordDataResponse {
@@ -138,36 +115,28 @@ message CreateUserPasswordDataRequest {
     string content = 2;
 }
 
-message CreateUserPasswordDataResponse {
-}
-
 message DeleteUserPasswordDataRequest {
     string hint = 1;
 }
 
-message DeleteUserPasswordDataResponse {
-}
 
 message UpdateUserPasswordDataRequest {
     string hint = 1;
     string content = 2;
 }
 
-message UpdateUserPasswordDataResponse {
-}
-
 
 service DataAccessor {
-    rpc Hello(HelloRequest) returns (HelloResponse);
-    rpc GetBankCardList(BankCardListRequest) returns (BankCardListResponse);
-    rpc CreateBankCard(CreateBankCardRequest) returns (CreateBankCardResponse);
-    rpc DeleteBankCard(DeleteBankCardRequest) returns (DeleteBankCardResponse);
-    rpc UpdateBankCard(UpdateBankCardRequest) returns (UpdateBankCardResponse);
+    rpc Hello(google.protobuf.Empty) returns (HelloResponse);
+    rpc GetBankCardList(google.protobuf.Empty) returns (BankCardListResponse);
+    rpc CreateBankCard(CreateBankCardRequest) returns (google.protobuf.Empty);
+    rpc DeleteBankCard(DeleteBankCardRequest) returns (google.protobuf.Empty);
+    rpc UpdateBankCard(UpdateBankCardRequest) returns (google.protobuf.Empty);
 
-    rpc GetUserPasswordDataList(UserPasswordDataRequest) returns (UserPasswordDataResponse);
-    rpc CreateUserPasswordData(CreateUserPasswordDataRequest) returns (CreateUserPasswordDataResponse);
-    rpc DeleteUserPasswordData(DeleteUserPasswordDataRequest) returns (DeleteUserPasswordDataResponse);
-    rpc UpdateUserPasswordData(UpdateUserPasswordDataRequest) returns (UpdateUserPasswordDataResponse);
+    rpc GetUserPasswordDataList(google.protobuf.Empty) returns (UserPasswordDataResponse);
+    rpc CreateUserPasswordData(CreateUserPasswordDataRequest) returns (google.protobuf.Empty);
+    rpc DeleteUserPasswordData(DeleteUserPasswordDataRequest) returns (google.protobuf.Empty);
+    rpc UpdateUserPasswordData(UpdateUserPasswordDataRequest) returns (google.protobuf.Empty);
 };
 
 

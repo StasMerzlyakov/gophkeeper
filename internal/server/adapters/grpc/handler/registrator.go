@@ -6,6 +6,7 @@ import (
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	"github.com/StasMerzlyakov/gophkeeper/internal/proto"
+	"github.com/golang/protobuf/ptypes/empty"
 )
 
 func NewRegHandler(registrator Registrator) *regHandler {
@@ -69,7 +70,7 @@ func (rh *regHandler) PassOTP(ctx context.Context, req *proto.PassOTPRequest) (*
 
 	return resp, nil
 }
-func (rh *regHandler) SetMasterKey(ctx context.Context, req *proto.MasterKeyRequest) (*proto.MasterKeyResponse, error) {
+func (rh *regHandler) SetMasterKey(ctx context.Context, req *proto.MasterKeyRequest) (*empty.Empty, error) {
 	action := domain.GetAction(1)
 	mKeyData := &domain.MasterKeyData{
 		MasterPasswordHint: req.MasterPasswordHint,

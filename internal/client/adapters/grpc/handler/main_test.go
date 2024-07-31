@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/proto"
+	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -107,10 +108,10 @@ func getFreePort() (int, error) {
 
 type dataAccessor struct {
 	proto.UnimplementedDataAccessorServer
-	helloFn func(ctx context.Context, req *proto.HelloRequest) (*proto.HelloResponse, error)
+	helloFn func(ctx context.Context, req *empty.Empty) (*proto.HelloResponse, error)
 }
 
-func (da *dataAccessor) Hello(ctx context.Context, req *proto.HelloRequest) (*proto.HelloResponse, error) {
+func (da *dataAccessor) Hello(ctx context.Context, req *empty.Empty) (*proto.HelloResponse, error) {
 	return da.helloFn(ctx, req)
 }
 
@@ -119,7 +120,7 @@ type regHandler struct {
 	checkEMailFn   func(ctx context.Context, req *proto.CheckEMailRequest) (*proto.CheckEMailResponse, error)
 	registrateFn   func(ctx context.Context, req *proto.RegistrationRequest) (*proto.RegistrationResponse, error)
 	passOTPFn      func(ctx context.Context, req *proto.PassOTPRequest) (*proto.PassOTPResponse, error)
-	setMasterKeyFn func(ctx context.Context, req *proto.MasterKeyRequest) (*proto.MasterKeyResponse, error)
+	setMasterKeyFn func(ctx context.Context, req *proto.MasterKeyRequest) (*empty.Empty, error)
 }
 
 func (rh *regHandler) CheckEMail(ctx context.Context, req *proto.CheckEMailRequest) (*proto.CheckEMailResponse, error) {
@@ -134,7 +135,7 @@ func (rh *regHandler) PassOTP(ctx context.Context, req *proto.PassOTPRequest) (*
 	return rh.passOTPFn(ctx, req)
 }
 
-func (rh *regHandler) SetMasterKey(ctx context.Context, req *proto.MasterKeyRequest) (*proto.MasterKeyResponse, error) {
+func (rh *regHandler) SetMasterKey(ctx context.Context, req *proto.MasterKeyRequest) (*empty.Empty, error) {
 	return rh.setMasterKeyFn(ctx, req)
 }
 
