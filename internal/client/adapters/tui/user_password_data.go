@@ -102,7 +102,7 @@ func (tApp *tuiApp) ShowNewUserPasswordDataView() {
 			log := app.GetMainLogger()
 			log.Debug("NewUserPasswordData")
 			tApp.newUserPasswordDataFlex.Clear()
-			box := tview.NewBox().SetBorder(true).SetTitle("NewUserPasswordData")
+			box := tview.NewBox().SetBorder(true).SetTitle("NewPasswordData")
 			tApp.newUserPasswordDataFlex.Box = box
 
 			data := &domain.UserPasswordData{}
