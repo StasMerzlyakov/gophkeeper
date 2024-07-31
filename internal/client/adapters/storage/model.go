@@ -2,6 +2,7 @@ package storage
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
@@ -18,10 +19,12 @@ func NewStorage() *simpleStorage {
 var _ app.AppStorage = (*simpleStorage)(nil)
 
 type simpleStorage struct {
-	masterPassword   string
-	status           domain.ClientStatus
-	userPasswordData map[string]domain.UserPasswordData
-	bankCards        map[string]domain.BankCard
+	masterPassword     string
+	status             domain.ClientStatus
+	userPasswordData   map[string]domain.UserPasswordData
+	userPasswordDataMx sync.Mutex
+	bankCards          map[string]domain.BankCard
+	bankCardsMx        sync.Mutex
 }
 
 func (ss *simpleStorage) SetMasterPassword(masterPassword string) {
@@ -33,6 +36,8 @@ func (ss *simpleStorage) GetMasterPassword() string {
 }
 
 func (ss *simpleStorage) AddBankCard(bankCard *domain.BankCard) error {
+	ss.bankCardsMx.Lock()
+	defer ss.bankCardsMx.Unlock()
 	if _, ok := ss.bankCards[bankCard.Number]; ok {
 		// Method on client invoked after success server method invokaction, so it's client error.
 		return fmt.Errorf("%w bankCard with number %v exists, reopen client", domain.ErrClientInternal, bankCard.Number)
@@ -42,6 +47,8 @@ func (ss *simpleStorage) AddBankCard(bankCard *domain.BankCard) error {
 }
 
 func (ss *simpleStorage) AddUserPasswordData(data *domain.UserPasswordData) error {
+	ss.userPasswordDataMx.Lock()
+	defer ss.userPasswordDataMx.Unlock()
 	if _, ok := ss.userPasswordData[data.Hint]; ok {
 		// Method on client invoked after success server method invokaction, so it's client error.
 		return fmt.Errorf("%w userPasswordData with hint %v exists, reopen client", domain.ErrClientInternal, data.Hint)
@@ -51,6 +58,8 @@ func (ss *simpleStorage) AddUserPasswordData(data *domain.UserPasswordData) erro
 }
 
 func (ss *simpleStorage) UpdateBankCard(bankCard *domain.BankCard) error {
+	ss.bankCardsMx.Lock()
+	defer ss.bankCardsMx.Unlock()
 	if _, ok := ss.bankCards[bankCard.Number]; !ok {
 		// Method on client invoked after success server method invokaction, so it's client error.
 		return fmt.Errorf("%w bankCard with number %v is not exists, reopen client", domain.ErrClientInternal, bankCard.Number)
@@ -60,6 +69,8 @@ func (ss *simpleStorage) UpdateBankCard(bankCard *domain.BankCard) error {
 }
 
 func (ss *simpleStorage) UpdatePasswordData(data *domain.UserPasswordData) error {
+	ss.userPasswordDataMx.Lock()
+	defer ss.userPasswordDataMx.Unlock()
 	if _, ok := ss.userPasswordData[data.Hint]; !ok {
 		// Method on client invoked after success server method invokaction, so it's client error.
 		return fmt.Errorf("%w userPasswordData with hint %v is not exists, reopen client", domain.ErrClientInternal, data.Hint)
@@ -69,6 +80,8 @@ func (ss *simpleStorage) UpdatePasswordData(data *domain.UserPasswordData) error
 }
 
 func (ss *simpleStorage) DeleteBankCard(number string) error {
+	ss.bankCardsMx.Lock()
+	defer ss.bankCardsMx.Unlock()
 	if _, ok := ss.bankCards[number]; !ok {
 		// Method on client invoked after success server method invokaction, so it's client error.
 		return fmt.Errorf("%w bankCard with number %v is not exists, reopen client", domain.ErrClientInternal, number)
@@ -78,6 +91,8 @@ func (ss *simpleStorage) DeleteBankCard(number string) error {
 }
 
 func (ss *simpleStorage) DeleteUpdatePasswordData(hint string) error {
+	ss.userPasswordDataMx.Lock()
+	defer ss.userPasswordDataMx.Unlock()
 	if _, ok := ss.userPasswordData[hint]; !ok {
 		// Method on client invoked after success server method invokaction, so it's client error.
 		return fmt.Errorf("%w userPasswordData with hint %v is not exists, reopen client", domain.ErrClientInternal, hint)
@@ -87,6 +102,8 @@ func (ss *simpleStorage) DeleteUpdatePasswordData(hint string) error {
 }
 
 func (ss *simpleStorage) GetBankCard(number string) (*domain.BankCard, error) {
+	ss.bankCardsMx.Lock()
+	defer ss.bankCardsMx.Unlock()
 	if card, ok := ss.bankCards[number]; !ok {
 		// Method on client invoked after success server method invokaction, so it's client error.
 		return nil, fmt.Errorf("%w bankCard with number %v is not exists, reopen client", domain.ErrClientInternal, number)
@@ -96,6 +113,8 @@ func (ss *simpleStorage) GetBankCard(number string) (*domain.BankCard, error) {
 }
 
 func (ss *simpleStorage) GetUpdatePasswordData(hint string) (*domain.UserPasswordData, error) {
+	ss.userPasswordDataMx.Lock()
+	defer ss.userPasswordDataMx.Unlock()
 	if data, ok := ss.userPasswordData[hint]; !ok {
 		// Method on client invoked after success server method invokaction, so it's client error.
 		return nil, fmt.Errorf("%w userPasswordData with hint %v is not exists, reopen client", domain.ErrClientInternal, hint)
@@ -105,6 +124,8 @@ func (ss *simpleStorage) GetUpdatePasswordData(hint string) (*domain.UserPasswor
 }
 
 func (ss *simpleStorage) GetBankCardNumberList() []string {
+	ss.bankCardsMx.Lock()
+	defer ss.bankCardsMx.Unlock()
 	keys := make([]string, len(ss.bankCards))
 	i := 0
 	for k := range ss.bankCards {
@@ -115,6 +136,8 @@ func (ss *simpleStorage) GetBankCardNumberList() []string {
 }
 
 func (ss *simpleStorage) GetUserPasswordDataList() []string {
+	ss.userPasswordDataMx.Lock()
+	defer ss.userPasswordDataMx.Unlock()
 	keys := make([]string, len(ss.userPasswordData))
 	i := 0
 	for k := range ss.userPasswordData {
@@ -125,6 +148,8 @@ func (ss *simpleStorage) GetUserPasswordDataList() []string {
 }
 
 func (ss *simpleStorage) SetBankCards(cards []domain.BankCard) {
+	ss.bankCardsMx.Lock()
+	defer ss.bankCardsMx.Unlock()
 	ss.bankCards = make(map[string]domain.BankCard)
 	for _, card := range cards {
 		ss.bankCards[card.Number] = card
@@ -132,6 +157,8 @@ func (ss *simpleStorage) SetBankCards(cards []domain.BankCard) {
 }
 
 func (ss *simpleStorage) SetUserPasswordDatas(datas []domain.UserPasswordData) {
+	ss.userPasswordDataMx.Lock()
+	defer ss.userPasswordDataMx.Unlock()
 	ss.userPasswordData = make(map[string]domain.UserPasswordData)
 	for _, data := range datas {
 		ss.userPasswordData[data.Hint] = data
