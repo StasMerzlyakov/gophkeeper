@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"sync/atomic"
 	"time"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
@@ -51,9 +52,10 @@ func (tApp *tuiApp) SetController(controller ViewController) *tuiApp {
 }
 
 type tuiApp struct {
-	app        *tview.Application
-	pages      *tview.Pages
-	controller ViewController
+	app         *tview.Application
+	progressBar *ProgressBar
+	pages       *tview.Pages
+	controller  ViewController
 
 	loginFlex     *tview.Flex
 	loginOTPFlex  *tview.Flex
@@ -116,6 +118,28 @@ func (tApp *tuiApp) ShowMsg(msg string) {
 	}()
 }
 
+func (tApp *tuiApp) ShowProgressBar(title string) {
+	go func() {
+		var done atomic.Bool
+		for percentage := 0.; percentage < 100 && !done.Load(); percentage += 10 {
+			p := percentage
+			tApp.app.QueueUpdateDraw(func() {
+				pBar := NewProgressBar().
+					AddCancelButton("Cancel").
+					SetProgressText("uploading?").
+					SetPercentage(p).
+					SetDoneFunc(func() {
+						done.Store(true)
+						tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
+					})
+				pBar.SetTitle("Processing")
+				tApp.app.SetRoot(pBar, true).SetFocus(pBar)
+			})
+			time.Sleep(2 * time.Second)
+		}
+	}()
+}
+
 func (tApp *tuiApp) Start() error {
 	tApp.app = tview.NewApplication()
 
@@ -142,6 +166,7 @@ func (tApp *tuiApp) Start() error {
 	tApp.fileTreeView = tview.NewFlex()
 	tApp.fileInfoListFlex = tview.NewFlex()
 	tApp.fileInfoFlex = tview.NewFlex()
+	tApp.progressBar = NewProgressBar()
 
 	tApp.pages.AddPage(InitPage, tApp.createStartForm(), true, true)
 
@@ -170,7 +195,7 @@ func (tApp *tuiApp) Start() error {
 
 	go func() {
 		time.Sleep(1 * time.Second)
-		tApp.ShowDataAccessView()
+		tApp.ShowProgressBar("ProcessBar")
 	}()
 
 	if err := tApp.app.SetRoot(tApp.pages, true).EnableMouse(false).Run(); err != nil {
