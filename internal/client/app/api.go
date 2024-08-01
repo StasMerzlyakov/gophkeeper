@@ -15,18 +15,27 @@ type Pinger interface {
 type AppStorage interface {
 	SetMasterPassword(masterPassword string)
 	GetMasterPassword() string
+
 	SetBankCards(cards []domain.BankCard)
 	AddBankCard(bankCard *domain.BankCard) error
+	UpdateBankCard(bankCard *domain.BankCard) error
+	DeleteBankCard(number string) error
+	GetBankCard(number string) (*domain.BankCard, error)
+	GetBankCardNumberList() []string
+
+	GetUserPasswordData(hint string) (*domain.UserPasswordData, error)
+	UpdateUserPasswordData(data *domain.UserPasswordData) error
+	DeleteUserPasswordData(hint string) error
 	SetUserPasswordDatas(datas []domain.UserPasswordData)
 	AddUserPasswordData(data *domain.UserPasswordData) error
-	UpdateBankCard(bankCard *domain.BankCard) error
-	UpdatePasswordData(data *domain.UserPasswordData) error
-	DeleteBankCard(number string) error
-	DeleteUpdatePasswordData(hint string) error
-	GetBankCard(number string) (*domain.BankCard, error)
-	GetUpdatePasswordData(hint string) (*domain.UserPasswordData, error)
-	GetBankCardNumberList() []string
 	GetUserPasswordDataList() []string
+
+	AddFileInfo(fileInfo *domain.FileInfo) error
+	UpdateFileInfo(data *domain.FileInfo) error
+	DeleteFileInfo(name string) error
+	GetFileInfo(name string) (*domain.FileInfo, error)
+	GetFileInfoList() []string
+	SetFilesInfo(infs []domain.FileInfo)
 }
 
 type DomainHelper interface {

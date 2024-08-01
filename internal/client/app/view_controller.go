@@ -228,7 +228,7 @@ func (ac *appController) GetUserPasswordData(hint string) {
 			if hint == "" {
 				ac.appView.ShowNewUserPasswordDataView()
 			} else {
-				if data, err := ac.storage.GetUpdatePasswordData(hint); err != nil {
+				if data, err := ac.storage.GetUserPasswordData(hint); err != nil {
 					ac.appView.ShowMsg(err.Error()) // nothing to show
 				} else {
 					ac.appView.ShowEditUserPasswordDataView(data)

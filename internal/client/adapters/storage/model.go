@@ -14,6 +14,7 @@ func NewStorage() *simpleStorage {
 		status:           domain.ClientStatusOnline,
 		userPasswordData: make(map[string]domain.UserPasswordData),
 		bankCards:        make(map[string]domain.BankCard),
+		filesInfo:        make(map[string]domain.FileInfo),
 	}
 }
 
@@ -26,6 +27,8 @@ type simpleStorage struct {
 	userPasswordDataMx sync.Mutex
 	bankCards          map[string]domain.BankCard
 	bankCardsMx        sync.Mutex
+	filesInfo          map[string]domain.FileInfo
+	filesInfoMx        sync.Mutex
 }
 
 func (ss *simpleStorage) SetMasterPassword(masterPassword string) {
@@ -58,6 +61,17 @@ func (ss *simpleStorage) AddUserPasswordData(data *domain.UserPasswordData) erro
 	return nil
 }
 
+func (ss *simpleStorage) AddFileInfo(fileInfo *domain.FileInfo) error {
+	ss.filesInfoMx.Lock()
+	defer ss.filesInfoMx.Unlock()
+	if _, ok := ss.filesInfo[fileInfo.Name]; ok {
+		// Method on client invoked after success server method invokaction, so it's client error.
+		return fmt.Errorf("%w fileInfo with name %v exists, reopen client", domain.ErrClientInternal, fileInfo.Name)
+	}
+	ss.filesInfo[fileInfo.Name] = *fileInfo
+	return nil
+}
+
 func (ss *simpleStorage) UpdateBankCard(bankCard *domain.BankCard) error {
 	ss.bankCardsMx.Lock()
 	defer ss.bankCardsMx.Unlock()
@@ -69,7 +83,7 @@ func (ss *simpleStorage) UpdateBankCard(bankCard *domain.BankCard) error {
 	return nil
 }
 
-func (ss *simpleStorage) UpdatePasswordData(data *domain.UserPasswordData) error {
+func (ss *simpleStorage) UpdateUserPasswordData(data *domain.UserPasswordData) error {
 	ss.userPasswordDataMx.Lock()
 	defer ss.userPasswordDataMx.Unlock()
 	if _, ok := ss.userPasswordData[data.Hint]; !ok {
@@ -77,6 +91,17 @@ func (ss *simpleStorage) UpdatePasswordData(data *domain.UserPasswordData) error
 		return fmt.Errorf("%w userPasswordData with hint %v is not exists, reopen client", domain.ErrClientInternal, data.Hint)
 	}
 	ss.userPasswordData[data.Hint] = *data
+	return nil
+}
+
+func (ss *simpleStorage) UpdateFileInfo(data *domain.FileInfo) error {
+	ss.filesInfoMx.Lock()
+	defer ss.filesInfoMx.Unlock()
+	if _, ok := ss.filesInfo[data.Name]; !ok {
+		// Method on client invoked after success server method invokaction, so it's client error.
+		return fmt.Errorf("%w fileInfo with name %v is not exists, reopen client", domain.ErrClientInternal, data.Name)
+	}
+	ss.filesInfo[data.Name] = *data
 	return nil
 }
 
@@ -91,7 +116,7 @@ func (ss *simpleStorage) DeleteBankCard(number string) error {
 	return nil
 }
 
-func (ss *simpleStorage) DeleteUpdatePasswordData(hint string) error {
+func (ss *simpleStorage) DeleteUserPasswordData(hint string) error {
 	ss.userPasswordDataMx.Lock()
 	defer ss.userPasswordDataMx.Unlock()
 	if _, ok := ss.userPasswordData[hint]; !ok {
@@ -99,6 +124,17 @@ func (ss *simpleStorage) DeleteUpdatePasswordData(hint string) error {
 		return fmt.Errorf("%w userPasswordData with hint %v is not exists, reopen client", domain.ErrClientInternal, hint)
 	}
 	delete(ss.userPasswordData, hint)
+	return nil
+}
+
+func (ss *simpleStorage) DeleteFileInfo(name string) error {
+	ss.filesInfoMx.Lock()
+	defer ss.filesInfoMx.Unlock()
+	if _, ok := ss.filesInfo[name]; !ok {
+		// Method on client invoked after success server method invokaction, so it's client error.
+		return fmt.Errorf("%w fileName with name %v is not exists, reopen client", domain.ErrClientInternal, name)
+	}
+	delete(ss.filesInfo, name)
 	return nil
 }
 
@@ -113,7 +149,7 @@ func (ss *simpleStorage) GetBankCard(number string) (*domain.BankCard, error) {
 	}
 }
 
-func (ss *simpleStorage) GetUpdatePasswordData(hint string) (*domain.UserPasswordData, error) {
+func (ss *simpleStorage) GetUserPasswordData(hint string) (*domain.UserPasswordData, error) {
 	ss.userPasswordDataMx.Lock()
 	defer ss.userPasswordDataMx.Unlock()
 	if data, ok := ss.userPasswordData[hint]; !ok {
@@ -122,6 +158,29 @@ func (ss *simpleStorage) GetUpdatePasswordData(hint string) (*domain.UserPasswor
 	} else {
 		return &data, nil
 	}
+}
+
+func (ss *simpleStorage) GetFileInfo(name string) (*domain.FileInfo, error) {
+	ss.filesInfoMx.Lock()
+	defer ss.filesInfoMx.Unlock()
+	if info, ok := ss.filesInfo[name]; !ok {
+		// Method on client invoked after success server method invokaction, so it's client error.
+		return nil, fmt.Errorf("%w fileInfo with name %v is not exists, reopen client", domain.ErrClientInternal, name)
+	} else {
+		return &info, nil
+	}
+}
+
+func (ss *simpleStorage) GetFileInfoList() []string {
+	ss.filesInfoMx.Lock()
+	defer ss.filesInfoMx.Unlock()
+	keys := make([]string, len(ss.filesInfo))
+	i := 0
+	for k := range ss.filesInfo {
+		keys[i] = k
+		i++
+	}
+	return keys
 }
 
 func (ss *simpleStorage) GetBankCardNumberList() []string {
@@ -163,5 +222,14 @@ func (ss *simpleStorage) SetUserPasswordDatas(datas []domain.UserPasswordData) {
 	ss.userPasswordData = make(map[string]domain.UserPasswordData)
 	for _, data := range datas {
 		ss.userPasswordData[data.Hint] = data
+	}
+}
+
+func (ss *simpleStorage) SetFilesInfo(infs []domain.FileInfo) {
+	ss.filesInfoMx.Lock()
+	defer ss.filesInfoMx.Unlock()
+	ss.filesInfo = make(map[string]domain.FileInfo)
+	for _, inf := range infs {
+		ss.filesInfo[inf.Name] = inf
 	}
 }
