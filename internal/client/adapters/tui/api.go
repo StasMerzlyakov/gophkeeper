@@ -23,4 +23,8 @@ type ViewController interface {
 	GetUserPasswordData(hint string)
 
 	UploadFile(info *domain.FileInfo)
+	SaveFile(info *domain.FileInfo)
+	GetFileInfo(name string)
+	DeleteFile(name string)
+	GetFilesInfoList()
 }

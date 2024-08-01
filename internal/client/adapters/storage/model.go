@@ -171,13 +171,13 @@ func (ss *simpleStorage) GetFileInfo(name string) (*domain.FileInfo, error) {
 	}
 }
 
-func (ss *simpleStorage) GetFileInfoList() []string {
+func (ss *simpleStorage) GetFileInfoList() []domain.FileInfo {
 	ss.filesInfoMx.Lock()
 	defer ss.filesInfoMx.Unlock()
-	keys := make([]string, len(ss.filesInfo))
+	keys := make([]domain.FileInfo, len(ss.filesInfo))
 	i := 0
-	for k := range ss.filesInfo {
-		keys[i] = k
+	for _, v := range ss.filesInfo {
+		keys[i] = v
 		i++
 	}
 	return keys
@@ -232,4 +232,11 @@ func (ss *simpleStorage) SetFilesInfo(infs []domain.FileInfo) {
 	for _, inf := range infs {
 		ss.filesInfo[inf.Name] = inf
 	}
+}
+
+func (ss *simpleStorage) IsFileInfoExists(name string) bool {
+	ss.filesInfoMx.Lock()
+	defer ss.filesInfoMx.Unlock()
+	_, ok := ss.filesInfo[name]
+	return ok
 }

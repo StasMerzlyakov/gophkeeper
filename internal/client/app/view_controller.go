@@ -44,6 +44,7 @@ func (ac *appController) SetInfoView(view AppView) *appController {
 func (ac *appController) SetAppStorage(storage AppStorage) *appController {
 	ac.storage = storage
 	ac.dataAccessor.AppStorage(storage)
+	ac.fileAccessor.AppStorage(storage)
 	return ac
 }
 
@@ -52,6 +53,7 @@ func (ac *appController) SetServer(server AppServer) *appController {
 	ac.loginer.LoginSever(server)
 	ac.registrator.RegServer(server)
 	ac.dataAccessor.AppSever(server)
+	ac.fileAccessor.AppServer(server)
 	return ac
 }
 
@@ -212,13 +214,49 @@ func (ac *appController) GetBankCard(num string) {
 				ac.appView.ShowNewBankCardView()
 			} else {
 				if data, err := ac.storage.GetBankCard(num); err != nil {
-					ac.appView.ShowMsg(err.Error()) // nothing to show
+					return err //nothig to show
 				} else {
 					ac.appView.ShowEditBankCardView(data)
 				}
 			}
 			return nil
 		}, nil)
+}
+
+func (ac *appController) GetFileInfo(name string) {
+	ac.invokeFn(
+		func(ctx context.Context) error {
+			if data, err := ac.storage.GetFileInfo(name); err != nil {
+				return err
+			} else {
+				ac.appView.ShowFileInfoView(data)
+			}
+			return nil
+		}, nil)
+}
+
+func (ac *appController) SaveFile(info *domain.FileInfo) {
+	ac.invokeFn(
+		func(ctx context.Context) error {
+			if err := ac.fileAccessor.SaveFile(ctx, info); err != nil {
+				return err
+			}
+			return nil
+		}, func() {
+			ac.GetFilesInfoList()
+		})
+}
+
+func (ac *appController) DeleteFile(name string) {
+	ac.invokeFn(
+		func(ctx context.Context) error {
+			if err := ac.fileAccessor.DeleteFile(ctx, name); err != nil {
+				ac.appView.ShowMsg(err.Error()) //
+			}
+			return nil
+		}, func() {
+			ac.GetFilesInfoList()
+		})
 }
 
 // GetUserPasswordData invoked by tui view
@@ -229,13 +267,25 @@ func (ac *appController) GetUserPasswordData(hint string) {
 				ac.appView.ShowNewUserPasswordDataView()
 			} else {
 				if data, err := ac.storage.GetUserPasswordData(hint); err != nil {
-					ac.appView.ShowMsg(err.Error()) // nothing to show
+					return err //nothig to show
 				} else {
 					ac.appView.ShowEditUserPasswordDataView(data)
 				}
 			}
 			return nil
 		}, nil)
+}
+
+func (ac *appController) GetFilesInfoList() {
+	ac.invokeFn(func(ctx context.Context) error {
+		if err := ac.fileAccessor.GetFileInfoList(ctx); err != nil {
+			ac.appView.ShowMsg(err.Error())
+		}
+		return nil
+	}, func() {
+		infos := ac.storage.GetFileInfoList()
+		ac.appView.ShowFileInfoListView(infos) // show always
+	})
 }
 
 func (ac *appController) GetUserPasswordDataList() {
@@ -294,15 +344,12 @@ func (ac *appController) UploadFile(info *domain.FileInfo) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			if err := ac.fileAccessor.UploadFile(ctx, info); err != nil {
-				ac.appView.ShowMsg(err.Error())
-			} else {
-				ac.appView.ShowMsg("OK")
+				return err
 			}
 			return nil
 		},
 		func() {
-			// TODO show All files page
-			ac.appView.ShowMsg("OK")
+			ac.GetFilesInfoList()
 		},
 	)
 }

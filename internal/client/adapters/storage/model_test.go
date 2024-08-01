@@ -143,6 +143,9 @@ func TestApp(t *testing.T) {
 		dt, err = app.GetFileInfo(data.Name)
 		require.NoError(t, err)
 
+		ok := app.IsFileInfoExists(data.Name)
+		require.True(t, ok)
+
 		require.Equal(t, dt.Name, data.Name)
 		require.Equal(t, dt.Path, data.Path)
 

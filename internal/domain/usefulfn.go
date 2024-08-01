@@ -404,3 +404,25 @@ func CheckFileForRead(info *FileInfo) error {
 	defer f.Close()
 	return nil
 }
+
+func CheckFileForWrite(info *FileInfo) error {
+	path := info.Path
+	_, err := os.Stat(info.Path)
+	if err == nil {
+		return fmt.Errorf("%w file by path %s already exists", ErrClientDataIncorrect, info.Path)
+	}
+
+	dir := filepath.Dir(path)
+
+	inf, err := os.Stat(dir)
+	if err != nil {
+		return fmt.Errorf("%w can't get directory %s by info.Path", ErrClientDataIncorrect, dir)
+	}
+
+	if !inf.IsDir() {
+		return fmt.Errorf("%w wrong dir name %s", ErrClientDataIncorrect, dir)
+	}
+
+	return nil
+
+}

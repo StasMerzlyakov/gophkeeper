@@ -34,8 +34,9 @@ type AppStorage interface {
 	UpdateFileInfo(data *domain.FileInfo) error
 	DeleteFileInfo(name string) error
 	GetFileInfo(name string) (*domain.FileInfo, error)
-	GetFileInfoList() []string
+	GetFileInfoList() []domain.FileInfo
 	SetFilesInfo(infs []domain.FileInfo)
+	IsFileInfoExists(name string) bool
 }
 
 type DomainHelper interface {
@@ -51,6 +52,7 @@ type DomainHelper interface {
 	DecryptShortData(masterKey string, ciphertext string) (string, error)
 
 	CheckFileForRead(info *domain.FileInfo) error
+	CheckFileForWrite(inf *domain.FileInfo) error
 }
 
 type AppView interface {
@@ -69,6 +71,8 @@ type AppView interface {
 	ShowUserPasswordDataListView(hints []string)
 	ShowEditUserPasswordDataView(data *domain.UserPasswordData)
 	ShowNewUserPasswordDataView()
+	ShowFileInfoView(info *domain.FileInfo)
+	ShowFileInfoListView(filesInfoList []domain.FileInfo)
 }
 
 type AppServer interface {

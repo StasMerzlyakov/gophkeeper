@@ -17,7 +17,7 @@ func (tApp *tuiApp) ShowDataAccessView() {
 			dataTypesList := tview.NewList().ShowSecondaryText(false)
 
 			dataTypes := []string{
-				"Bank cards", "UserPasswordData",
+				"Bank cards", "UserPasswordData", "Files",
 			}
 			for index, number := range dataTypes {
 				dataTypesList.AddItem(number, "", rune(49+index), nil)
@@ -27,8 +27,10 @@ func (tApp *tuiApp) ShowDataAccessView() {
 				switch index {
 				case 0:
 					tApp.controller.GetBankCardList()
-				default:
+				case 1:
 					tApp.controller.GetUserPasswordDataList()
+				default:
+					tApp.controller.GetFilesInfoList()
 				}
 			})
 

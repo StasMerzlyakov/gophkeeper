@@ -58,3 +58,7 @@ func (h *helper) DecryptShortData(masterKey string, ciphertext string) (string, 
 func (h *helper) CheckFileForRead(info *domain.FileInfo) error {
 	return domain.CheckFileForRead(info)
 }
+
+func (h *helper) CheckFileForWrite(info *domain.FileInfo) error {
+	return domain.CheckFileForWrite(info)
+}

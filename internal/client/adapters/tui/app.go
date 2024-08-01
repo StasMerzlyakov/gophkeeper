@@ -33,8 +33,10 @@ const (
 
 	UserPasswordDataListPage = "UserPasswordDataListPage"
 
-	UploadFilePage = "UploadFilePage"
-	FileTreePagh   = "FileTreePagh"
+	UploadFilePage   = "UploadFilePage"
+	FileInfoPage     = "FileInfoPage"
+	FileTreePagh     = "FileTreePagh"
+	FileInfoListPage = "FileInfoListPath"
 )
 
 func NewApp(conf *config.ClientConf) *tuiApp {
@@ -72,7 +74,10 @@ type tuiApp struct {
 	editUserPasswordDataFlex *tview.Flex
 
 	uploadFilePageFlex *tview.Flex
-	fileTreeView       *tview.Flex
+	fileInfoListFlex   *tview.Flex
+
+	fileTreeView *tview.Flex
+	fileInfoFlex *tview.Flex
 }
 
 func (tApp *tuiApp) ShowError(err error) {
@@ -135,6 +140,8 @@ func (tApp *tuiApp) Start() error {
 
 	tApp.uploadFilePageFlex = tview.NewFlex()
 	tApp.fileTreeView = tview.NewFlex()
+	tApp.fileInfoListFlex = tview.NewFlex()
+	tApp.fileInfoFlex = tview.NewFlex()
 
 	tApp.pages.AddPage(InitPage, tApp.createStartForm(), true, true)
 
@@ -156,12 +163,14 @@ func (tApp *tuiApp) Start() error {
 	tApp.pages.AddPage(NewUserPasswordDataPage, tApp.newUserPasswordDataFlex, true, false)
 	tApp.pages.AddPage(EditUserPasswordDataPage, tApp.editUserPasswordDataFlex, true, false)
 
+	tApp.pages.AddPage(FileInfoListPage, tApp.fileInfoListFlex, true, false)
 	tApp.pages.AddPage(UploadFilePage, tApp.uploadFilePageFlex, true, false)
 	tApp.pages.AddPage(FileTreePagh, tApp.fileTreeView, true, false)
+	tApp.pages.AddPage(FileInfoPage, tApp.fileInfoFlex, true, false)
 
 	go func() {
 		time.Sleep(1 * time.Second)
-		tApp.ShowUploadFileView(nil)
+		tApp.ShowDataAccessView()
 	}()
 
 	if err := tApp.app.SetRoot(tApp.pages, true).EnableMouse(false).Run(); err != nil {
