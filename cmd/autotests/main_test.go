@@ -1,16 +1,13 @@
-//go:build autotest
-// +build autotest
-
 package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"testing"
 	"time"
 
-	smtpmock "github.com/mocktools/go-smtp-mock/v2"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -29,23 +26,6 @@ func TestMain(m *testing.M) {
 
 	code := m.Run()
 	os.Exit(code)
-}
-
-func smtpServiceUp(context.Context) {
-	smtpServer = smtpmock.New(smtpmock.ConfigurationAttr{
-		LogToStdout:       true,
-		LogServerActivity: true,
-	})
-
-	if err := smtpServer.Start(); err != nil {
-		log.Fatalf("failed to start smtp mock service: %s", err.Error())
-	}
-}
-
-func smtpServiceDown(context.Context) {
-	if err := smtpServer.Stop(); err != nil {
-		log.Fatalf("failed to terminate smtp mock service: %s", err)
-	}
 }
 
 const dbName = "users"
@@ -72,5 +52,32 @@ func postgresUp(ctx context.Context) {
 func postgresDown(ctx context.Context) {
 	if err := postgresContainer.Terminate(ctx); err != nil {
 		log.Fatalf("failed to terminate postgres container: %s", err)
+	}
+}
+
+const portSmtpServSMTP = "1025"
+const portSmtpServHTTP = "1080"
+
+func smtpServiceUp(ctx context.Context) {
+	req := testcontainers.ContainerRequest{
+		Image:        "haravich/fake-smtp-server",
+		ExposedPorts: []string{fmt.Sprintf("%s/tcp", portSmtpServSMTP), fmt.Sprintf("%s/tcp", portSmtpServHTTP)},
+		WaitingFor:   wait.ForLog("http://0.0.0.0:1080"),
+	}
+	var err error
+	smtpServer, err = testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: req,
+		Started:          true,
+	})
+
+	if err != nil {
+		log.Fatalf("Could not start smtpServer: %s", err)
+	}
+}
+
+func smtpServiceDown(ctx context.Context) {
+
+	if err := smtpServer.Terminate(ctx); err != nil {
+		log.Fatalf("Could not stop smtpServer: %s", err)
 	}
 }

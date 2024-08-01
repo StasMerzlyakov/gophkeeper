@@ -6,6 +6,7 @@ require (
 	github.com/caarlos0/env v3.5.0+incompatible
 	github.com/envoyproxy/protoc-gen-validate v1.0.4
 	github.com/gdamore/tcell/v2 v2.7.1
+	github.com/go-resty/resty/v2 v2.13.1
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/golang/mock v1.6.0
 	github.com/golang/protobuf v1.5.4
@@ -13,6 +14,7 @@ require (
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/jingyugao/rowserrcheck v1.1.1
 	github.com/kisielk/errcheck v1.7.0
+	github.com/liyue201/goqr v0.0.0-20200803022322-df443203d4ea
 	github.com/mocktools/go-smtp-mock/v2 v2.3.0
 	github.com/pquerna/otp v1.4.0
 	github.com/rivo/tview v0.0.0-20240625185742-b0a7293b8130

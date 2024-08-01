@@ -1,10 +1,16 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
+	"image"
+	"net/http"
 	"os"
+	"strings"
 	"syscall"
 	"time"
 
@@ -13,6 +19,10 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	"github.com/StasMerzlyakov/gophkeeper/internal/fork"
+	"github.com/go-resty/resty/v2"
+	"github.com/liyue201/goqr"
+	"github.com/pquerna/otp"
+	"github.com/pquerna/otp/totp"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -21,6 +31,7 @@ type RegistrationTest struct {
 	gophKeeperProcess *fork.BackgroundProcess
 	serverPort        string
 	client            app.AppServer
+	smtpSrvHttpUrl    string
 }
 
 var _ suite.SetupAllSuite = (*RegistrationTest)(nil)
@@ -62,7 +73,7 @@ func (suite *RegistrationTest) clientUp(ctx context.Context) {
 }
 
 func (suite *RegistrationTest) serverUp(ctx context.Context) {
-	envs := suite.getGophKeeperEnv()
+	envs := suite.getGophKeeperEnv(ctx)
 	args := []string{} // оставлю на будущее
 	suite.gophKeeperProcess = fork.NewBackgroundProcess(context.Background(),
 		flagGophKeeperServerBinaryPath,
@@ -73,16 +84,32 @@ func (suite *RegistrationTest) serverUp(ctx context.Context) {
 	suite.Require().NoErrorf(err, "Невозможно запустить процесс командой %q: %s. Переменные окружения: %+v, флаги командной строки: %+v", suite.gophKeeperProcess, err, envs, args)
 
 	err = suite.gophKeeperProcess.WaitPort(ctx, "tcp", suite.serverPort)
-	suite.Require().NoErrorf(err, "Не удалось дождаться пока порт %s станет доступен для запроса: %s", suite.serverPort, err)
+	suite.Require().NoErrorf(err, "Не удалось дождаться пока порт %s станет доступен для запроса: %s\n%s", suite.serverPort, err, string(suite.gophKeeperProcess.Stdout(ctx)))
+
 }
 
-func (suite *RegistrationTest) getGophKeeperEnv() []string {
+func (suite *RegistrationTest) getGophKeeperEnv(ctx context.Context) []string {
 
 	var envs []string
 
-	smtpHostAddress, smtpPortNumber := "127.0.0.1", smtpServer.PortNumber()
+	smtpPort, err := smtpServer.MappedPort(ctx, portSmtpServSMTP)
+	suite.Require().NoError(err, "Не удалось получить порт SMTP сервера")
+
+	smtpPortNumber := smtpPort.Port()
+	suite.T().Logf("Для взаимодействия через SMTP получен порт контейнера %s", smtpPortNumber)
+
+	smtpHostAddress := "localhost"
+
+	smtpHttpPort, err := smtpServer.MappedPort(ctx, portSmtpServHTTP)
+	suite.Require().NoError(err, "Не удалось получить порт SMTP-сервера для доступа по http")
+
+	smtpHttpPortNumber := smtpHttpPort.Port()
+	suite.T().Logf("Для получения сообщенй от SMTP по http получен порт контейнера %s", smtpHttpPortNumber)
+
 	envs = append(envs, fmt.Sprintf("SMTP_HOST=%v", smtpHostAddress))
 	envs = append(envs, fmt.Sprintf("SMTP_PORT=%v", smtpPortNumber))
+
+	suite.smtpSrvHttpUrl = fmt.Sprintf("http://%s:%s", smtpHostAddress, smtpHttpPortNumber)
 
 	serverEmail := "gookeeper@gookeeper.local"
 	envs = append(envs, fmt.Sprintf("SERVER_EMAIL=%v", serverEmail))
@@ -140,8 +167,7 @@ func (suite *RegistrationTest) TearDownSuite() {
 }
 
 func (suite *RegistrationTest) TestRegistration() {
-	suite.Run("registration_success", func() {
-
+	suite.Run("registration_login_success", func() {
 		ctx := context.Background()
 
 		userEmail := "tester@yandex.ru"
@@ -159,15 +185,157 @@ func (suite *RegistrationTest) TestRegistration() {
 			Password: userPassword,
 		})
 
-		suite.Require().NoError(err, "Ошибка при регистрации email: %w", err)
+		suite.Require().NoErrorf(err, "Ошибка при регистрации email: %w", err)
 
 		// Провека email
 		time.Sleep(3 * time.Second)
 
-		// С mockSmtp возникают проблемы. TODO - заменить на container
-		// msgs := smtpServer.MessagesAndPurge()
-		// suite.Require().True(len(msgs) == 1, "На smtp сервере не найдено сообщений")
+		keyURL := suite.exatractKeyFromEMail(ctx)
 
+		otpKey, err := otp.NewKeyFromURL(keyURL)
+
+		suite.Require().NoError(err, "Ошибка при восстановлении ключа")
+
+		// Параметры валидации берем исключительно из восстановленного ключа
+		validOpts := totp.ValidateOpts{
+			Period:    uint(otpKey.Period()),
+			Digits:    otpKey.Digits(),
+			Algorithm: otpKey.Algorithm(),
+		}
+
+		regPass, err := totp.GenerateCodeCustom(otpKey.Secret(), time.Now(), validOpts)
+
+		suite.Require().NoErrorf(err, "Не удалось сгенерировать otpPass")
+
+		err = suite.client.PassRegOTP(ctx, regPass)
+		suite.Require().NoError(err, "Ошибка при проверка ключа opt")
+
+		masterPassword := "masterPassword"
+
+		hellStr := domain.Random32ByteString()
+		hellEcnrypted, err := domain.EncryptHello(masterPassword, hellStr)
+		suite.Require().NoError(err, "Ошибка при кодировании на master-ключе")
+
+		err = suite.client.InitMasterKey(ctx, &domain.MasterKeyData{
+			MasterPasswordHint: "Hint",
+			HelloEncrypted:     hellEcnrypted,
+		})
+		suite.Require().NoError(err, "Ошибка при инициализации master-ключа")
+
+		suite.T().Log("Регистрация успешной пройдена")
+		time.Sleep(3 * time.Second)
+
+		// Вход в систему
+		err = suite.client.Login(ctx, &domain.EMailData{
+			EMail:    userEmail,
+			Password: userPassword,
+		})
+		suite.Require().NoError(err, "Ошибка при логине в систему")
+
+		logingOTP, err := totp.GenerateCodeCustom(otpKey.Secret(), time.Now(), validOpts)
+		suite.Require().NoErrorf(err, "Не удалось сгенерировать otpPass для логина")
+
+		err = suite.client.PassLoginOTP(ctx, logingOTP)
+		suite.Require().NoErrorf(err, "Не удалось ввести OTP пароль для логина")
+
+		suite.T().Log("Логин в систему произведен")
+
+		hData, err := suite.client.GetHelloData(ctx)
+		suite.Require().NoErrorf(err, "Не удалось получить данные для проверки master-ключа")
+
+		err = domain.DecryptHello(masterPassword, hData.HelloEncrypted)
+		suite.Require().NoErrorf(err, "Ошибка при проверке hello")
+
+		suite.T().Log("Ключ master-ключ успешно проверен")
 	})
 
+}
+
+func (suite *RegistrationTest) exatractKeyFromEMail(ctx context.Context) string {
+	email := suite.getEMailContent(ctx)
+	qr := suite.extractQR(email)
+	keyURL := suite.decodeQRText(qr)
+	return keyURL
+}
+
+func (suite *RegistrationTest) getEMailContent(ctx context.Context) []byte {
+	client := resty.New()
+
+	msgUrl := fmt.Sprintf("%s/messages/1.eml", suite.smtpSrvHttpUrl)
+	resp, err := client.R().
+		SetContext(ctx).
+		Get(msgUrl)
+	suite.Require().NoError(err, "Ошибка при обращении к smtp-сервису")
+
+	suite.Require().Equalf(http.StatusOK, resp.StatusCode(), "Не удалось получить сообщение с SMPT-серева по адресу %s", msgUrl)
+	return resp.Body()
+
+}
+
+func (suite *RegistrationTest) extractQR(emailContent []byte) []byte {
+
+	// Ищем QR в сообщении. QR в base64 и расположен так:
+	// .....
+	// Content-Type: application/octet-stream;
+	//	 	name="QR.png"
+	//
+	// iVBORw0KGgoAAAANSUhEUgAAAcIAAAHCEAAAAAAJ40
+	// .....
+	// --555777
+
+	var qrB64 bytes.Buffer
+	buf := bytes.NewBuffer(emailContent)
+	scanner := bufio.NewScanner(buf)
+	state := 0
+Loop:
+	for scanner.Scan() {
+		if err := scanner.Err(); err != nil {
+			suite.Require().NoError(err, "Ошибка разборе email")
+		}
+		line := scanner.Text()
+		switch state {
+		case 0:
+			if strings.HasPrefix(line, "Content-Type: application/octet-stream;") {
+				state++
+			}
+		case 1:
+			if strings.Contains(line, "name=\"QR.png\"") {
+				state++
+			} else {
+				suite.Require().Failf("Ошибка при разборе email - ожидалась строка вида name=\"QR.png\"", "email: %s", string(emailContent))
+			}
+		case 2:
+			if line == "" {
+				state++
+			} else {
+				suite.Require().Failf("Ошибка при разборе email - ожидалась пустая строка", "email: %s", string(emailContent))
+			}
+		case 3:
+			if strings.HasPrefix(line, "--") {
+				break Loop
+			} else {
+				qrB64.WriteString(line)
+			}
+		}
+	}
+
+	qr, err := base64.StdEncoding.DecodeString(qrB64.String())
+	suite.Require().NoError(err, "Ошибка декодировании QR - email: %s\n\n qr: %s", string(emailContent), string(qr))
+	return qr
+}
+
+func (suite *RegistrationTest) decodeQRText(qr []byte) string {
+
+	img, _, err := image.Decode(bytes.NewReader(qr))
+	suite.Require().NoError(err, "Ошибка декодировании QR")
+
+	qrCodes, err := goqr.Recognize(img)
+	suite.Require().NoError(err, "Ошибка распознавания qr-кода")
+
+	for _, qrCode := range qrCodes {
+		return string(qrCode.Payload)
+	}
+
+	suite.Require().Fail("Не удалось излечь данные из QR")
+	return ""
 }

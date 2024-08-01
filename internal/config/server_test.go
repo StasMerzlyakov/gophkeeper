@@ -37,6 +37,10 @@ func TestLoadServConf(t *testing.T) {
 
 		assert.Equal(t, config.ServerDefaultSMTPHost, conf.SMTPHost)
 		assert.Equal(t, config.ServerDefaultSMTPPort, conf.SMTPPort)
+
+		assert.Equal(t, config.ServerDefaultSMTPUsername, conf.SMTPUsername)
+		assert.Equal(t, config.ServerDefaultSMTPPassword, conf.SMTPPassword)
+
 		assert.Equal(t, config.ServerDefaultServerEMail, conf.ServerEMail)
 
 		assert.Equal(t, config.ServerDefaultMaxConns, conf.MaxConns)
@@ -87,6 +91,12 @@ func TestLoadServConf(t *testing.T) {
 		err = os.Setenv("SMTP_HOST", "127.0.0.1")
 		require.NoError(t, err)
 
+		err = os.Setenv("SMTP_USERNAME", "john.doe")
+		require.NoError(t, err)
+
+		err = os.Setenv("SMTP_PASSWORD", "s3cr3t")
+		require.NoError(t, err)
+
 		err = os.Setenv("SMTP_PORT", "26")
 		require.NoError(t, err)
 
@@ -123,6 +133,9 @@ func TestLoadServConf(t *testing.T) {
 		assert.Equal(t, "127.0.0.1", conf.SMTPHost)
 		assert.Equal(t, 26, conf.SMTPPort)
 		assert.Equal(t, "gopheer@localhost", conf.ServerEMail)
+
+		assert.Equal(t, "john.doe", conf.SMTPUsername)
+		assert.Equal(t, "s3cr3t", conf.SMTPPassword)
 
 		assert.Equal(t, "db_uri", conf.DatabaseDN)
 		assert.Equal(t, 3, conf.MaxConns)
