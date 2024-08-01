@@ -578,6 +578,20 @@ func (mr *MockDomainHelperMockRecorder) CheckBankCardData(arg0 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckBankCardData", reflect.TypeOf((*MockDomainHelper)(nil).CheckBankCardData), arg0)
 }
 
+// CheckFileForRead mocks base method.
+func (m *MockDomainHelper) CheckFileForRead(arg0 *domain.FileInfo) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckFileForRead", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CheckFileForRead indicates an expected call of CheckFileForRead.
+func (mr *MockDomainHelperMockRecorder) CheckFileForRead(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckFileForRead", reflect.TypeOf((*MockDomainHelper)(nil).CheckFileForRead), arg0)
+}
+
 // CheckMasterPasswordComplexityLevel mocks base method.
 func (m *MockDomainHelper) CheckMasterPasswordComplexityLevel(arg0 string) bool {
 	m.ctrl.T.Helper()

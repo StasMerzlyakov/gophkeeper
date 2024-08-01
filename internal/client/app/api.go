@@ -40,6 +40,8 @@ type DomainHelper interface {
 	CheckUserPasswordData(data *domain.UserPasswordData) error
 	EncryptShortData(masterKey string, data string) (string, error)
 	DecryptShortData(masterKey string, ciphertext string) (string, error)
+
+	CheckFileForRead(info *domain.FileInfo) error
 }
 
 type AppView interface {

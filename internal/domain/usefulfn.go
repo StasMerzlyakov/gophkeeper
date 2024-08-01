@@ -12,6 +12,7 @@ import (
 	"image/png"
 	"io"
 	"net/mail"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -388,5 +389,18 @@ func CheckUserPasswordData(data *UserPasswordData) error {
 		return fmt.Errorf("%w password is not set", ErrClientDataIncorrect)
 	}
 
+	return nil
+}
+
+func CheckFileForRead(info *FileInfo) error {
+	if info.Name == "" {
+		return fmt.Errorf("%w Name is not set", ErrClientDataIncorrect)
+	}
+
+	f, err := os.Open(info.Path)
+	if err != nil {
+		return fmt.Errorf("%w file by path %s is not acceptable", ErrClientDataIncorrect, info.Path)
+	}
+	defer f.Close()
 	return nil
 }

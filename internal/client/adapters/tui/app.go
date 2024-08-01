@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"time"
+
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/gdamore/tcell/v2"
@@ -30,6 +32,9 @@ const (
 	EditUserPasswordDataPage = "EditUserPasswordDataPage"
 
 	UserPasswordDataListPage = "UserPasswordDataListPage"
+
+	UploadFilePage = "UploadFilePage"
+	FileTreePagh   = "FileTreePagh"
 )
 
 func NewApp(conf *config.ClientConf) *tuiApp {
@@ -65,6 +70,9 @@ type tuiApp struct {
 	userPasswordDataListFlex *tview.Flex
 	newUserPasswordDataFlex  *tview.Flex
 	editUserPasswordDataFlex *tview.Flex
+
+	uploadFilePageFlex *tview.Flex
+	fileTreeView       *tview.Flex
 }
 
 func (tApp *tuiApp) ShowError(err error) {
@@ -107,7 +115,6 @@ func (tApp *tuiApp) Start() error {
 	tApp.app = tview.NewApplication()
 
 	tApp.pages = tview.NewPages()
-	tApp.pages.AddPage(InitPage, tApp.createStartForm(), true, true)
 
 	tApp.loginFlex = tview.NewFlex()
 	tApp.loginMKeyFlex = tview.NewFlex()
@@ -126,6 +133,11 @@ func (tApp *tuiApp) Start() error {
 	tApp.newUserPasswordDataFlex = tview.NewFlex()
 	tApp.editUserPasswordDataFlex = tview.NewFlex()
 
+	tApp.uploadFilePageFlex = tview.NewFlex()
+	tApp.fileTreeView = tview.NewFlex()
+
+	tApp.pages.AddPage(InitPage, tApp.createStartForm(), true, true)
+
 	tApp.pages.AddPage(LoginEMailPage, tApp.loginFlex, true, false)
 	tApp.pages.AddPage(LoginOTPPage, tApp.loginOTPFlex, true, false)
 	tApp.pages.AddPage(LoginMKeyPage, tApp.loginMKeyFlex, true, false)
@@ -143,6 +155,14 @@ func (tApp *tuiApp) Start() error {
 	tApp.pages.AddPage(UserPasswordDataListPage, tApp.userPasswordDataListFlex, true, false)
 	tApp.pages.AddPage(NewUserPasswordDataPage, tApp.newUserPasswordDataFlex, true, false)
 	tApp.pages.AddPage(EditUserPasswordDataPage, tApp.editUserPasswordDataFlex, true, false)
+
+	tApp.pages.AddPage(UploadFilePage, tApp.uploadFilePageFlex, true, false)
+	tApp.pages.AddPage(FileTreePagh, tApp.fileTreeView, true, false)
+
+	go func() {
+		time.Sleep(1 * time.Second)
+		tApp.ShowUploadFileView(nil)
+	}()
 
 	if err := tApp.app.SetRoot(tApp.pages, true).EnableMouse(false).Run(); err != nil {
 		log := app.GetMainLogger()

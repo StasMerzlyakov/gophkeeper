@@ -21,4 +21,6 @@ type ViewController interface {
 	UpdatePasswordData(data *domain.UserPasswordData)
 	DeleteUpdatePasswordData(hint string)
 	GetUserPasswordData(hint string)
+
+	UploadFile(info *domain.FileInfo)
 }

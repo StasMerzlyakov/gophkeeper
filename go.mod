@@ -23,6 +23,7 @@ require (
 	github.com/testcontainers/testcontainers-go v0.32.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.32.0
 	github.com/wagslane/go-password-validator v0.3.0
+	github.com/wneessen/go-fileperm v0.2.1
 	github.com/xhit/go-simple-mail v2.2.2+incompatible
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.25.0

@@ -16,6 +16,7 @@ func NewAppController(conf *config.ClientConf) *appController {
 		loginer:      NewLoginer().LoginHelper(helper),
 		registrator:  NewRegistrator().RegHelper(helper),
 		dataAccessor: NewDataAccessor().DomainHelper(helper),
+		fileAccessor: NewFileAccessor().DomainHelper(helper),
 		helper:       helper,
 	}
 	return cntr
@@ -62,6 +63,7 @@ type appController struct {
 	loginer      *loginer
 	registrator  *registrator
 	dataAccessor *dataAccessor
+	fileAccessor *fileAccessor
 	storage      AppStorage
 }
 
@@ -210,7 +212,7 @@ func (ac *appController) GetBankCard(num string) {
 				ac.appView.ShowNewBankCardView()
 			} else {
 				if data, err := ac.storage.GetBankCard(num); err != nil {
-					ac.appView.ShowMsg(err.Error())
+					ac.appView.ShowMsg(err.Error()) // nothing to show
 				} else {
 					ac.appView.ShowEditBankCardView(data)
 				}
@@ -227,7 +229,7 @@ func (ac *appController) GetUserPasswordData(hint string) {
 				ac.appView.ShowNewUserPasswordDataView()
 			} else {
 				if data, err := ac.storage.GetUpdatePasswordData(hint); err != nil {
-					ac.appView.ShowMsg(err.Error())
+					ac.appView.ShowMsg(err.Error()) // nothing to show
 				} else {
 					ac.appView.ShowEditUserPasswordDataView(data)
 				}
@@ -286,4 +288,21 @@ func (ac *appController) DeleteUpdatePasswordData(hint string) {
 		}, func() {
 			ac.GetUserPasswordDataList()
 		})
+}
+
+func (ac *appController) UploadFile(info *domain.FileInfo) {
+	ac.invokeFn(
+		func(ctx context.Context) error {
+			if err := ac.fileAccessor.UploadFile(ctx, info); err != nil {
+				ac.appView.ShowMsg(err.Error())
+			} else {
+				ac.appView.ShowMsg("OK")
+			}
+			return nil
+		},
+		func() {
+			// TODO show All files page
+			ac.appView.ShowMsg("OK")
+		},
+	)
 }
