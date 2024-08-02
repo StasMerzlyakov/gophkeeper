@@ -396,12 +396,13 @@ func CheckFileForRead(info *FileInfo) error {
 	if info.Name == "" {
 		return fmt.Errorf("%w Name is not set", ErrClientDataIncorrect)
 	}
-
 	f, err := os.Open(info.Path)
 	if err != nil {
 		return fmt.Errorf("%w file by path %s is not acceptable", ErrClientDataIncorrect, info.Path)
 	}
-	defer f.Close()
+	if err := f.Close(); err != nil {
+		return fmt.Errorf("%w file %s close error %s", ErrClientDataIncorrect, info.Path, err.Error())
+	}
 	return nil
 }
 
@@ -424,5 +425,4 @@ func CheckFileForWrite(info *FileInfo) error {
 	}
 
 	return nil
-
 }
