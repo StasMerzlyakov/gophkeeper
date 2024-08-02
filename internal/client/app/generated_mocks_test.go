@@ -466,6 +466,18 @@ func (mr *MockAppViewMockRecorder) ShowNewUserPasswordDataView() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowNewUserPasswordDataView", reflect.TypeOf((*MockAppView)(nil).ShowNewUserPasswordDataView))
 }
 
+// ShowProgressBar mocks base method.
+func (m *MockAppView) ShowProgressBar(arg0, arg1 string, arg2 float64, arg3 func()) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ShowProgressBar", arg0, arg1, arg2, arg3)
+}
+
+// ShowProgressBar indicates an expected call of ShowProgressBar.
+func (mr *MockAppViewMockRecorder) ShowProgressBar(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowProgressBar", reflect.TypeOf((*MockAppView)(nil).ShowProgressBar), arg0, arg1, arg2, arg3)
+}
+
 // ShowRegMasterKeyView mocks base method.
 func (m *MockAppView) ShowRegMasterKeyView() {
 	m.ctrl.T.Helper()

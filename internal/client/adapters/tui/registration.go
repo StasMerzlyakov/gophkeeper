@@ -38,7 +38,7 @@ func (tApp *tuiApp) ShowRegOTPView() {
 					}
 					return event
 				})
-
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(RegOTPPage)
 		})
 	}()
@@ -80,7 +80,7 @@ func (tApp *tuiApp) ShowRegView() {
 					}
 					return event
 				})
-
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(RegEMailPage)
 		})
 	}()
@@ -122,6 +122,7 @@ func (tApp *tuiApp) ShowRegMasterKeyView() {
 					}
 					return event
 				})
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(RegMKeyPage)
 		})
 	}()

@@ -29,7 +29,9 @@ func TestController(t *testing.T) {
 
 		appController.Start()
 		time.Sleep(3 * time.Second)
-		appController.Stop()
+		stpCtx, stopFn := context.WithTimeout(context.Background(), time.Second)
+		appController.Stop(stpCtx)
+		defer stopFn()
 	})
 
 	t.Run("start_stop_restore", func(t *testing.T) {
@@ -83,6 +85,8 @@ func TestController(t *testing.T) {
 
 		time.Sleep(1 * time.Second)
 
-		appController.Stop()
+		stpCtx, stopFn := context.WithTimeout(context.Background(), time.Second)
+		appController.Stop(stpCtx)
+		defer stopFn()
 	})
 }

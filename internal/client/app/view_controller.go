@@ -4,6 +4,8 @@ import (
 	"context"
 	"crypto/rand"
 	"errors"
+	"fmt"
+	"sync"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
@@ -29,11 +31,24 @@ func (ac *viewController) Start() {
 	ac.server.Start()
 }
 
-func (ac *viewController) Stop() {
+func (ac *viewController) Stop(stopCtx context.Context) {
 	if ac.server == nil {
 		panic("appController is not initialized - server is nil")
 	}
-	ac.server.Stop()
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		ac.server.Stop()
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		ac.fileAccessor.Stop(stopCtx)
+	}()
+
+	wg.Wait()
 }
 
 func (ac *viewController) SetInfoView(view AppView) *viewController {
@@ -346,15 +361,35 @@ func (ac *viewController) DeleteUpdatePasswordData(hint string) {
 }
 
 func (ac *viewController) UploadFile(info *domain.FileInfo) {
-	ac.invokeFn(
-		func(ctx context.Context) error {
-			if err := ac.fileAccessor.UploadFile(ctx, info); err != nil {
-				return err
-			}
-			return nil
-		},
-		func() {
+
+	var cancelFnHandler func()
+
+	cancelFn := func() {
+		if cancelFnHandler != nil {
+			cancelFnHandler()
+		}
+	}
+
+	resultHandler := func(err error) {
+		if err != nil {
+			ac.appView.ShowMsg(err.Error())
+		} else {
 			ac.GetFilesInfoList()
-		},
-	)
+		}
+	}
+
+	progerssFn := func(done int, common int) {
+		go func() {
+			percentage := float64(done*100) / float64(common)
+			progressText := fmt.Sprintf("uploading %d of %d", done, common)
+			ac.appView.ShowProgressBar(fmt.Sprintf("Uploading %s", info.Name), progressText, percentage, cancelFn)
+		}()
+	}
+
+	ctx := context.Background()
+	if hndl, err := ac.fileAccessor.UploadFile(ctx, info, resultHandler, progerssFn); err != nil {
+		ac.appView.ShowMsg(err.Error())
+	} else {
+		cancelFnHandler = hndl
+	}
 }

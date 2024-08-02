@@ -50,6 +50,7 @@ func (tApp *tuiApp) ShowDataAccessView() {
 					}
 					return event
 				})
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(DataPageMain)
 		})
 	}()

@@ -46,6 +46,7 @@ func (tApp *tuiApp) ShowBankCardListView(cardsNumber []string) {
 					}
 					return event
 				})
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(BankCardListPage)
 			log.Debug("ShowBankCardListView shown")
 		})
@@ -96,6 +97,7 @@ func (tApp *tuiApp) ShowNewBankCardView() {
 					}
 					return event
 				})
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(NewBankCardPage)
 			log.Debug("NewBankCard shown")
 		})
@@ -152,6 +154,7 @@ func (tApp *tuiApp) ShowEditBankCardView(bankCard *domain.BankCard) {
 					}
 					return event
 				})
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(EditBankCardPage)
 			log.Debug("EditBankCard shown")
 		})

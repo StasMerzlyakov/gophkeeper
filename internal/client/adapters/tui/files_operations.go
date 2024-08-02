@@ -51,6 +51,7 @@ func (tApp *tuiApp) ShowFileInfoListView(filesInfoList []domain.FileInfo) {
 					}
 					return event
 				})
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(FileInfoListPage)
 			log.Debug("ShowFileInfListView shown")
 		})
@@ -99,10 +100,11 @@ func (tApp *tuiApp) ShowUploadFileView(info *domain.FileInfo) {
 					case tcell.KeyCtrlQ:
 						tApp.app.Stop()
 					case tcell.KeyCtrlB:
-						tApp.pages.SwitchToPage(DataPageMain)
+						tApp.pages.SwitchToPage(FileInfoListPage)
 					}
 					return event
 				})
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(UploadFilePage)
 			log.Debug("ShowUploadFileView complete")
 		})
@@ -151,10 +153,11 @@ func (tApp *tuiApp) ShowFileInfoView(info *domain.FileInfo) {
 					case tcell.KeyCtrlQ:
 						tApp.app.Stop()
 					case tcell.KeyCtrlB:
-						tApp.pages.SwitchToPage(DataPageMain)
+						tApp.pages.SwitchToPage(FileInfoListPage)
 					}
 					return event
 				})
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(FileInfoPage)
 			log.Debug("ShowFileInfoView complete")
 		})

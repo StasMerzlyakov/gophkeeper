@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/adapters/grpc/handler"
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/adapters/storage"
@@ -57,7 +59,12 @@ func main() {
 
 	// controller
 	appCtrl := app.NewViewController(conf)
-	defer appCtrl.Stop()
+
+	defer func() {
+		stopCtx, cnclFn := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cnclFn()
+		appCtrl.Stop(stopCtx)
+	}()
 
 	statusWrapper := app.NewStatusWrapper(conf, helper)
 

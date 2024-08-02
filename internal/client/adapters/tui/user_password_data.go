@@ -46,6 +46,7 @@ func (tApp *tuiApp) ShowUserPasswordDataListView(hintList []string) {
 					}
 					return event
 				})
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(UserPasswordDataListPage)
 		})
 	}()
@@ -91,6 +92,7 @@ func (tApp *tuiApp) ShowEditUserPasswordDataView(data *domain.UserPasswordData) 
 					}
 					return event
 				})
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(EditUserPasswordDataPage)
 		})
 	}()
@@ -137,6 +139,7 @@ func (tApp *tuiApp) ShowNewUserPasswordDataView() {
 					}
 					return event
 				})
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(NewUserPasswordDataPage)
 		})
 	}()

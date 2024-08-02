@@ -92,6 +92,7 @@ func (tApp *tuiApp) SelectFileView(current *domain.FileInfo, selectFn func(info 
 					}
 					return event
 				})
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(FileTreePagh)
 			log.Debug("SelectFileView shown")
 		})
@@ -182,6 +183,7 @@ func (tApp *tuiApp) SelectDirectoryView(current *domain.FileInfo, selectFn func(
 					}
 					return event
 				})
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(FileTreePagh)
 			log.Debug("SelectFileView shown")
 		})

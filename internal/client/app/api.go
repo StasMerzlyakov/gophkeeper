@@ -73,6 +73,7 @@ type AppView interface {
 	ShowNewUserPasswordDataView()
 	ShowFileInfoView(info *domain.FileInfo)
 	ShowFileInfoListView(filesInfoList []domain.FileInfo)
+	ShowProgressBar(title string, progressText string, percentage float64, cancelFn func())
 }
 
 type AppServer interface {
