@@ -15,12 +15,14 @@ type ViewController interface {
 	UpdateBankCard(bankCard *domain.BankCardView)
 	DeleteBankCard(number string)
 	GetBankCard(number string)
+	NewBankCard()
 
 	GetUserPasswordDataList()
 	AddUserPasswordData(data *domain.UserPasswordData)
 	UpdatePasswordData(data *domain.UserPasswordData)
 	DeleteUpdatePasswordData(hint string)
 	GetUserPasswordData(hint string)
+	NewUserPasswordData()
 
 	UploadFile(info *domain.FileInfo)
 	SaveFile(info *domain.FileInfo)

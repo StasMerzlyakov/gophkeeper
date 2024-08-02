@@ -38,7 +38,7 @@ func (tApp *tuiApp) ShowUserPasswordDataListView(hintList []string) {
 				SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 					switch event.Key() {
 					case tcell.KeyCtrlN:
-						tApp.controller.GetUserPasswordData("")
+						tApp.controller.NewUserPasswordData()
 					case tcell.KeyCtrlQ:
 						tApp.app.Stop()
 					case tcell.KeyCtrlB:

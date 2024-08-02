@@ -38,7 +38,7 @@ func (tApp *tuiApp) ShowBankCardListView(cardsNumber []string) {
 				SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 					switch event.Key() {
 					case tcell.KeyCtrlN:
-						tApp.controller.GetBankCard("")
+						tApp.controller.NewBankCard()
 					case tcell.KeyCtrlQ:
 						tApp.app.Stop()
 					case tcell.KeyCtrlB:

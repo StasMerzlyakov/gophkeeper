@@ -56,7 +56,7 @@ func main() {
 	}
 
 	// controller
-	appCtrl := app.NewAppController(conf)
+	appCtrl := app.NewViewController(conf)
 	defer appCtrl.Stop()
 
 	statusWrapper := app.NewStatusWrapper(conf, helper)

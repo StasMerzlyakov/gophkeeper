@@ -21,9 +21,15 @@ func (lg *loginer) LoginHelper(helper DomainHelper) *loginer {
 	return lg
 }
 
+func (lg *loginer) LoginStorage(storage AppStorage) *loginer {
+	lg.storage = storage
+	return lg
+}
+
 type loginer struct {
-	logSrv AppServer
-	helper DomainHelper
+	logSrv  AppServer
+	helper  DomainHelper
+	storage AppStorage
 }
 
 func (lg *loginer) Login(ctx context.Context, data *domain.EMailData) error {
@@ -70,5 +76,6 @@ func (lg *loginer) CheckMasterKey(ctx context.Context, masterPassword string) (e
 	}
 
 	log.Debug("checkMasterKey success")
+	lg.storage.SetMasterPassword(masterPassword)
 	return nil, ""
 }

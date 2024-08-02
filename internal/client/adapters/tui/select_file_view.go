@@ -8,7 +8,6 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
-	fileperm "github.com/wneessen/go-fileperm"
 )
 
 func (tApp *tuiApp) SelectFileView(current *domain.FileInfo, selectFn func(info *domain.FileInfo)) {
@@ -44,14 +43,9 @@ func (tApp *tuiApp) SelectFileView(current *domain.FileInfo, selectFn func(info 
 					for _, file := range files {
 						path := filepath.Join(path, file.Name())
 
-						up, err := fileperm.New(path)
-						if err != nil {
-							log.Errorf("can't create fileperm %s", err.Error())
-							panic(err)
-						}
 						node := tview.NewTreeNode(file.Name()).
 							SetReference(path).
-							SetSelectable(up.UserReadable())
+							SetSelectable(true)
 						if file.IsDir() {
 							node.SetColor(tcell.ColorGreen)
 						}

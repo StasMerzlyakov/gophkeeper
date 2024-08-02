@@ -25,7 +25,7 @@ const (
 	DataPageMain = "DataPageMain"
 
 	NewBankCardPage  = "NewBankCardPage"
-	EditBankCardPage = "NewBankCardPage"
+	EditBankCardPage = "EditBankCardPage"
 
 	BankCardListPage = "BankCardListPage"
 
@@ -193,10 +193,11 @@ func (tApp *tuiApp) Start() error {
 	tApp.pages.AddPage(FileTreePagh, tApp.fileTreeView, true, false)
 	tApp.pages.AddPage(FileInfoPage, tApp.fileInfoFlex, true, false)
 
-	go func() {
+	/*go func() {
 		time.Sleep(1 * time.Second)
-		tApp.ShowProgressBar("ProcessBar")
-	}()
+		tApp.ShowNewUserPasswordDataView()
+		//tApp.ShowProgressBar("ProcessBar")
+	}() */
 
 	if err := tApp.app.SetRoot(tApp.pages, true).EnableMouse(false).Run(); err != nil {
 		log := app.GetMainLogger()

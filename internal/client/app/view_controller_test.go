@@ -25,7 +25,7 @@ func TestController(t *testing.T) {
 		conf := &config.ClientConf{
 			InterationTimeout: 1 * time.Second,
 		}
-		appController := app.NewAppController(conf).SetServer(mockSrv)
+		appController := app.NewViewController(conf).SetServer(mockSrv)
 
 		appController.Start()
 		time.Sleep(3 * time.Second)
@@ -62,7 +62,7 @@ func TestController(t *testing.T) {
 
 		mockView.EXPECT().ShowLogOTPView().Times(1)
 
-		appController := app.NewAppController(conf).SetServer(mockSrv).SetInfoView(mockView)
+		appController := app.NewViewController(conf).SetServer(mockSrv).SetInfoView(mockView)
 
 		appController.Start()
 

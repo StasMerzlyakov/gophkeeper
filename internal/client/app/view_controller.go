@@ -9,9 +9,9 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
-func NewAppController(conf *config.ClientConf) *appController {
+func NewViewController(conf *config.ClientConf) *viewController {
 	helper := NewHelper(rand.Read)
-	cntr := &appController{
+	cntr := &viewController{
 		conf:         conf,
 		loginer:      NewLoginer().LoginHelper(helper),
 		registrator:  NewRegistrator().RegHelper(helper),
@@ -22,33 +22,34 @@ func NewAppController(conf *config.ClientConf) *appController {
 	return cntr
 }
 
-func (ac *appController) Start() {
+func (ac *viewController) Start() {
 	if ac.server == nil {
 		panic("appController is not initialized - server is nil")
 	}
 	ac.server.Start()
 }
 
-func (ac *appController) Stop() {
+func (ac *viewController) Stop() {
 	if ac.server == nil {
 		panic("appController is not initialized - server is nil")
 	}
 	ac.server.Stop()
 }
 
-func (ac *appController) SetInfoView(view AppView) *appController {
+func (ac *viewController) SetInfoView(view AppView) *viewController {
 	ac.appView = view
 	return ac
 }
 
-func (ac *appController) SetAppStorage(storage AppStorage) *appController {
+func (ac *viewController) SetAppStorage(storage AppStorage) *viewController {
 	ac.storage = storage
 	ac.dataAccessor.AppStorage(storage)
 	ac.fileAccessor.AppStorage(storage)
+	ac.loginer.LoginStorage(storage)
 	return ac
 }
 
-func (ac *appController) SetServer(server AppServer) *appController {
+func (ac *viewController) SetServer(server AppServer) *viewController {
 	ac.server = server
 	ac.loginer.LoginSever(server)
 	ac.registrator.RegServer(server)
@@ -57,7 +58,7 @@ func (ac *appController) SetServer(server AppServer) *appController {
 	return ac
 }
 
-type appController struct {
+type viewController struct {
 	conf         *config.ClientConf
 	appView      AppView
 	helper       DomainHelper // не нужен
@@ -69,7 +70,7 @@ type appController struct {
 	storage      AppStorage
 }
 
-func (ac *appController) invokeFn(fn func(ctx context.Context) error, successFn func()) {
+func (ac *viewController) invokeFn(fn func(ctx context.Context) error, successFn func()) {
 	go func() {
 		ctx := context.Background()
 		if err := fn(ctx); err != nil {
@@ -82,7 +83,7 @@ func (ac *appController) invokeFn(fn func(ctx context.Context) error, successFn 
 	}()
 }
 
-func (ac *appController) LoginEMail(data *domain.EMailData) {
+func (ac *viewController) LoginEMail(data *domain.EMailData) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			return ac.loginer.Login(ctx, data)
@@ -91,7 +92,7 @@ func (ac *appController) LoginEMail(data *domain.EMailData) {
 			ac.appView.ShowLogOTPView()
 		})
 }
-func (ac *appController) LoginPassOTP(otpPass *domain.OTPPass) {
+func (ac *viewController) LoginPassOTP(otpPass *domain.OTPPass) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			return ac.loginer.PassOTP(ctx, otpPass)
@@ -100,7 +101,7 @@ func (ac *appController) LoginPassOTP(otpPass *domain.OTPPass) {
 			ac.appView.ShowMasterKeyView("")
 		})
 }
-func (ac *appController) LoginCheckMasterKey(masterKeyPassword string) {
+func (ac *viewController) LoginCheckMasterKey(masterKeyPassword string) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			err, hint := ac.loginer.CheckMasterKey(ctx, masterKeyPassword)
@@ -110,11 +111,10 @@ func (ac *appController) LoginCheckMasterKey(masterKeyPassword string) {
 			return err
 		},
 		func() {
-			ac.storage.SetMasterPassword(masterKeyPassword)
 			ac.appView.ShowDataAccessView()
 		})
 }
-func (ac *appController) RegEMail(data *domain.EMailData) {
+func (ac *viewController) RegEMail(data *domain.EMailData) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			return ac.registrator.Registrate(ctx, data)
@@ -123,7 +123,7 @@ func (ac *appController) RegEMail(data *domain.EMailData) {
 			ac.appView.ShowRegOTPView()
 		})
 }
-func (ac *appController) RegPassOTP(otpPass *domain.OTPPass) {
+func (ac *viewController) RegPassOTP(otpPass *domain.OTPPass) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			return ac.registrator.PassOTP(ctx, otpPass)
@@ -132,7 +132,7 @@ func (ac *appController) RegPassOTP(otpPass *domain.OTPPass) {
 			ac.appView.ShowRegMasterKeyView()
 		})
 }
-func (ac *appController) RegInitMasterKey(mKey *domain.UnencryptedMasterKeyData) {
+func (ac *viewController) RegInitMasterKey(mKey *domain.UnencryptedMasterKeyData) {
 	ac.invokeFn(func(ctx context.Context) error {
 		return ac.registrator.InitMasterKey(ctx, mKey)
 	}, func() {
@@ -140,21 +140,16 @@ func (ac *appController) RegInitMasterKey(mKey *domain.UnencryptedMasterKeyData)
 	})
 }
 
-func (ac *appController) GetBankCardList() {
+func (ac *viewController) GetBankCardList() {
 	ac.invokeFn(func(ctx context.Context) error {
-		if err := ac.dataAccessor.GetBankCardList(ctx); err != nil {
-			ac.appView.ShowMsg(err.Error())
-			nmbrs := ac.storage.GetBankCardNumberList()
-			ac.appView.ShowBankCardListView(nmbrs)
-		}
-		return nil
+		return ac.dataAccessor.GetBankCardList(ctx)
 	}, func() {
 		nmbrs := ac.storage.GetBankCardNumberList()
 		ac.appView.ShowBankCardListView(nmbrs)
 	})
 }
 
-func (ac *appController) AddBankCard(bankCardView *domain.BankCardView) {
+func (ac *viewController) AddBankCard(bankCardView *domain.BankCardView) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			bankCard, err := bankCardView.ToBankCard()
@@ -164,9 +159,9 @@ func (ac *appController) AddBankCard(bankCardView *domain.BankCardView) {
 
 			if err := ac.dataAccessor.AddBankCard(ctx, bankCard); err != nil {
 				if errors.Is(err, domain.ErrClientDataIncorrect) {
-					return err
+					return err // client error - show the error and leave the current page
 				}
-				ac.appView.ShowMsg(err.Error())
+				ac.appView.ShowMsg(err.Error()) // show the error and change page to cardList
 			}
 			return nil
 		}, func() {
@@ -174,7 +169,7 @@ func (ac *appController) AddBankCard(bankCardView *domain.BankCardView) {
 		})
 }
 
-func (ac *appController) UpdateBankCard(bankCardView *domain.BankCardView) {
+func (ac *viewController) UpdateBankCard(bankCardView *domain.BankCardView) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			bankCard, err := bankCardView.ToBankCard()
@@ -184,9 +179,9 @@ func (ac *appController) UpdateBankCard(bankCardView *domain.BankCardView) {
 
 			if err := ac.dataAccessor.UpdateBankCard(ctx, bankCard); err != nil {
 				if errors.Is(err, domain.ErrClientDataIncorrect) {
-					return err
+					return err // client error - show the error and leave the current page
 				}
-				ac.appView.ShowMsg(err.Error())
+				ac.appView.ShowMsg(err.Error()) // show the error and change page to cardList
 			}
 			return nil
 		},
@@ -195,11 +190,11 @@ func (ac *appController) UpdateBankCard(bankCardView *domain.BankCardView) {
 		})
 }
 
-func (ac *appController) DeleteBankCard(number string) {
+func (ac *viewController) DeleteBankCard(number string) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			if err := ac.dataAccessor.DeleteBankCard(ctx, number); err != nil {
-				ac.appView.ShowMsg(err.Error())
+				ac.appView.ShowMsg(err.Error()) // show the error and leave the current page
 			}
 			return nil
 		}, func() {
@@ -207,23 +202,28 @@ func (ac *appController) DeleteBankCard(number string) {
 		})
 }
 
-func (ac *appController) GetBankCard(num string) {
+func (ac *viewController) GetBankCard(num string) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
-			if num == "" {
-				ac.appView.ShowNewBankCardView()
+			if data, err := ac.storage.GetBankCard(num); err != nil {
+				return err //nothig to show
 			} else {
-				if data, err := ac.storage.GetBankCard(num); err != nil {
-					return err //nothig to show
-				} else {
-					ac.appView.ShowEditBankCardView(data)
-				}
+				ac.appView.ShowEditBankCardView(data)
 			}
 			return nil
 		}, nil)
 }
 
-func (ac *appController) GetFileInfo(name string) {
+func (ac *viewController) NewBankCard() {
+	ac.invokeFn(
+		func(ctx context.Context) error {
+			return nil
+		}, func() {
+			ac.appView.ShowNewBankCardView()
+		})
+}
+
+func (ac *viewController) GetFileInfo(name string) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			if data, err := ac.storage.GetFileInfo(name); err != nil {
@@ -235,7 +235,7 @@ func (ac *appController) GetFileInfo(name string) {
 		}, nil)
 }
 
-func (ac *appController) SaveFile(info *domain.FileInfo) {
+func (ac *viewController) SaveFile(info *domain.FileInfo) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			if err := ac.fileAccessor.SaveFile(ctx, info); err != nil {
@@ -247,7 +247,7 @@ func (ac *appController) SaveFile(info *domain.FileInfo) {
 		})
 }
 
-func (ac *appController) DeleteFile(name string) {
+func (ac *viewController) DeleteFile(name string) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			if err := ac.fileAccessor.DeleteFile(ctx, name); err != nil {
@@ -260,23 +260,28 @@ func (ac *appController) DeleteFile(name string) {
 }
 
 // GetUserPasswordData invoked by tui view
-func (ac *appController) GetUserPasswordData(hint string) {
+func (ac *viewController) GetUserPasswordData(hint string) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
-			if hint == "" {
-				ac.appView.ShowNewUserPasswordDataView()
+			if data, err := ac.storage.GetUserPasswordData(hint); err != nil {
+				return err //nothig to show
 			} else {
-				if data, err := ac.storage.GetUserPasswordData(hint); err != nil {
-					return err //nothig to show
-				} else {
-					ac.appView.ShowEditUserPasswordDataView(data)
-				}
+				ac.appView.ShowEditUserPasswordDataView(data)
 			}
 			return nil
 		}, nil)
 }
 
-func (ac *appController) GetFilesInfoList() {
+func (ac *viewController) NewUserPasswordData() {
+	ac.invokeFn(
+		func(ctx context.Context) error {
+			return nil
+		}, func() {
+			ac.appView.ShowNewUserPasswordDataView()
+		})
+}
+
+func (ac *viewController) GetFilesInfoList() {
 	ac.invokeFn(func(ctx context.Context) error {
 		if err := ac.fileAccessor.GetFileInfoList(ctx); err != nil {
 			ac.appView.ShowMsg(err.Error())
@@ -288,7 +293,7 @@ func (ac *appController) GetFilesInfoList() {
 	})
 }
 
-func (ac *appController) GetUserPasswordDataList() {
+func (ac *viewController) GetUserPasswordDataList() {
 	ac.invokeFn(func(ctx context.Context) error {
 		if err := ac.dataAccessor.GetUserPasswordDataList(ctx); err != nil {
 			ac.appView.ShowMsg(err.Error())
@@ -300,7 +305,7 @@ func (ac *appController) GetUserPasswordDataList() {
 	})
 }
 
-func (ac *appController) AddUserPasswordData(data *domain.UserPasswordData) {
+func (ac *viewController) AddUserPasswordData(data *domain.UserPasswordData) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			if err := ac.dataAccessor.AddUserPasswordData(ctx, data); err != nil {
@@ -314,7 +319,7 @@ func (ac *appController) AddUserPasswordData(data *domain.UserPasswordData) {
 			ac.GetUserPasswordDataList()
 		})
 }
-func (ac *appController) UpdatePasswordData(data *domain.UserPasswordData) {
+func (ac *viewController) UpdatePasswordData(data *domain.UserPasswordData) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			if err := ac.dataAccessor.UpdateUserPasswordData(ctx, data); err != nil {
@@ -328,7 +333,7 @@ func (ac *appController) UpdatePasswordData(data *domain.UserPasswordData) {
 			ac.GetUserPasswordDataList()
 		})
 }
-func (ac *appController) DeleteUpdatePasswordData(hint string) {
+func (ac *viewController) DeleteUpdatePasswordData(hint string) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			if err := ac.dataAccessor.DeleteUserPasswordData(ctx, hint); err != nil {
@@ -340,7 +345,7 @@ func (ac *appController) DeleteUpdatePasswordData(hint string) {
 		})
 }
 
-func (ac *appController) UploadFile(info *domain.FileInfo) {
+func (ac *viewController) UploadFile(info *domain.FileInfo) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			if err := ac.fileAccessor.UploadFile(ctx, info); err != nil {
