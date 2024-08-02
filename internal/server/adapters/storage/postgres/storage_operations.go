@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -24,11 +25,14 @@ func (st *storage) Registrate(ctx context.Context, data *domain.FullRegistration
 
 	var userID int64
 
+	// I beleave a uuid collision is unlikely.
+	uuid := uuid.New().String()
+
 	if err := st.pPool.QueryRow(ctx,
-		`insert into user_info(email, pass_hash, pass_salt, otp_key, master_hint, hello_encrypted) 
-		 values ($1, $2, $3, $4, $5, $6) on conflict("email") do nothing returning user_id;
+		`insert into user_info(email, pass_hash, pass_salt, otp_key, master_hint, hello_encrypted, bucket) 
+		 values ($1, $2, $3, $4, $5, $6, $7) on conflict("email") do nothing returning user_id;
 	  	`, data.EMail, data.PasswordHash, data.PasswordSalt, data.EncryptedOTPKey,
-		data.MasterPasswordHint, data.HelloEncrypted).Scan(&userID); err != nil {
+		data.MasterPasswordHint, data.HelloEncrypted, uuid).Scan(&userID); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			// email already registered
 			return fmt.Errorf("%w - email %s already registered", domain.ErrClientDataIncorrect, data.EMail)
