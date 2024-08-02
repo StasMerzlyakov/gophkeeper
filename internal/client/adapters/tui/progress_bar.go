@@ -21,9 +21,6 @@ type ProgressBar struct {
 	// The form embedded in the ProgressBar's frame.
 	form *tview.Form
 
-	// The message text (original, not word-wrapped).
-	text string
-
 	// The progress bar text
 	progressText string
 
@@ -32,9 +29,8 @@ type ProgressBar struct {
 
 	percentage float64
 
-	// The optional callback for when the user clicked one of the buttons. It
-	// receives the index of the clicked button and the button's label.
-	done func()
+	// The optional callback for when the user clicked one of the cancel buttons.
+	cancel func()
 }
 
 func GetProgressGlyph(width, percentage float64, btext string) string {
@@ -69,8 +65,8 @@ func NewProgressBar() *ProgressBar {
 		SetButtonTextColor(tview.Styles.PrimaryTextColor)
 	m.form.SetBackgroundColor(tview.Styles.ContrastBackgroundColor).SetBorderPadding(0, 0, 0, 0)
 	m.form.SetCancelFunc(func() {
-		if m.done != nil {
-			m.done()
+		if m.cancel != nil {
+			m.cancel()
 		}
 	})
 	m.frame = tview.NewFrame(m.form).SetBorders(0, 0, 1, 0, 0, 0)
@@ -116,20 +112,9 @@ func (m *ProgressBar) SetButtonActivatedStyle(style tcell.Style) *ProgressBar {
 	return m
 }
 
-// SetDoneFunc sets a handler which is called when one of the buttons was
-// pressed. It receives the index of the button as well as its label text. The
-// handler is also called when the user presses the Escape key. The index will
-// then be negative and the label text an empty string.
-func (m *ProgressBar) SetDoneFunc(handler func()) *ProgressBar {
-	m.done = handler
-	return m
-}
-
-// SetText sets the message text of the window. The text may contain line
-// breaks but style tag states will not transfer to following lines. Note that
-// words are wrapped, too, based on the final size of the window.
-func (m *ProgressBar) SetText(text string) *ProgressBar {
-	m.text = text
+// SetCancelFunc set cancel callback
+func (m *ProgressBar) SetCancelFunc(handler func()) *ProgressBar {
+	m.cancel = handler
 	return m
 }
 
@@ -144,8 +129,8 @@ func (m *ProgressBar) SetProgressText(progressText string) *ProgressBar {
 func (m *ProgressBar) AddCancelButton(label string) *ProgressBar {
 
 	m.form.AddButton(label, func() {
-		if m.done != nil {
-			m.done()
+		if m.cancel != nil {
+			m.cancel()
 		}
 	})
 	button := m.form.GetButton(m.form.GetButtonCount() - 1)
@@ -186,6 +171,9 @@ func (m *ProgressBar) HasFocus() bool {
 
 // Draw draws this primitive onto the screen.
 func (m *ProgressBar) Draw(screen tcell.Screen) {
+	// Mixed code from https://github.com/aditya-K2/gomp/blob/master/ui/progressBar.go and tview.Modal
+	// TODO - rewrite
+
 	// Calculate the width of this ProgressBar.
 	buttonsWidth := 0
 	for i := 0; i < m.form.GetButtonCount(); i++ {
@@ -203,7 +191,8 @@ func (m *ProgressBar) Draw(screen tcell.Screen) {
 
 	// Reset the text and find out how wide it is.
 	m.frame.Clear()
-	lines := tview.WordWrap(m.text, width) // added a new line for reserving space for the progress bar
+
+	lines := tview.WordWrap("", width)
 	for _, line := range lines {
 		m.frame.AddText(line, true, tview.AlignCenter, m.textColor)
 	}

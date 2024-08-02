@@ -1,9 +1,6 @@
 package tui
 
 import (
-	"sync/atomic"
-	"time"
-
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/gdamore/tcell/v2"
@@ -118,25 +115,17 @@ func (tApp *tuiApp) ShowMsg(msg string) {
 	}()
 }
 
-func (tApp *tuiApp) ShowProgressBar(title string) {
+func (tApp *tuiApp) ShowProgressBar(title string, progressText string, percentage float64, cancelFn func()) {
 	go func() {
-		var done atomic.Bool
-		for percentage := 0.; percentage < 100 && !done.Load(); percentage += 10 {
-			p := percentage
-			tApp.app.QueueUpdateDraw(func() {
-				pBar := NewProgressBar().
-					AddCancelButton("Cancel").
-					SetProgressText("uploading?").
-					SetPercentage(p).
-					SetDoneFunc(func() {
-						done.Store(true)
-						tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
-					})
-				pBar.SetTitle("Processing")
-				tApp.app.SetRoot(pBar, true).SetFocus(pBar)
-			})
-			time.Sleep(2 * time.Second)
-		}
+		tApp.app.QueueUpdateDraw(func() {
+			pBar := NewProgressBar().
+				AddCancelButton("Cancel").
+				SetProgressText(progressText).
+				SetPercentage(percentage).
+				SetCancelFunc(cancelFn)
+			pBar.SetTitle(title)
+			tApp.app.SetRoot(pBar, true).SetFocus(pBar)
+		})
 	}()
 }
 
@@ -192,12 +181,6 @@ func (tApp *tuiApp) Start() error {
 	tApp.pages.AddPage(UploadFilePage, tApp.uploadFilePageFlex, true, false)
 	tApp.pages.AddPage(FileTreePagh, tApp.fileTreeView, true, false)
 	tApp.pages.AddPage(FileInfoPage, tApp.fileInfoFlex, true, false)
-
-	/*go func() {
-		time.Sleep(1 * time.Second)
-		tApp.ShowNewUserPasswordDataView()
-		//tApp.ShowProgressBar("ProcessBar")
-	}() */
 
 	if err := tApp.app.SetRoot(tApp.pages, true).EnableMouse(false).Run(); err != nil {
 		log := app.GetMainLogger()
