@@ -62,3 +62,7 @@ func (h *helper) CheckFileForRead(info *domain.FileInfo) error {
 func (h *helper) CheckFileForWrite(info *domain.FileInfo) error {
 	return domain.CheckFileForWrite(info)
 }
+
+func (h *helper) CreateFileStreamer(info *domain.FileInfo) (domain.StreamFileReader, error) {
+	return domain.CreateFileStreamer(info)
+}

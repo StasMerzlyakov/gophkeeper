@@ -25,7 +25,11 @@ func NewHandler(conf *config.ClientConf) (*handler, error) {
 
 	h := &handler{}
 
-	client, err := grpc.NewClient(conf.ServerAddress, grpc.WithTransportCredentials(cred), grpc.WithUnaryInterceptor(h.JWTInterceptor))
+	client, err := grpc.NewClient(conf.ServerAddress,
+		grpc.WithTransportCredentials(cred),
+		grpc.WithUnaryInterceptor(h.JWTInterceptor),
+		grpc.WithStreamInterceptor(h.JWTStreamInterceptor))
+
 	if err != nil {
 		return nil, fmt.Errorf("%w can't create grpc client %v", domain.ErrClientInternal, err.Error())
 	}
@@ -35,6 +39,7 @@ func NewHandler(conf *config.ClientConf) (*handler, error) {
 	h.loginer = proto.NewAuthServiceClient(client)
 	h.dataAccessor = proto.NewDataAccessorClient(client)
 	h.registrator = proto.NewRegistrationServiceClient(client)
+	h.fileAccessor = proto.NewFileAccessorClient(client)
 
 	return h, nil
 }
@@ -47,6 +52,7 @@ type handler struct {
 	dataAccessor proto.DataAccessorClient
 	loginer      proto.AuthServiceClient
 	registrator  proto.RegistrationServiceClient
+	fileAccessor proto.FileAccessorClient
 	sessionID    string
 	jwtToken     string
 }
@@ -178,6 +184,14 @@ func (h *handler) JWTInterceptor(ctx context.Context, method string, req interfa
 		ctx = metadata.AppendToOutgoingContext(ctx, domain.AuthorizationMetadataTokenName, h.jwtToken)
 	}
 	return invoker(ctx, method, req, reply, cc, opts...)
+}
+
+func (h *handler) JWTStreamInterceptor(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+	if h.jwtToken != "" {
+		ctx = metadata.AppendToOutgoingContext(ctx, domain.AuthorizationMetadataTokenName, h.jwtToken)
+	}
+
+	return streamer(ctx, desc, cc, method, opts...)
 }
 
 func loadTLSCredentials(caFile string) (credentials.TransportCredentials, error) {

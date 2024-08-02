@@ -53,6 +53,8 @@ type DomainHelper interface {
 
 	CheckFileForRead(info *domain.FileInfo) error
 	CheckFileForWrite(inf *domain.FileInfo) error
+
+	CreateFileStreamer(info *domain.FileInfo) (domain.StreamFileReader, error)
 }
 
 type AppView interface {
@@ -97,4 +99,8 @@ type AppServer interface {
 	CreateUserPasswordData(ctx context.Context, data *domain.EncryptedUserPasswordData) error
 	UpdateUserPasswordData(ctx context.Context, data *domain.EncryptedUserPasswordData) error
 	DeleteUserPasswordData(ctx context.Context, hint string) error
+
+	GetFileInfoList(ctx context.Context) ([]domain.FileInfo, error)
+	DeleteFileInfo(ctx context.Context, name string) error
+	SendFile(ctx context.Context, name string) (domain.StreamSender, error)
 }

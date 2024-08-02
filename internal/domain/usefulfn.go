@@ -43,6 +43,10 @@ const (
 	iterations = 100002
 )
 
+const (
+	fileChunkSize = 4 * 1024
+)
+
 func GetAction(depth int) string {
 	pc, _, _, _ := runtime.Caller(depth)
 	action := runtime.FuncForPC(pc).Name()
@@ -425,4 +429,8 @@ func CheckFileForWrite(info *FileInfo) error {
 	}
 
 	return nil
+}
+
+func CreateFileStreamer(info *FileInfo) (StreamFileReader, error) {
+	return NewStreamFileReader(info, fileChunkSize)
 }

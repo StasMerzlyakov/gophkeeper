@@ -841,6 +841,7 @@ var DataAccessor_ServiceDesc = grpc.ServiceDesc{
 
 const (
 	FileAccessor_GetFileInfoList_FullMethodName = "/proto.FileAccessor/GetFileInfoList"
+	FileAccessor_DeleteFileInfo_FullMethodName  = "/proto.FileAccessor/DeleteFileInfo"
 	FileAccessor_UploadFile_FullMethodName      = "/proto.FileAccessor/UploadFile"
 	FileAccessor_LoadFile_FullMethodName        = "/proto.FileAccessor/LoadFile"
 )
@@ -850,6 +851,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FileAccessorClient interface {
 	GetFileInfoList(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetFileInfoListResponse, error)
+	DeleteFileInfo(ctx context.Context, in *DeleteFileInfoRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	UploadFile(ctx context.Context, opts ...grpc.CallOption) (FileAccessor_UploadFileClient, error)
 	LoadFile(ctx context.Context, in *LoadFileRequest, opts ...grpc.CallOption) (FileAccessor_LoadFileClient, error)
 }
@@ -866,6 +868,16 @@ func (c *fileAccessorClient) GetFileInfoList(ctx context.Context, in *empty.Empt
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetFileInfoListResponse)
 	err := c.cc.Invoke(ctx, FileAccessor_GetFileInfoList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *fileAccessorClient) DeleteFileInfo(ctx context.Context, in *DeleteFileInfoRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, FileAccessor_DeleteFileInfo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -945,6 +957,7 @@ func (x *fileAccessorLoadFileClient) Recv() (*LoadFileResponse, error) {
 // for forward compatibility
 type FileAccessorServer interface {
 	GetFileInfoList(context.Context, *empty.Empty) (*GetFileInfoListResponse, error)
+	DeleteFileInfo(context.Context, *DeleteFileInfoRequest) (*empty.Empty, error)
 	UploadFile(FileAccessor_UploadFileServer) error
 	LoadFile(*LoadFileRequest, FileAccessor_LoadFileServer) error
 	mustEmbedUnimplementedFileAccessorServer()
@@ -956,6 +969,9 @@ type UnimplementedFileAccessorServer struct {
 
 func (UnimplementedFileAccessorServer) GetFileInfoList(context.Context, *empty.Empty) (*GetFileInfoListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFileInfoList not implemented")
+}
+func (UnimplementedFileAccessorServer) DeleteFileInfo(context.Context, *DeleteFileInfoRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteFileInfo not implemented")
 }
 func (UnimplementedFileAccessorServer) UploadFile(FileAccessor_UploadFileServer) error {
 	return status.Errorf(codes.Unimplemented, "method UploadFile not implemented")
@@ -990,6 +1006,24 @@ func _FileAccessor_GetFileInfoList_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(FileAccessorServer).GetFileInfoList(ctx, req.(*empty.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FileAccessor_DeleteFileInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteFileInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FileAccessorServer).DeleteFileInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: FileAccessor_DeleteFileInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FileAccessorServer).DeleteFileInfo(ctx, req.(*DeleteFileInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1051,6 +1085,10 @@ var FileAccessor_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFileInfoList",
 			Handler:    _FileAccessor_GetFileInfoList_Handler,
+		},
+		{
+			MethodName: "DeleteFileInfo",
+			Handler:    _FileAccessor_DeleteFileInfo_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

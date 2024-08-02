@@ -2,7 +2,9 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io"
 	"sync"
 	"time"
 
@@ -51,10 +53,8 @@ func (fl *fileAccessor) Stop(ctx context.Context) {
 
 	doneCh := make(chan struct{})
 	go func() {
-		GetMainLogger().Debugf("??????")
 		defer close(doneCh) // stop via close channel
 		fl.wg.Wait()
-		GetMainLogger().Debugf("!!!!!!")
 	}()
 
 	select {
@@ -80,16 +80,25 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 		return nil, fmt.Errorf("%w fileInfo %s already exists. change name", domain.ErrClientDataIncorrect, info.Name)
 	}
 
+	reader, err := fl.helper.CreateFileStreamer(info)
+	if err != nil {
+		return nil, fmt.Errorf("%w can't upload file %s", err, info.Name)
+	}
+
+	sendCtx, sendCancelFn := context.WithCancel(ctx)
+	sender, err := fl.appServer.SendFile(sendCtx, info.Name)
+	if err != nil {
+		sendCancelFn()
+		return nil, fmt.Errorf("%w can't upload file %s", err, info.Name)
+	}
+
 	readChan := make(chan []byte) // chan for file readed chunck
 
 	preparedChan := make(chan []byte) // chan for prepared chunks (encryption)
 
 	// Reading operation
-
-	fileSize := 100 * KiB
+	fileSize := int(reader.FileSize())
 	progerssFn(0, fileSize)
-
-	chunkSize := 4096
 
 	var opWg sync.WaitGroup
 
@@ -108,8 +117,7 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 		defer opWg.Done()
 		select {
 		case opErr = <-errorChan: // error occures
-			close(errorChan)
-		case <-doneCh:
+			close(doneCh)
 		case <-fl.stopCh:
 		}
 	}()
@@ -118,33 +126,42 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 	go func() {
 		defer GetMainLogger().Debugf("read goroutine complete")
 		defer opWg.Done()
+		defer reader.Close()
 		sended := 0
+		var rdCn chan []byte
+		var isLast bool
 	Loop:
 		for {
+			chunk, err := reader.Next()
+			chunkSize := len(chunk)
+			sended += chunkSize
+			progerssFn(sended, fileSize)
+
+			if err != nil {
+				if errors.Is(err, io.EOF) {
+					isLast = true
+				} else {
+					errorChan <- err
+				}
+			}
+			if len(chunk) > 0 {
+				rdCn = readChan
+			}
+
 			select {
-			case <-time.After(500 * time.Millisecond):
-				chank := make([]byte, chunkSize)
-				select { // TODO remove subselect
-				case readChan <- chank:
-					sended += chunkSize
-					progerssFn(sended, fileSize)
-					if sended >= fileSize {
-						// success
-						close(readChan)
-						break Loop
-					}
-				case <-errorChan:
-					// error occurs
-					break Loop
-				case <-fl.stopCh:
-					// complete operation and finish
+			case rdCn <- chunk:
+				sended += chunkSize
+				progerssFn(sended, fileSize)
+				if isLast {
+					close(readChan)
 					break Loop
 				}
+				rdCn = nil
 			case <-fl.stopCh:
 				// complete operation and finish
 				break Loop
-			case <-errorChan:
-				// error occurs
+			case <-doneCh:
+				// any error occurs
 				break Loop
 			}
 		}
@@ -180,8 +197,8 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 				encrypted = nil
 				rCh = readChan
 				wrtCh = nil
-			case <-errorChan:
-				// error occurs
+			case <-doneCh:
+				// any error occurs
 				break Loop
 			case <-fl.stopCh:
 				// complete operation and finish
@@ -198,17 +215,24 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 	Loop:
 		for {
 			select {
-			case _, ok := <-preparedChan:
+			case chunk, ok := <-preparedChan:
 				if !ok {
 					// success
-					close(doneCh)
+					err := sender.CloseAndRecv()
+					if err != nil {
+						errorChan <- err
+					} else {
+						close(doneCh)
+					}
 					break Loop
 				} else {
-					// send val to server TODO
-					time.Sleep(500 * time.Millisecond)
+					if err := sender.Send(chunk); err != nil {
+						errorChan <- err
+						break Loop
+					}
 				}
-			case <-errorChan:
-				// error occurs
+			case <-doneCh:
+				// any error occurs
 				break Loop
 			case <-fl.stopCh:
 				// complete operation and finish
@@ -222,6 +246,7 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 	go func() {
 		defer GetMainLogger().Debugf("wait result goroutine complete")
 		defer fl.wg.Done()
+		defer sendCancelFn()
 		opWg.Wait()
 		if opErr == nil {
 			fl.appStorage.AddFileInfo(info)

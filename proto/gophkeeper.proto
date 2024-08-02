@@ -149,7 +149,7 @@ message GetFileInfoListResponse {
 
 message UploadFileRequest {
     string   name    = 1;
-    int64     sizeInBytes = 2;
+    int32     sizeInBytes = 2;
     bytes     data        = 3;
     bool      isLastChunk = 4;
 }
@@ -160,13 +160,18 @@ message LoadFileRequest {
 
 
 message LoadFileResponse {
-    int64     sizeInBytes = 2;
+    int32     sizeInBytes = 2;
     bytes     data        = 3;
     bool      isLastChunk = 4;
 }
 
+message DeleteFileInfoRequest {
+    string Name = 1;
+}
+
 service FileAccessor {
     rpc GetFileInfoList(google.protobuf.Empty) returns (GetFileInfoListResponse);
+    rpc DeleteFileInfo(DeleteFileInfoRequest) returns (google.protobuf.Empty);
     rpc UploadFile(stream UploadFileRequest) returns (google.protobuf.Empty);
     rpc LoadFile(LoadFileRequest) returns (stream LoadFileResponse);
 }
