@@ -46,6 +46,7 @@ func TestLoadServConf(t *testing.T) {
 		assert.Equal(t, config.ServerDefaultMaxConns, conf.MaxConns)
 		assert.Equal(t, config.ServerDefaultMaxConnLifetime, conf.MaxConnLifetime)
 		assert.Equal(t, config.ServerDefaultMaxConnIdleTime, conf.MaxConnIdleTime)
+		assert.Equal(t, config.ServerDefaultFStoragePath, conf.FStoragePath)
 	})
 
 	t.Run("env values durations", func(t *testing.T) {
@@ -115,6 +116,9 @@ func TestLoadServConf(t *testing.T) {
 		err = os.Setenv("DATABASE_MAX_CONN_IDLE_TIME", "2m")
 		require.NoError(t, err)
 
+		err = os.Setenv("FS_STORAGE_PATH", "./")
+		require.NoError(t, err)
+
 		flagSet := flag.NewFlagSet(t.Name(), errorHandling)
 		conf, err := config.LoadServConf(flagSet)
 
@@ -141,6 +145,7 @@ func TestLoadServConf(t *testing.T) {
 		assert.Equal(t, 3, conf.MaxConns)
 		assert.Equal(t, 1*time.Minute, conf.MaxConnLifetime)
 		assert.Equal(t, 2*time.Minute, conf.MaxConnIdleTime)
+		assert.Equal(t, "./", conf.FStoragePath)
 	})
 
 	t.Run("env rewrite", func(t *testing.T) {

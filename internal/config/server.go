@@ -27,6 +27,7 @@ const (
 	ServerDefaultDatabaseDN       = "postgres://user:user@localhost:5432/gophkeeper"
 	ServerDefaultSMTPUsername     = ""
 	ServerDefaultSMTPPassword     = ""
+	ServerDefaultFStoragePath     = "/tmp"
 )
 
 type ServerConf struct {
@@ -47,6 +48,7 @@ type ServerConf struct {
 	MaxConns         int           `env:"DATABASE_MAX_CONNS" json:"dbMaxConns,omitempty"`
 	MaxConnLifetime  time.Duration `env:"DATABASE_MAX_CONN_LIFE_TIME" json:"dbMaxConnLifeTime,omitempty"`
 	MaxConnIdleTime  time.Duration `env:"DATABASE_MAX_CONN_IDLE_TIME" json:"dbMaxConnIdleTime,omitempty"`
+	FStoragePath     string        `env:"FS_STORAGE_PATH" json:"fsStoragePath,omitempty"`
 }
 
 func defaultServConf() *ServerConf {
@@ -68,6 +70,7 @@ func defaultServConf() *ServerConf {
 		MaxConnIdleTime:  ServerDefaultMaxConnIdleTime,
 		SMTPPassword:     ServerDefaultSMTPPassword,
 		SMTPUsername:     ServerDefaultSMTPUsername,
+		FStoragePath:     ServerDefaultFStoragePath,
 	}
 }
 
