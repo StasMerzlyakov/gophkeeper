@@ -126,6 +126,10 @@ message UpdateUserPasswordDataRequest {
 }
 
 
+message FileInfo {
+    string name = 1;
+}
+
 service DataAccessor {
     rpc Hello(google.protobuf.Empty) returns (HelloResponse);
     rpc GetBankCardList(google.protobuf.Empty) returns (BankCardListResponse);
@@ -138,5 +142,33 @@ service DataAccessor {
     rpc DeleteUserPasswordData(DeleteUserPasswordDataRequest) returns (google.protobuf.Empty);
     rpc UpdateUserPasswordData(UpdateUserPasswordDataRequest) returns (google.protobuf.Empty);
 };
+
+message GetFileInfoListResponse {
+     repeated FileInfo fileInfo = 1;
+}
+
+message UploadFileRequest {
+    string   name    = 1;
+    int64     sizeInBytes = 2;
+    bytes     data        = 3;
+    bool      isLastChunk = 4;
+}
+
+message LoadFileRequest {
+    string Name = 1;
+}
+
+
+message LoadFileResponse {
+    int64     sizeInBytes = 2;
+    bytes     data        = 3;
+    bool      isLastChunk = 4;
+}
+
+service FileAccessor {
+    rpc GetFileInfoList(google.protobuf.Empty) returns (GetFileInfoListResponse);
+    rpc UploadFile(stream UploadFileRequest) returns (google.protobuf.Empty);
+    rpc LoadFile(LoadFileRequest) returns (stream LoadFileResponse);
+}
 
 

@@ -838,3 +838,232 @@ var DataAccessor_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "gophkeeper.proto",
 }
+
+const (
+	FileAccessor_GetFileInfoList_FullMethodName = "/proto.FileAccessor/GetFileInfoList"
+	FileAccessor_UploadFile_FullMethodName      = "/proto.FileAccessor/UploadFile"
+	FileAccessor_LoadFile_FullMethodName        = "/proto.FileAccessor/LoadFile"
+)
+
+// FileAccessorClient is the client API for FileAccessor service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type FileAccessorClient interface {
+	GetFileInfoList(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetFileInfoListResponse, error)
+	UploadFile(ctx context.Context, opts ...grpc.CallOption) (FileAccessor_UploadFileClient, error)
+	LoadFile(ctx context.Context, in *LoadFileRequest, opts ...grpc.CallOption) (FileAccessor_LoadFileClient, error)
+}
+
+type fileAccessorClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewFileAccessorClient(cc grpc.ClientConnInterface) FileAccessorClient {
+	return &fileAccessorClient{cc}
+}
+
+func (c *fileAccessorClient) GetFileInfoList(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetFileInfoListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetFileInfoListResponse)
+	err := c.cc.Invoke(ctx, FileAccessor_GetFileInfoList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *fileAccessorClient) UploadFile(ctx context.Context, opts ...grpc.CallOption) (FileAccessor_UploadFileClient, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &FileAccessor_ServiceDesc.Streams[0], FileAccessor_UploadFile_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &fileAccessorUploadFileClient{ClientStream: stream}
+	return x, nil
+}
+
+type FileAccessor_UploadFileClient interface {
+	Send(*UploadFileRequest) error
+	CloseAndRecv() (*empty.Empty, error)
+	grpc.ClientStream
+}
+
+type fileAccessorUploadFileClient struct {
+	grpc.ClientStream
+}
+
+func (x *fileAccessorUploadFileClient) Send(m *UploadFileRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *fileAccessorUploadFileClient) CloseAndRecv() (*empty.Empty, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(empty.Empty)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *fileAccessorClient) LoadFile(ctx context.Context, in *LoadFileRequest, opts ...grpc.CallOption) (FileAccessor_LoadFileClient, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &FileAccessor_ServiceDesc.Streams[1], FileAccessor_LoadFile_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &fileAccessorLoadFileClient{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type FileAccessor_LoadFileClient interface {
+	Recv() (*LoadFileResponse, error)
+	grpc.ClientStream
+}
+
+type fileAccessorLoadFileClient struct {
+	grpc.ClientStream
+}
+
+func (x *fileAccessorLoadFileClient) Recv() (*LoadFileResponse, error) {
+	m := new(LoadFileResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// FileAccessorServer is the server API for FileAccessor service.
+// All implementations must embed UnimplementedFileAccessorServer
+// for forward compatibility
+type FileAccessorServer interface {
+	GetFileInfoList(context.Context, *empty.Empty) (*GetFileInfoListResponse, error)
+	UploadFile(FileAccessor_UploadFileServer) error
+	LoadFile(*LoadFileRequest, FileAccessor_LoadFileServer) error
+	mustEmbedUnimplementedFileAccessorServer()
+}
+
+// UnimplementedFileAccessorServer must be embedded to have forward compatible implementations.
+type UnimplementedFileAccessorServer struct {
+}
+
+func (UnimplementedFileAccessorServer) GetFileInfoList(context.Context, *empty.Empty) (*GetFileInfoListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFileInfoList not implemented")
+}
+func (UnimplementedFileAccessorServer) UploadFile(FileAccessor_UploadFileServer) error {
+	return status.Errorf(codes.Unimplemented, "method UploadFile not implemented")
+}
+func (UnimplementedFileAccessorServer) LoadFile(*LoadFileRequest, FileAccessor_LoadFileServer) error {
+	return status.Errorf(codes.Unimplemented, "method LoadFile not implemented")
+}
+func (UnimplementedFileAccessorServer) mustEmbedUnimplementedFileAccessorServer() {}
+
+// UnsafeFileAccessorServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to FileAccessorServer will
+// result in compilation errors.
+type UnsafeFileAccessorServer interface {
+	mustEmbedUnimplementedFileAccessorServer()
+}
+
+func RegisterFileAccessorServer(s grpc.ServiceRegistrar, srv FileAccessorServer) {
+	s.RegisterService(&FileAccessor_ServiceDesc, srv)
+}
+
+func _FileAccessor_GetFileInfoList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(empty.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FileAccessorServer).GetFileInfoList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: FileAccessor_GetFileInfoList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FileAccessorServer).GetFileInfoList(ctx, req.(*empty.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FileAccessor_UploadFile_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(FileAccessorServer).UploadFile(&fileAccessorUploadFileServer{ServerStream: stream})
+}
+
+type FileAccessor_UploadFileServer interface {
+	SendAndClose(*empty.Empty) error
+	Recv() (*UploadFileRequest, error)
+	grpc.ServerStream
+}
+
+type fileAccessorUploadFileServer struct {
+	grpc.ServerStream
+}
+
+func (x *fileAccessorUploadFileServer) SendAndClose(m *empty.Empty) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *fileAccessorUploadFileServer) Recv() (*UploadFileRequest, error) {
+	m := new(UploadFileRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _FileAccessor_LoadFile_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(LoadFileRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(FileAccessorServer).LoadFile(m, &fileAccessorLoadFileServer{ServerStream: stream})
+}
+
+type FileAccessor_LoadFileServer interface {
+	Send(*LoadFileResponse) error
+	grpc.ServerStream
+}
+
+type fileAccessorLoadFileServer struct {
+	grpc.ServerStream
+}
+
+func (x *fileAccessorLoadFileServer) Send(m *LoadFileResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+// FileAccessor_ServiceDesc is the grpc.ServiceDesc for FileAccessor service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var FileAccessor_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.FileAccessor",
+	HandlerType: (*FileAccessorServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetFileInfoList",
+			Handler:    _FileAccessor_GetFileInfoList_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "UploadFile",
+			Handler:       _FileAccessor_UploadFile_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "LoadFile",
+			Handler:       _FileAccessor_LoadFile_Handler,
+			ServerStreams: true,
+		},
+	},
+	Metadata: "gophkeeper.proto",
+}
