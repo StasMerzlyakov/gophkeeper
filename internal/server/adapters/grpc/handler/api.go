@@ -37,5 +37,5 @@ type AuthService interface {
 type FileAccessor interface {
 	GetFileInfoList(ctx context.Context) ([]domain.FileInfo, error)
 	DeleteFileInfo(ctx context.Context, name string) error
-	CreateStreamSaver() (domain.StreamFileWriter, error)
+	CreateStreamFileWriter(ctx context.Context) (domain.StreamFileWriter, error)
 }

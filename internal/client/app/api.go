@@ -102,5 +102,5 @@ type AppServer interface {
 
 	GetFileInfoList(ctx context.Context) ([]domain.FileInfo, error)
 	DeleteFileInfo(ctx context.Context, name string) error
-	SendFile(ctx context.Context, name string) (domain.StreamSender, error)
+	SendFile(ctx context.Context) (domain.StreamFileWriter, error)
 }

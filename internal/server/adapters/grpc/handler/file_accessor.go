@@ -53,7 +53,7 @@ func (fa *fileAccessor) DeleteFileInfo(ctx context.Context, req *proto.DeleteFil
 func (fa *fileAccessor) UploadFile(fs proto.FileAccessor_UploadFileServer) error {
 	action := domain.GetAction(1)
 
-	storage, err := fa.accessor.CreateStreamSaver()
+	storage, err := fa.accessor.CreateStreamFileWriter(fs.Context())
 	if err != nil {
 		return fmt.Errorf("%v err - %w", action, err)
 	}
@@ -66,14 +66,14 @@ func (fa *fileAccessor) UploadFile(fs proto.FileAccessor_UploadFileServer) error
 		}
 
 		if len(req.Data) > 0 {
-			err := storage.Send(fs.Context(), req.Name, req.Data)
+			err := storage.WriteChunk(fs.Context(), req.Name, req.Data)
 			if err != nil {
 				return fmt.Errorf("%v recv err - %w", action, err)
 			}
 		}
 
 		if req.IsLastChunk {
-			err := storage.CloseAndRecv(fs.Context())
+			err := storage.Close(fs.Context())
 			if err != nil {
 				return fmt.Errorf("%v recv close - %w", action, err)
 			}

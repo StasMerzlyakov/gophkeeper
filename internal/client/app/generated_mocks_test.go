@@ -265,18 +265,18 @@ func (mr *MockAppServerMockRecorder) Registrate(arg0, arg1 interface{}) *gomock.
 }
 
 // SendFile mocks base method.
-func (m *MockAppServer) SendFile(arg0 context.Context, arg1 string) (domain.StreamSender, error) {
+func (m *MockAppServer) SendFile(arg0 context.Context) (domain.StreamFileWriter, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SendFile", arg0, arg1)
-	ret0, _ := ret[0].(domain.StreamSender)
+	ret := m.ctrl.Call(m, "SendFile", arg0)
+	ret0, _ := ret[0].(domain.StreamFileWriter)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // SendFile indicates an expected call of SendFile.
-func (mr *MockAppServerMockRecorder) SendFile(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockAppServerMockRecorder) SendFile(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendFile", reflect.TypeOf((*MockAppServer)(nil).SendFile), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendFile", reflect.TypeOf((*MockAppServer)(nil).SendFile), arg0)
 }
 
 // Start mocks base method.

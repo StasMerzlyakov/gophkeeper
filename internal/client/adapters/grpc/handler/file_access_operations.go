@@ -35,11 +35,11 @@ func (h *handler) DeleteFileInfo(ctx context.Context, name string) error {
 	return nil
 }
 
-func (h *handler) SendFile(ctx context.Context, name string) (domain.StreamSender, error) {
+func (h *handler) SendFile(ctx context.Context) (domain.StreamFileWriter, error) {
 
 	if stream, err := h.fileAccessor.UploadFile(ctx); err != nil {
 		return nil, fmt.Errorf("%w SendFile err", err)
 	} else {
-		return NewStreamSender(name, stream), nil
+		return NewStreamSender(stream), nil
 	}
 }

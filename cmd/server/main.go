@@ -11,6 +11,7 @@ import (
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
+	"github.com/StasMerzlyakov/gophkeeper/internal/server/adapters/bigfiles/fs"
 	"github.com/StasMerzlyakov/gophkeeper/internal/server/adapters/email"
 	"github.com/StasMerzlyakov/gophkeeper/internal/server/adapters/grpc/handler"
 	"github.com/StasMerzlyakov/gophkeeper/internal/server/adapters/storage/postgres"
@@ -71,6 +72,9 @@ func main() {
 	pgStorage := postgres.NewStorage(srvCtx, conf)
 	defer pgStorage.Close()
 
+	// fileStorage
+	fileStorage := fs.NewFileStorage(conf)
+
 	// email sender
 	sender := email.NewSender(conf)
 	if err := sender.Connect(srvCtx); err != nil {
@@ -96,6 +100,7 @@ func main() {
 		TemporaryStorage(memStorage)
 	dataAccess := usecases.NewDataAccessor(conf).
 		StateFullStorage(pgStorage)
+	fileAcces := usecases.NewFileAccessor(conf).StateFullStorage(pgStorage).FileStorage(fileStorage)
 
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
@@ -103,12 +108,14 @@ func main() {
 	// grpc
 	grpcRegHandler := handler.NewRegHandler(registrator)
 	grpcAuthService := handler.NewAuthService(autHelper)
-	grpcDataAccess := handler.NewDataAccessor(dataAccess)
+	grpcDataAccessor := handler.NewDataAccessor(dataAccess)
+	grpcFileAccessor := handler.NewFileAccessor(fileAcces)
 
 	handler := handler.NewGRPCHandler(conf).
 		AuthService(grpcAuthService).
-		DataAccessor(grpcDataAccess).
-		RegHandler(grpcRegHandler)
+		DataAccessor(grpcDataAccessor).
+		RegHandler(grpcRegHandler).
+		FileAccessor(grpcFileAccessor)
 
 	handler.Start(srvCtx)
 

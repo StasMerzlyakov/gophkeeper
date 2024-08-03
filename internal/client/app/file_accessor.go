@@ -71,25 +71,38 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 	info *domain.FileInfo,
 	resultHandler func(err error),
 	progerssFn func(send int, all int)) (cancelFn func(), err error) {
+
+	log := GetMainLogger()
+	action := domain.GetAction(1)
+	log.Debugf("%v start", action)
+
 	if err := fl.helper.CheckFileForRead(info); err != nil {
-		return nil, fmt.Errorf("%w upload file err", err)
+		err := fmt.Errorf("%w - %v error - upload file err %v", domain.ErrClientDataIncorrect, action, err.Error())
+		log.Warn(err.Error())
+		return nil, err
 	}
 
 	// test by local storage
 	if fl.appStorage.IsFileInfoExists(info.Name) {
-		return nil, fmt.Errorf("%w fileInfo %s already exists. change name", domain.ErrClientDataIncorrect, info.Name)
+		err := fmt.Errorf("%w fileInfo %s already exists. change name", domain.ErrClientDataIncorrect, info.Name)
+		log.Warn(err.Error())
+		return nil, err
 	}
 
 	reader, err := fl.helper.CreateFileStreamer(info)
 	if err != nil {
-		return nil, fmt.Errorf("%w can't upload file %s", err, info.Name)
+		err := fmt.Errorf("%w upload file %s err %s", domain.ErrClientInternal, info.Name, err.Error())
+		log.Warn(err.Error())
+		return nil, err
 	}
 
 	sendCtx, sendCancelFn := context.WithCancel(ctx)
-	sender, err := fl.appServer.SendFile(sendCtx, info.Name)
+	sender, err := fl.appServer.SendFile(sendCtx)
 	if err != nil {
 		sendCancelFn()
-		return nil, fmt.Errorf("%w can't upload file %s", err, info.Name)
+		err := fmt.Errorf("%w upload file %s err", err, info.Name)
+		log.Warn(err.Error())
+		return nil, err
 	}
 
 	readChan := make(chan []byte) // chan for file readed chunck
@@ -109,6 +122,7 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 
 	cancelFn = func() {
 		errorChan <- fmt.Errorf("opeartion was cancelsed")
+		log.Debug("opeartion was cancelsed")
 	}
 
 	opWg.Add(1)
@@ -118,6 +132,7 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 		select {
 		case opErr = <-errorChan: // error occures
 			close(doneCh)
+			log.Warn(fmt.Sprintf("opeartion %s error %s", action, err.Error()))
 		case <-fl.stopCh:
 		}
 	}()
@@ -218,7 +233,7 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 			case chunk, ok := <-preparedChan:
 				if !ok {
 					// success
-					err := sender.CloseAndRecv()
+					err := sender.Close(ctx)
 					if err != nil {
 						errorChan <- err
 					} else {
@@ -226,7 +241,7 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 					}
 					break Loop
 				} else {
-					if err := sender.Send(chunk); err != nil {
+					if err := sender.WriteChunk(ctx, info.Name, chunk); err != nil {
 						errorChan <- err
 						break Loop
 					}
@@ -248,30 +263,37 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 		defer fl.wg.Done()
 		defer sendCancelFn()
 		opWg.Wait()
-		if opErr == nil {
-			fl.appStorage.AddFileInfo(info)
-		}
 		resultHandler(opErr)
 	}()
 
+	log.Debugf("%v complete", action)
 	return cancelFn, nil
 }
 
 func (fl *fileAccessor) GetFileInfoList(ctx context.Context) error {
-	// TODO get from server
+	log := GetMainLogger()
+	action := domain.GetAction(1)
+	log.Debugf("%v start", action)
+	if lst, err := fl.appServer.GetFileInfoList(ctx); err != nil {
+		err := fmt.Errorf("%w - %v error", err, action)
+		log.Warn(err.Error())
+		return err
+	} else {
+		fl.appStorage.SetFilesInfo(lst)
+	}
+	log.Debugf("%v complete", action)
 	return nil
 }
 
 func (fl *fileAccessor) DeleteFile(ctx context.Context, name string) error {
-	return fl.appStorage.DeleteFileInfo(name)
-}
-
-func (fl *fileAccessor) SaveFile(ctx context.Context, info *domain.FileInfo) error {
-	if err := fl.helper.CheckFileForWrite(info); err != nil {
+	log := GetMainLogger()
+	action := domain.GetAction(1)
+	log.Debugf("%v start", action)
+	if err := fl.appServer.DeleteFileInfo(ctx, name); err != nil {
+		err := fmt.Errorf("%w - %v error", err, action)
+		log.Warn(err.Error())
 		return err
 	}
-
-	// TODO store to server
-
-	return fl.appStorage.UpdateFileInfo(info)
+	log.Debugf("%v complete", action)
+	return fl.appStorage.DeleteFileInfo(name)
 }

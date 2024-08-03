@@ -507,7 +507,8 @@ func TestCheckFileForRead(t *testing.T) {
 
 		_, err = f.WriteString("hello world")
 		require.NoError(t, err)
-		f.Close()
+		err = f.Close()
+		require.NoError(t, err)
 
 		err = domain.CheckFileForRead(&domain.FileInfo{
 			Name: "filename",
@@ -515,8 +516,8 @@ func TestCheckFileForRead(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		defer os.Remove(f.Name())
-
+		err = os.Remove(f.Name())
+		require.NoError(t, err)
 	})
 
 	t.Run("short_name", func(t *testing.T) {

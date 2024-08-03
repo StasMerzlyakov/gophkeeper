@@ -322,19 +322,19 @@ func (m *MockFileAccessor) EXPECT() *MockFileAccessorMockRecorder {
 	return m.recorder
 }
 
-// CreateStreamSaver mocks base method.
-func (m *MockFileAccessor) CreateStreamSaver() (domain.StreamFileWriter, error) {
+// CreateStreamFileWriter mocks base method.
+func (m *MockFileAccessor) CreateStreamFileWriter(arg0 context.Context) (domain.StreamFileWriter, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateStreamSaver")
+	ret := m.ctrl.Call(m, "CreateStreamFileWriter", arg0)
 	ret0, _ := ret[0].(domain.StreamFileWriter)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CreateStreamSaver indicates an expected call of CreateStreamSaver.
-func (mr *MockFileAccessorMockRecorder) CreateStreamSaver() *gomock.Call {
+// CreateStreamFileWriter indicates an expected call of CreateStreamFileWriter.
+func (mr *MockFileAccessorMockRecorder) CreateStreamFileWriter(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateStreamSaver", reflect.TypeOf((*MockFileAccessor)(nil).CreateStreamSaver))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateStreamFileWriter", reflect.TypeOf((*MockFileAccessor)(nil).CreateStreamFileWriter), arg0)
 }
 
 // DeleteFileInfo mocks base method.

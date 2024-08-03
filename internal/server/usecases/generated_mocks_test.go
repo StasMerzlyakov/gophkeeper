@@ -549,6 +549,21 @@ func (m *MockFileStorage) EXPECT() *MockFileStorageMockRecorder {
 	return m.recorder
 }
 
+// CreateStreamFileWriter mocks base method.
+func (m *MockFileStorage) CreateStreamFileWriter(arg0 context.Context, arg1 string) (domain.StreamFileWriter, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateStreamFileWriter", arg0, arg1)
+	ret0, _ := ret[0].(domain.StreamFileWriter)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateStreamFileWriter indicates an expected call of CreateStreamFileWriter.
+func (mr *MockFileStorageMockRecorder) CreateStreamFileWriter(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateStreamFileWriter", reflect.TypeOf((*MockFileStorage)(nil).CreateStreamFileWriter), arg0, arg1)
+}
+
 // DeleteFileInfo mocks base method.
 func (m *MockFileStorage) DeleteFileInfo(arg0 context.Context, arg1, arg2 string) error {
 	m.ctrl.T.Helper()
@@ -576,19 +591,4 @@ func (m *MockFileStorage) GetFileInfoList(arg0 context.Context, arg1 string) ([]
 func (mr *MockFileStorageMockRecorder) GetFileInfoList(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFileInfoList", reflect.TypeOf((*MockFileStorage)(nil).GetFileInfoList), arg0, arg1)
-}
-
-// StoreFile mocks base method.
-func (m *MockFileStorage) StoreFile(arg0 context.Context, arg1, arg2 string) (domain.StreamSender, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "StoreFile", arg0, arg1, arg2)
-	ret0, _ := ret[0].(domain.StreamSender)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// StoreFile indicates an expected call of StoreFile.
-func (mr *MockFileStorageMockRecorder) StoreFile(arg0, arg1, arg2 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreFile", reflect.TypeOf((*MockFileStorage)(nil).StoreFile), arg0, arg1, arg2)
 }

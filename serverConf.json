@@ -3,5 +3,6 @@
     "tlsKey" : "./keys/server-key.pem",
     "tlsCert" : "./keys/server-cert.pem",
     "serverSecret" : "ServerKey!12>Au{mL736}",
-    "dbDN": "postgres://postgres:postgres@localhost:5432/gophkeeper"
+    "dbDN": "postgres://postgres:postgres@localhost:5432/gophkeeper",
+    "fsStoragePath" : "./storage"
 }

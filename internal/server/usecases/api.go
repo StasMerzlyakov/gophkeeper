@@ -33,7 +33,7 @@ type StateFullStorage interface {
 type FileStorage interface {
 	GetFileInfoList(ctx context.Context, bucket string) ([]domain.FileInfo, error)
 	DeleteFileInfo(ctx context.Context, bucket string, name string) error
-	StoreFile(ctx context.Context, bucket string, name string) (domain.StreamSender, error)
+	CreateStreamFileWriter(ctx context.Context, bucket string) (domain.StreamFileWriter, error)
 }
 
 type TemporaryStorage interface {

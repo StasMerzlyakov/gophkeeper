@@ -253,10 +253,7 @@ func (ac *viewController) GetFileInfo(name string) {
 func (ac *viewController) SaveFile(info *domain.FileInfo) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
-			if err := ac.fileAccessor.SaveFile(ctx, info); err != nil {
-				return err
-			}
-			return nil
+			return fmt.Errorf("NOT IMPLEMENTED YET")
 		}, func() {
 			ac.GetFilesInfoList()
 		})

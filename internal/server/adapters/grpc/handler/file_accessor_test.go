@@ -25,7 +25,7 @@ type bufSaver struct {
 	closeCount atomic.Int32
 }
 
-func (bf *bufSaver) Send(ctx context.Context, name string, chunk []byte) error {
+func (bf *bufSaver) WriteChunk(ctx context.Context, name string, chunk []byte) error {
 	if bf.name != name {
 		return fmt.Errorf("expected %s actual %s", bf.name, name)
 	}
@@ -33,7 +33,7 @@ func (bf *bufSaver) Send(ctx context.Context, name string, chunk []byte) error {
 	return err
 }
 
-func (bf *bufSaver) CloseAndRecv(ctx context.Context) error {
+func (bf *bufSaver) Close(ctx context.Context) error {
 	val := bf.closeCount.Add(1)
 	if val == 1 {
 		return nil
@@ -102,7 +102,7 @@ func TestFileAccessor(t *testing.T) {
 		bufSaver := &bufSaver{
 			name: fileName,
 		}
-		mockFileAccessor.EXPECT().CreateStreamSaver().Return(bufSaver, nil).Times(1)
+		mockFileAccessor.EXPECT().CreateStreamFileWriter(gomock.Any()).Return(bufSaver, nil).Times(1)
 
 		chunkSize := 1024
 		iter := 10

@@ -1,44 +1,42 @@
 package handler
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	"github.com/StasMerzlyakov/gophkeeper/internal/proto"
 )
 
-func NewStreamSender(name string, client proto.FileAccessor_UploadFileClient) *streamSender {
+func NewStreamSender(client proto.FileAccessor_UploadFileClient) *streamSender {
 	return &streamSender{
-		name:   name,
 		client: client,
 	}
 }
 
-var _ domain.StreamSender = (*streamSender)(nil)
+var _ domain.StreamFileWriter = (*streamSender)(nil)
 
 type streamSender struct {
-	name   string
 	client proto.FileAccessor_UploadFileClient
 }
 
-func (ss *streamSender) Send(chunk []byte) error {
-
+func (ss *streamSender) WriteChunk(ctx context.Context, name string, chunk []byte) error {
 	if len(chunk) == 0 {
 		return nil
 	}
 
 	return ss.client.Send(&proto.UploadFileRequest{
-		Name:        ss.name,
+		Name:        name,
 		SizeInBytes: int32(len(chunk)),
 		Data:        chunk,
 		IsLastChunk: false,
 	})
 }
 
-func (ss *streamSender) CloseAndRecv() error {
+func (ss *streamSender) Close(ctx context.Context) error {
 
 	if err := ss.client.Send(&proto.UploadFileRequest{
-		Name:        ss.name,
+		Name:        "",
 		SizeInBytes: 0,
 		IsLastChunk: true,
 	}); err != nil {
