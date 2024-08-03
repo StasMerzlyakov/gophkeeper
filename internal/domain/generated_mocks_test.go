@@ -170,6 +170,20 @@ func (mr *MockStreamFileReaderMockRecorder) Close() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockStreamFileReader)(nil).Close))
 }
 
+// FileSize mocks base method.
+func (m *MockStreamFileReader) FileSize() int64 {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FileSize")
+	ret0, _ := ret[0].(int64)
+	return ret0
+}
+
+// FileSize indicates an expected call of FileSize.
+func (mr *MockStreamFileReaderMockRecorder) FileSize() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FileSize", reflect.TypeOf((*MockStreamFileReader)(nil).FileSize))
+}
+
 // Next mocks base method.
 func (m *MockStreamFileReader) Next() ([]byte, error) {
 	m.ctrl.T.Helper()
