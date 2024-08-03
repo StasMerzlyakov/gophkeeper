@@ -3,6 +3,7 @@ package domain_test
 import (
 	"bytes"
 	"errors"
+	"os"
 	"testing"
 	"time"
 
@@ -495,5 +496,42 @@ func TestCheckLoginPassData(t *testing.T) {
 			Passwrod: "",
 		}
 		assert.ErrorIs(t, domain.CheckUserPasswordData(lData), domain.ErrClientDataIncorrect)
+	})
+}
+
+func TestCheckFileForRead(t *testing.T) {
+
+	t.Run("ok", func(t *testing.T) {
+		f, err := os.CreateTemp("", "tmpfile-")
+		require.NoError(t, err)
+
+		_, err = f.WriteString("hello world")
+		require.NoError(t, err)
+		f.Close()
+
+		err = domain.CheckFileForRead(&domain.FileInfo{
+			Name: "filename",
+			Path: f.Name(),
+		})
+		require.NoError(t, err)
+
+		defer os.Remove(f.Name())
+
+	})
+
+	t.Run("short_name", func(t *testing.T) {
+
+		err := domain.CheckFileForRead(&domain.FileInfo{
+			Name: "fil",
+		})
+		require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
+	})
+
+	t.Run("wron_pref", func(t *testing.T) {
+
+		err := domain.CheckFileForRead(&domain.FileInfo{
+			Name: domain.TempFileNamePrefix + "filename",
+		})
+		require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 	})
 }

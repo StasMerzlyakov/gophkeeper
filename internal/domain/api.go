@@ -1,6 +1,8 @@
 package domain
 
-//go:generate mockgen -destination "./generated_mocks_test.go" -package ${GOPACKAGE}_test . Logger,StreamSender,StreamFileReader
+import "context"
+
+//go:generate mockgen -destination "./generated_mocks_test.go" -package ${GOPACKAGE}_test . Logger,StreamFileWriter,StreamFileReader
 
 type Logger interface {
 	Debugw(msg string, keysAndValues ...any)
@@ -8,10 +10,10 @@ type Logger interface {
 	Errorw(msg string, keysAndValues ...any)
 }
 
-// StreamSender used for sending big files in chunk
-type StreamSender interface {
-	Send(chunk []byte) error
-	CloseAndRecv() error
+// StreamFileWriter used for sending big files in chunk
+type StreamFileWriter interface {
+	WriteChunk(ctx context.Context, name string, chunk []byte) error
+	Close(ctx context.Context) error
 }
 
 // StreamFileReader is used for reading file chunk

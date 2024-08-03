@@ -397,9 +397,14 @@ func CheckUserPasswordData(data *UserPasswordData) error {
 }
 
 func CheckFileForRead(info *FileInfo) error {
-	if info.Name == "" {
-		return fmt.Errorf("%w Name is not set", ErrClientDataIncorrect)
+	if len(info.Name) < 5 {
+		return fmt.Errorf("%w Name is too short", ErrClientDataIncorrect)
 	}
+
+	if strings.HasPrefix(TempFileNamePrefix, info.Name) {
+		return fmt.Errorf("%w wrong Name - it is start with %s", ErrClientDataIncorrect, TempFileNamePrefix)
+	}
+
 	f, err := os.Open(info.Path)
 	if err != nil {
 		return fmt.Errorf("%w file by path %s is not acceptable", ErrClientDataIncorrect, info.Path)
