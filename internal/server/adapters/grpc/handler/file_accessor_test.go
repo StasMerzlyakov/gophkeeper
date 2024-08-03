@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"io"
 	"sync/atomic"
 	"testing"
 
@@ -33,12 +34,16 @@ func (bf *bufSaver) WriteChunk(ctx context.Context, name string, chunk []byte) e
 	return err
 }
 
-func (bf *bufSaver) Close(ctx context.Context) error {
+func (bf *bufSaver) Commit(ctx context.Context) error {
 	val := bf.closeCount.Add(1)
 	if val == 1 {
 		return nil
 	}
-	return fmt.Errorf("unexpected CloseAndRecv invokation %d", val)
+	return fmt.Errorf("unexpected Commit invokation %d", val)
+}
+
+func (bf *bufSaver) Rollback(ctx context.Context) error {
+	return fmt.Errorf("unexpected")
 }
 
 var _ domain.StreamFileWriter = (*bufSaver)(nil)
@@ -66,7 +71,7 @@ func (fSrv *fileServ) Context() context.Context {
 
 func (fSrv *fileServ) Recv() (*proto.UploadFileRequest, error) {
 	if len(fSrv.buff) == 0 {
-		return nil, fmt.Errorf("unexpected call")
+		return nil, io.EOF
 	}
 
 	var res []byte
@@ -76,7 +81,6 @@ func (fSrv *fileServ) Recv() (*proto.UploadFileRequest, error) {
 			Name:        fSrv.name,
 			SizeInBytes: int32(len(res)),
 			Data:        res,
-			IsLastChunk: false,
 		}, nil
 	} else {
 		res, fSrv.buff = fSrv.buff[:], nil
@@ -84,7 +88,6 @@ func (fSrv *fileServ) Recv() (*proto.UploadFileRequest, error) {
 			Name:        fSrv.name,
 			SizeInBytes: int32(len(res)),
 			Data:        res,
-			IsLastChunk: true,
 		}, nil
 	}
 }

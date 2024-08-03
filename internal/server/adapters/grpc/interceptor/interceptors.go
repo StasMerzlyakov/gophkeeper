@@ -23,15 +23,13 @@ func EncrichWithRequestIDUnaryInterceptor() grpc.UnaryServerInterceptor {
 
 func EncrichWithRequestIDStreamInterceptor() grpc.StreamServerInterceptor {
 	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-		// pass stream context complexity
+		// Pass stream context complexity
 		// https://stackoverflow.com/questions/63518470/grpc-stream-interceptor-not-passing-context-to-request-method
 		// see https://github.com/fru-io/api-common/blob/main/interceptors/state.go#L207
 
 		logger := domain.GetApplicationLogger()
 		requestUUID := uuid.New()
-
 		w := newStreamContextWrapper(ss)
-
 		eCtx := domain.EnrichWithRequestIDLogger(w.Context(), requestUUID, logger)
 		w.SetContext(eCtx)
 		return handler(srv, w)

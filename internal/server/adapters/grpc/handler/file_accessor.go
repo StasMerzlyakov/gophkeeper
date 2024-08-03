@@ -2,7 +2,9 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	"github.com/StasMerzlyakov/gophkeeper/internal/proto"
@@ -50,40 +52,62 @@ func (fa *fileAccessor) DeleteFileInfo(ctx context.Context, req *proto.DeleteFil
 	return nil, nil
 }
 
-func (fa *fileAccessor) UploadFile(fs proto.FileAccessor_UploadFileServer) error {
+func (fa *fileAccessor) UploadFile(stream proto.FileAccessor_UploadFileServer) (err error) {
+
 	action := domain.GetAction(1)
 
-	storage, err := fa.accessor.CreateStreamFileWriter(fs.Context())
+	log := domain.GetApplicationLogger()
+	log.Debug(action, "msg", "start")
+
+	var storage domain.StreamFileWriter
+	ctx := stream.Context()
+	storage, err = fa.accessor.CreateStreamFileWriter(ctx)
 	if err != nil {
 		return fmt.Errorf("%v err - %w", action, err)
 	}
 
+	defer func() {
+		if err != nil {
+			if rlErr := storage.Rollback(ctx); rlErr != nil {
+				log.Errorf(action, "err", fmt.Sprintf("storage.Rollback err %s", rlErr.Error()))
+			}
+		} else {
+			if cmErr := storage.Commit(ctx); cmErr != nil {
+				log.Errorf(action, "err", fmt.Sprintf("storage.Commit err %s", cmErr.Error()))
+			}
+			if err := stream.SendAndClose(nil); err != nil {
+				log.Infof(action, "err", fmt.Sprintf("SendAndClose err %s", err.Error()))
+			}
+		}
+	}()
+	received := 0
+	var req *proto.UploadFileRequest
 	for {
-		req, recErr := fs.Recv()
+		req, err = stream.Recv()
 
-		if recErr != nil {
-			return fmt.Errorf("%v recv err - %w", action, err)
+		if errors.Is(err, io.EOF) {
+			err = nil
+			break
 		}
 
-		if len(req.Data) > 0 {
-			err := storage.WriteChunk(fs.Context(), req.Name, req.Data)
-			if err != nil {
-				return fmt.Errorf("%v recv err - %w", action, err)
-			}
+		if err != nil {
+			err = fmt.Errorf("%v recv err - %w", action, err)
+			return
 		}
 
-		if req.IsLastChunk {
-			err := storage.Close(fs.Context())
-			if err != nil {
-				return fmt.Errorf("%v recv close - %w", action, err)
-			}
-			if err := fs.SendAndClose(nil); err != nil {
-				// client dead?
-				return fmt.Errorf("%v recv sendAdnClose err - %w", action, err)
-			}
-			return nil
+		received += len(req.Data)
+
+		log.Debugw(action, "msg", fmt.Sprintf("received %d, actual %d", req.SizeInBytes, len(req.Data)))
+
+		err = storage.WriteChunk(ctx, req.Name, req.Data)
+		if err != nil {
+			err = fmt.Errorf("%v write chunk err - %w", action, err)
+			return
 		}
 	}
+
+	log.Debug(action, "msg", fmt.Sprintf("received %d", received))
+	return nil
 }
 
 func (fa *fileAccessor) LoadFile(lr *proto.LoadFileRequest, ls proto.FileAccessor_LoadFileServer) error {

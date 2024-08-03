@@ -108,18 +108,32 @@ func (m *MockStreamFileWriter) EXPECT() *MockStreamFileWriterMockRecorder {
 	return m.recorder
 }
 
-// Close mocks base method.
-func (m *MockStreamFileWriter) Close(arg0 context.Context) error {
+// Commit mocks base method.
+func (m *MockStreamFileWriter) Commit(arg0 context.Context) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Close", arg0)
+	ret := m.ctrl.Call(m, "Commit", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// Close indicates an expected call of Close.
-func (mr *MockStreamFileWriterMockRecorder) Close(arg0 interface{}) *gomock.Call {
+// Commit indicates an expected call of Commit.
+func (mr *MockStreamFileWriterMockRecorder) Commit(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockStreamFileWriter)(nil).Close), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Commit", reflect.TypeOf((*MockStreamFileWriter)(nil).Commit), arg0)
+}
+
+// Rollback mocks base method.
+func (m *MockStreamFileWriter) Rollback(arg0 context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Rollback", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Rollback indicates an expected call of Rollback.
+func (mr *MockStreamFileWriterMockRecorder) Rollback(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Rollback", reflect.TypeOf((*MockStreamFileWriter)(nil).Rollback), arg0)
 }
 
 // WriteChunk mocks base method.

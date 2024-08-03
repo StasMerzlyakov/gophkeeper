@@ -2,6 +2,7 @@ package fs
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -21,6 +22,18 @@ type fileStorage struct {
 
 func (fs *fileStorage) GetFileInfoList(ctx context.Context, bucket string) ([]domain.FileInfo, error) {
 	dirPath := filepath.Join(fs.path, bucket)
+	stat, err := os.Stat(dirPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+
+	if !stat.IsDir() {
+		return nil, fmt.Errorf("%w bucker dir is not directory", domain.ErrServerInternal)
+	}
 
 	entries, err := os.ReadDir(dirPath)
 	if err != nil {

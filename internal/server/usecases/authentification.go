@@ -123,6 +123,6 @@ func (auth *auth) CheckOTP(ctx context.Context, currentID domain.SessionID, otpP
 		return "", err
 	}
 	auth.tempStorage.Delete(ctx, currentID)
-	log.Debugw(action, "msg", "autehntification complete")
+	log.Debugw(action, "msg", "authentification complete")
 	return jwtTok, nil
 }

@@ -38,7 +38,7 @@ func (sf *streamFileReader) Next() ([]byte, error) {
 	if err != nil {
 		return sf.buf[:n], err
 	}
-	return sf.buf[:], nil
+	return sf.buf[:n], nil
 }
 func (sf *streamFileReader) Close() {
 	err := sf.file.Close()

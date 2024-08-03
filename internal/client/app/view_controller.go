@@ -157,7 +157,11 @@ func (ac *viewController) RegInitMasterKey(mKey *domain.UnencryptedMasterKeyData
 
 func (ac *viewController) GetBankCardList() {
 	ac.invokeFn(func(ctx context.Context) error {
-		return ac.dataAccessor.GetBankCardList(ctx)
+		if err := ac.dataAccessor.GetBankCardList(ctx); err != nil {
+			ac.appView.ShowMsg(err.Error())
+			// do not return error - show cache
+		}
+		return nil
 	}, func() {
 		nmbrs := ac.storage.GetBankCardNumberList()
 		ac.appView.ShowBankCardListView(nmbrs)
@@ -297,6 +301,7 @@ func (ac *viewController) GetFilesInfoList() {
 	ac.invokeFn(func(ctx context.Context) error {
 		if err := ac.fileAccessor.GetFileInfoList(ctx); err != nil {
 			ac.appView.ShowMsg(err.Error())
+			// do not return error - show cache
 		}
 		return nil
 	}, func() {
@@ -309,6 +314,7 @@ func (ac *viewController) GetUserPasswordDataList() {
 	ac.invokeFn(func(ctx context.Context) error {
 		if err := ac.dataAccessor.GetUserPasswordDataList(ctx); err != nil {
 			ac.appView.ShowMsg(err.Error())
+			// do not return error - show cache
 		}
 		return nil
 	}, func() {
@@ -367,24 +373,29 @@ func (ac *viewController) UploadFile(info *domain.FileInfo) {
 		}
 	}
 
-	resultHandler := func(err error) {
+	resultHandlerFn := func(err error) {
+		log := GetMainLogger()
+		log.Debug("result handling")
 		if err != nil {
 			ac.appView.ShowMsg(err.Error())
 		} else {
+			ac.appView.ShowMsg("Uploading complete")
 			ac.GetFilesInfoList()
 		}
 	}
 
 	progerssFn := func(done int, common int) {
 		go func() {
+			log := GetMainLogger()
 			percentage := float64(done*100) / float64(common)
 			progressText := fmt.Sprintf("uploading %d of %d", done, common)
+			log.Debugf("pbar %s %s", progressText, fmt.Sprintf("Uploading %s", info.Name))
 			ac.appView.ShowProgressBar(fmt.Sprintf("Uploading %s", info.Name), progressText, percentage, cancelFn)
 		}()
 	}
 
 	ctx := context.Background()
-	if hndl, err := ac.fileAccessor.UploadFile(ctx, info, resultHandler, progerssFn); err != nil {
+	if hndl, err := ac.fileAccessor.UploadFile(ctx, info, resultHandlerFn, progerssFn); err != nil {
 		ac.appView.ShowMsg(err.Error())
 	} else {
 		cancelFnHandler = hndl

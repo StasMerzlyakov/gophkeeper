@@ -87,7 +87,7 @@ func (fa *fileAccessor) CreateStreamFileWriter(ctx context.Context) (domain.Stre
 
 	wrt, err := fa.fileStorage.CreateStreamFileWriter(ctx, bucket)
 	if err != nil {
-		log.Infow(action, "cretea err", err.Error())
+		log.Infow(action, "crete err", err.Error())
 		return nil, err
 	}
 

@@ -13,7 +13,8 @@ type Logger interface {
 // StreamFileWriter used for sending big files in chunk
 type StreamFileWriter interface {
 	WriteChunk(ctx context.Context, name string, chunk []byte) error
-	Close(ctx context.Context) error
+	Commit(ctx context.Context) error
+	Rollback(ctx context.Context) error
 }
 
 // StreamFileReader is used for reading file chunk

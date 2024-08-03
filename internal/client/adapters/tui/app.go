@@ -1,11 +1,8 @@
 package tui
 
 import (
-	"time"
-
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
-	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/rivo/tview"
@@ -121,6 +118,8 @@ func (tApp *tuiApp) ShowMsg(msg string) {
 func (tApp *tuiApp) ShowProgressBar(title string, progressText string, percentage float64, cancelFn func()) {
 	go func() {
 		tApp.app.QueueUpdateDraw(func() {
+			log := app.GetMainLogger()
+			log.Debug("ProgressBar show start")
 			pBar := NewProgressBar().
 				AddCancelButton("Cancel").
 				SetProgressText(progressText).
@@ -128,6 +127,7 @@ func (tApp *tuiApp) ShowProgressBar(title string, progressText string, percentag
 				SetCancelFunc(cancelFn)
 			pBar.SetTitle(title)
 			tApp.app.SetRoot(pBar, true).SetFocus(pBar)
+			log.Debug("ProgressBar shown")
 		})
 	}()
 }
@@ -184,11 +184,6 @@ func (tApp *tuiApp) Start() error {
 	tApp.pages.AddPage(UploadFilePage, tApp.uploadFilePageFlex, true, false)
 	tApp.pages.AddPage(FileTreePagh, tApp.fileTreeView, true, false)
 	tApp.pages.AddPage(FileInfoPage, tApp.fileInfoFlex, true, false)
-
-	go func() {
-		time.Sleep(time.Second)
-		tApp.ShowFileInfoListView([]domain.FileInfo{})
-	}()
 
 	if err := tApp.app.SetRoot(tApp.pages, true).EnableMouse(false).Run(); err != nil {
 		log := app.GetMainLogger()

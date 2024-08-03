@@ -83,7 +83,7 @@ func main() {
 
 	defer func() {
 		if err := sender.Close(); err != nil {
-			sugarLog.Error(err)
+			sugarLog.Error(err) // sometimes occurs "write tcp 127.0.0.1:36690->127.0.0.1:25: write: broken pipe". TODO find out reason
 		}
 	}()
 

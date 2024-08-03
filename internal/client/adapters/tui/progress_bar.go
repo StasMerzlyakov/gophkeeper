@@ -49,7 +49,10 @@ func (m *ProgressBar) SetPercentage(percentage float64) *ProgressBar {
 }
 
 func InsertAt(inputString, stringTobeInserted string, index int) string {
-	s := inputString[:index] + stringTobeInserted + inputString[index:]
+	s := inputString
+	if len(inputString) >= index {
+		s = inputString[:index] + stringTobeInserted + inputString[index:]
+	}
 	return s
 }
 

@@ -96,18 +96,9 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 		return nil, err
 	}
 
-	sendCtx, sendCancelFn := context.WithCancel(ctx)
-	sender, err := fl.appServer.SendFile(sendCtx)
-	if err != nil {
-		sendCancelFn()
-		err := fmt.Errorf("%w upload file %s err", err, info.Name)
-		log.Warn(err.Error())
-		return nil, err
-	}
+	forEncryptChan := make(chan []byte) // chan for file readed chunck
 
-	readChan := make(chan []byte) // chan for file readed chunck
-
-	preparedChan := make(chan []byte) // chan for prepared chunks (encryption)
+	forSendChan := make(chan []byte) // chan for prepared chunks (encryption)
 
 	// Reading operation
 	fileSize := int(reader.FileSize())
@@ -117,6 +108,7 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 
 	errorChan := make(chan error)
 	doneCh := make(chan struct{})
+	cancelCh := make(chan struct{})
 
 	var opErr error
 
@@ -127,13 +119,14 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 
 	opWg.Add(1)
 	go func() {
-		defer GetMainLogger().Debugf("whait goroutine complete")
+		defer GetMainLogger().Debugf("wait goroutine complete")
 		defer opWg.Done()
 		select {
 		case opErr = <-errorChan: // error occures
-			close(doneCh)
+			close(cancelCh)
 			log.Warn(fmt.Sprintf("opeartion %s error %s", action, err.Error()))
 		case <-fl.stopCh:
+		case <-doneCh: // success
 		}
 	}()
 
@@ -142,15 +135,16 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 		defer GetMainLogger().Debugf("read goroutine complete")
 		defer opWg.Done()
 		defer reader.Close()
-		sended := 0
+		defer close(forEncryptChan)
+		readed := 0
 		var rdCn chan []byte
 		var isLast bool
 	Loop:
 		for {
 			chunk, err := reader.Next()
 			chunkSize := len(chunk)
-			sended += chunkSize
-			progerssFn(sended, fileSize)
+			readed += chunkSize
+			progerssFn(readed, fileSize)
 
 			if err != nil {
 				if errors.Is(err, io.EOF) {
@@ -160,22 +154,22 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 				}
 			}
 			if len(chunk) > 0 {
-				rdCn = readChan
+				rdCn = forEncryptChan
+			} else {
+				break Loop
 			}
 
 			select {
 			case rdCn <- chunk:
-				sended += chunkSize
-				progerssFn(sended, fileSize)
+
 				if isLast {
-					close(readChan)
 					break Loop
 				}
 				rdCn = nil
 			case <-fl.stopCh:
 				// complete operation and finish
 				break Loop
-			case <-doneCh:
+			case <-cancelCh:
 				// any error occurs
 				break Loop
 			}
@@ -188,9 +182,10 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 	go func() {
 		defer GetMainLogger().Debugf("encr goroutine complete")
 		defer opWg.Done()
+		defer close(forSendChan)
 
 		var encrypted []byte
-		var rCh = readChan
+		var rCh = forEncryptChan
 		var wrtCh chan ([]byte)
 
 	Loop:
@@ -199,20 +194,19 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 			case val, ok := <-rCh:
 				if !ok {
 					// success
-					close(preparedChan)
 					break Loop
 				} else {
 					// TODO - do encryption
 					encrypted = val
 					time.Sleep(500 * time.Millisecond)
 					rCh = nil
-					wrtCh = preparedChan
+					wrtCh = forSendChan
 				}
 			case wrtCh <- encrypted:
 				encrypted = nil
-				rCh = readChan
+				rCh = forEncryptChan
 				wrtCh = nil
-			case <-doneCh:
+			case <-cancelCh:
 				// any error occurs
 				break Loop
 			case <-fl.stopCh:
@@ -227,26 +221,45 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 	go func() {
 		defer GetMainLogger().Debugf("send goroutine complete")
 		defer opWg.Done()
+		defer close(doneCh)
+
+		sender, err := fl.appServer.SendFile(ctx)
+		if err != nil {
+			err := fmt.Errorf("%w upload file %s err", err, info.Name)
+			log.Warn(err.Error())
+			errorChan <- err
+			return
+		}
+
 	Loop:
 		for {
 			select {
-			case chunk, ok := <-preparedChan:
+			case chunk, ok := <-forSendChan:
 				if !ok {
 					// success
-					err := sender.Close(ctx)
+					err := sender.Commit(ctx)
 					if err != nil {
+						GetMainLogger().Debugf("sender closed err %s", err.Error())
 						errorChan <- err
 					} else {
-						close(doneCh)
+						GetMainLogger().Debugf("sender closed")
 					}
 					break Loop
 				} else {
 					if err := sender.WriteChunk(ctx, info.Name, chunk); err != nil {
+						if errors.Is(err, io.EOF) {
+							// go grpc call ClientStream.SendMsg is not blocked
+							// success
+							GetMainLogger().Debugf("message is sent")
+							break Loop
+						}
+						GetMainLogger().Infof("chunk sending err %s", err.Error())
 						errorChan <- err
 						break Loop
 					}
+					GetMainLogger().Debugf("chunk is sent")
 				}
-			case <-doneCh:
+			case <-cancelCh:
 				// any error occurs
 				break Loop
 			case <-fl.stopCh:
@@ -256,16 +269,8 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 		}
 	}()
 
-	// Whait result gorotine
-	fl.wg.Add(1)
-	go func() {
-		defer GetMainLogger().Debugf("wait result goroutine complete")
-		defer fl.wg.Done()
-		defer sendCancelFn()
-		opWg.Wait()
-		resultHandler(opErr)
-	}()
-
+	opWg.Wait()
+	resultHandler(opErr)
 	log.Debugf("%v complete", action)
 	return cancelFn, nil
 }

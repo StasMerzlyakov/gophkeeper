@@ -2,8 +2,8 @@ package handler
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	"github.com/StasMerzlyakov/gophkeeper/internal/proto"
 )
@@ -25,26 +25,28 @@ func (ss *streamSender) WriteChunk(ctx context.Context, name string, chunk []byt
 		return nil
 	}
 
-	return ss.client.Send(&proto.UploadFileRequest{
+	log := app.GetMainLogger()
+	if err := ss.client.Send(&proto.UploadFileRequest{
 		Name:        name,
 		SizeInBytes: int32(len(chunk)),
 		Data:        chunk,
-		IsLastChunk: false,
-	})
+	}); err != nil {
+		log.Errorf("send error %s ", err.Error())
+		return err
+	} else {
+		log.Debugf("send %d bytes sucess", len(chunk))
+	}
+
+	return nil
 }
 
-func (ss *streamSender) Close(ctx context.Context) error {
-
-	if err := ss.client.Send(&proto.UploadFileRequest{
-		Name:        "",
-		SizeInBytes: 0,
-		IsLastChunk: true,
-	}); err != nil {
-		fmt.Println("%w can't send the last chunk", err)
-	}
-
+func (ss *streamSender) Commit(ctx context.Context) error {
 	if _, err := ss.client.CloseAndRecv(); err != nil {
-		fmt.Println("%w can't close client", err)
+		return err
 	}
+	return nil
+}
+
+func (ss *streamSender) Rollback(ctx context.Context) error {
 	return nil
 }

@@ -175,6 +175,8 @@ func (h *handler) PassLoginOTP(ctx context.Context, otpPass string) error {
 	}
 	h.sessionID = ""
 	h.jwtToken = resp.Token
+	log := app.GetMainLogger()
+	log.Errorf(h.jwtToken)
 	return nil
 }
 

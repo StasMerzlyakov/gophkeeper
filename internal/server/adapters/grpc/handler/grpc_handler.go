@@ -85,7 +85,7 @@ func (grpcHandler *grpcHandler) Start(srcCtx context.Context) {
 					interceptor.EncrichWithRequestIDUnaryInterceptor(),
 					interceptor.ErrorCodeUnaryInteceptor(),
 					interceptor.JWTUnaryInterceptor([]byte(grpcHandler.conf.TokenSecret),
-						[]string{"proto.DataAccessor"},
+						[]string{"proto.DataAccessor", "proto.FileAccessor"},
 					),
 				),
 				grpc.ChainStreamInterceptor(

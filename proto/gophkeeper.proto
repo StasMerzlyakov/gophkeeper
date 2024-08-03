@@ -148,10 +148,9 @@ message GetFileInfoListResponse {
 }
 
 message UploadFileRequest {
-    string   name    = 1;
+    string    name    = 1;
     int32     sizeInBytes = 2;
     bytes     data        = 3;
-    bool      isLastChunk = 4;
 }
 
 message LoadFileRequest {
@@ -160,9 +159,8 @@ message LoadFileRequest {
 
 
 message LoadFileResponse {
-    int32     sizeInBytes = 2;
-    bytes     data        = 3;
-    bool      isLastChunk = 4;
+    int32     sizeInBytes = 1;
+    bytes     data        = 2;
 }
 
 message DeleteFileInfoRequest {
