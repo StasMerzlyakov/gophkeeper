@@ -87,12 +87,13 @@ func (sw *streamFileWriter) Commit(ctx context.Context) error {
 
 func (sw *streamFileWriter) Rollback(ctx context.Context) error {
 
-	if err := sw.file.Close(); err != nil {
-		return fmt.Errorf("%w close file %s err %s", ErrServerInternal, sw.file.Name(), err.Error())
-	}
-
-	if err := os.RemoveAll(sw.tempFilePath); err != nil {
-		return fmt.Errorf("%w remove temp file %s err %s", ErrServerInternal, sw.file.Name(), err.Error())
+	if sw.file != nil {
+		if err := sw.file.Close(); err != nil {
+			return fmt.Errorf("%w close file %s err %s", ErrServerInternal, sw.file.Name(), err.Error())
+		}
+		if err := os.RemoveAll(sw.tempFilePath); err != nil {
+			return fmt.Errorf("%w remove temp file %s err %s", ErrServerInternal, sw.file.Name(), err.Error())
+		}
 	}
 
 	return nil

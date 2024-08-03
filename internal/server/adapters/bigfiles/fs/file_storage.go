@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
@@ -41,9 +42,11 @@ func (fs *fileStorage) GetFileInfoList(ctx context.Context, bucket string) ([]do
 	}
 	var result []domain.FileInfo
 	for _, e := range entries {
-		result = append(result, domain.FileInfo{
-			Name: e.Name(),
-		})
+		if !strings.HasPrefix(e.Name(), domain.TempFileNamePrefix) {
+			result = append(result, domain.FileInfo{
+				Name: e.Name(),
+			})
+		}
 	}
 	return result, nil
 }

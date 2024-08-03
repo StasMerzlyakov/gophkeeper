@@ -30,6 +30,7 @@ func (ss *streamSender) WriteChunk(ctx context.Context, name string, chunk []byt
 		Name:        name,
 		SizeInBytes: int32(len(chunk)),
 		Data:        chunk,
+		Cancel:      false,
 	}); err != nil {
 		log.Errorf("send error %s ", err.Error())
 		return err
@@ -48,5 +49,12 @@ func (ss *streamSender) Commit(ctx context.Context) error {
 }
 
 func (ss *streamSender) Rollback(ctx context.Context) error {
-	return nil
+	// How to send error to server?
+	//return ss.client.CloseSend()
+	if err := ss.client.Send(&proto.UploadFileRequest{
+		Cancel: true,
+	}); err != nil {
+		return err
+	}
+	return ss.client.CloseSend()
 }

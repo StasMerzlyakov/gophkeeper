@@ -56,11 +56,12 @@ func (fa *fileAccessor) UploadFile(stream proto.FileAccessor_UploadFileServer) (
 
 	action := domain.GetAction(1)
 
-	log := domain.GetApplicationLogger()
-	log.Debug(action, "msg", "start")
+	ctx := stream.Context()
+	log := domain.GetCtxLogger(ctx)
+	log.Debugw(action, "msg", "start")
 
 	var storage domain.StreamFileWriter
-	ctx := stream.Context()
+
 	storage, err = fa.accessor.CreateStreamFileWriter(ctx)
 	if err != nil {
 		return fmt.Errorf("%v err - %w", action, err)
@@ -68,20 +69,23 @@ func (fa *fileAccessor) UploadFile(stream proto.FileAccessor_UploadFileServer) (
 
 	defer func() {
 		if err != nil {
+			log.Debugw(action, "msg", "start rollback")
 			if rlErr := storage.Rollback(ctx); rlErr != nil {
-				log.Errorf(action, "err", fmt.Sprintf("storage.Rollback err %s", rlErr.Error()))
+				log.Errorw(action, "err", fmt.Sprintf("storage.Rollback err %s", rlErr.Error()))
 			}
 		} else {
+			log.Debugw(action, "msg", "start commit")
 			if cmErr := storage.Commit(ctx); cmErr != nil {
-				log.Errorf(action, "err", fmt.Sprintf("storage.Commit err %s", cmErr.Error()))
+				log.Errorw(action, "err", fmt.Sprintf("storage.Commit err %s", cmErr.Error()))
 			}
 			if err := stream.SendAndClose(nil); err != nil {
-				log.Infof(action, "err", fmt.Sprintf("SendAndClose err %s", err.Error()))
+				log.Errorw(action, "err", fmt.Sprintf("SendAndClose err %s", err.Error()))
 			}
 		}
 	}()
 	received := 0
 	var req *proto.UploadFileRequest
+
 	for {
 		req, err = stream.Recv()
 
@@ -92,7 +96,13 @@ func (fa *fileAccessor) UploadFile(stream proto.FileAccessor_UploadFileServer) (
 
 		if err != nil {
 			err = fmt.Errorf("%v recv err - %w", action, err)
-			return
+			return err
+		}
+
+		if req.Cancel {
+			// client cancel operation
+			err = fmt.Errorf("%v client operation cancelation", action)
+			return err
 		}
 
 		received += len(req.Data)
@@ -102,11 +112,11 @@ func (fa *fileAccessor) UploadFile(stream proto.FileAccessor_UploadFileServer) (
 		err = storage.WriteChunk(ctx, req.Name, req.Data)
 		if err != nil {
 			err = fmt.Errorf("%v write chunk err - %w", action, err)
-			return
+			return err
 		}
 	}
 
-	log.Debug(action, "msg", fmt.Sprintf("received %d", received))
+	log.Debugw(action, "msg", fmt.Sprintf("received %d", received))
 	return nil
 }
 

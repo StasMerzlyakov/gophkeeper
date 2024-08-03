@@ -44,7 +44,15 @@ const (
 )
 
 const (
-	fileChunkSize = 4 * 1024
+	_ = 1 << (10 * iota)
+	KiB
+	MiB
+	GiB
+	TiB
+)
+
+const (
+	FileChunkSize = 4 * KiB
 )
 
 func GetAction(depth int) string {
@@ -438,5 +446,5 @@ func CheckFileForWrite(info *FileInfo) error {
 }
 
 func CreateFileStreamer(info *FileInfo) (StreamFileReader, error) {
-	return NewStreamFileReader(info, fileChunkSize)
+	return NewStreamFileReader(info, FileChunkSize)
 }

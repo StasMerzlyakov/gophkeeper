@@ -364,40 +364,40 @@ func (ac *viewController) DeleteUpdatePasswordData(hint string) {
 }
 
 func (ac *viewController) UploadFile(info *domain.FileInfo) {
-
-	var cancelFnHandler func()
-
-	cancelFn := func() {
-		if cancelFnHandler != nil {
-			cancelFnHandler()
+	go func() {
+		cancelChan := make(chan struct{}, 1)
+		cancelFnHandler := func() {
+			if cancelChan != nil {
+				cancelChan <- struct{}{}
+				cancelChan = nil // Just once is enough
+			}
 		}
-	}
 
-	resultHandlerFn := func(err error) {
-		log := GetMainLogger()
-		log.Debug("result handling")
-		if err != nil {
-			ac.appView.ShowMsg(err.Error())
-		} else {
-			ac.appView.ShowMsg("Uploading complete")
-			ac.GetFilesInfoList()
+		resultHandlerFn := func(err error) {
+			log := GetMainLogger()
+			log.Debug("result handling")
+
+			if err != nil {
+				ac.appView.ShowMsg(err.Error())
+			} else {
+				ac.appView.ShowMsg("Uploading complete")
+				ac.GetFilesInfoList()
+			}
 		}
-	}
 
-	progerssFn := func(done int, common int) {
-		go func() {
+		progerssFn := func(done int, common int) {
 			log := GetMainLogger()
 			percentage := float64(done*100) / float64(common)
 			progressText := fmt.Sprintf("uploading %d of %d", done, common)
-			log.Debugf("pbar %s %s", progressText, fmt.Sprintf("Uploading %s", info.Name))
-			ac.appView.ShowProgressBar(fmt.Sprintf("Uploading %s", info.Name), progressText, percentage, cancelFn)
-		}()
-	}
+			log.Debugf("uploaded %s %s", progressText, fmt.Sprintf("Uploading %s", info.Name))
+			ac.appView.ShowProgressBar(fmt.Sprintf("Uploading %s", info.Name), progressText, percentage, cancelFnHandler)
+		}
 
-	ctx := context.Background()
-	if hndl, err := ac.fileAccessor.UploadFile(ctx, info, resultHandlerFn, progerssFn); err != nil {
-		ac.appView.ShowMsg(err.Error())
-	} else {
-		cancelFnHandler = hndl
-	}
+		ctx := context.Background()
+		var err error
+		if err = ac.fileAccessor.UploadFile(ctx, info, resultHandlerFn, progerssFn, cancelChan); err != nil {
+			ac.appView.ShowMsg(err.Error())
+		}
+	}()
+
 }
