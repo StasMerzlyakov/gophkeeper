@@ -35,12 +35,18 @@ func (gh *grpcHandler) AuthService(authService *authService) *grpcHandler {
 	return gh
 }
 
+func (gh *grpcHandler) FileAccessor(fileAccessor *fileAccessor) *grpcHandler {
+	gh.fileAccessor = fileAccessor
+	return gh
+}
+
 type grpcHandler struct {
 	conf         *config.ServerConf
 	s            *grpc.Server
 	regHandler   *regHandler
 	dataAccessor *dataAccessor
 	authService  *authService
+	fileAccessor *fileAccessor
 	wg           sync.WaitGroup
 }
 
@@ -76,19 +82,24 @@ func (grpcHandler *grpcHandler) Start(srcCtx context.Context) {
 			grpcHandler.s = grpc.NewServer(
 				grpc.Creds(tlsCredentials),
 				grpc.ChainUnaryInterceptor(
-					interceptor.EncrichWithRequestIDInterceptor(),
-					interceptor.ErrorCodeInteceptor(),
-					interceptor.JWTInterceptor([]byte(grpcHandler.conf.TokenSecret),
+					interceptor.EncrichWithRequestIDUnaryInterceptor(),
+					interceptor.ErrorCodeUnaryInteceptor(),
+					interceptor.JWTUnaryInterceptor([]byte(grpcHandler.conf.TokenSecret),
 						[]string{"proto.DataAccessor"},
 					),
+				),
+				grpc.ChainStreamInterceptor(
+					interceptor.EncrichWithRequestIDStreamInterceptor(),
+					interceptor.ErrorCodeStreamInterceptor(),
+					interceptor.JWTStreamInterceptor([]byte(grpcHandler.conf.TokenSecret)),
 				),
 			)
 		} else {
 			grpcHandler.s = grpc.NewServer(
 				grpc.ChainUnaryInterceptor(
-					interceptor.EncrichWithRequestIDInterceptor(),
-					interceptor.ErrorCodeInteceptor(),
-					interceptor.JWTInterceptor([]byte(grpcHandler.conf.TokenSecret),
+					interceptor.EncrichWithRequestIDUnaryInterceptor(),
+					interceptor.ErrorCodeUnaryInteceptor(),
+					interceptor.JWTUnaryInterceptor([]byte(grpcHandler.conf.TokenSecret),
 						[]string{"proto.DataAccessor"},
 					),
 				),
@@ -99,6 +110,7 @@ func (grpcHandler *grpcHandler) Start(srcCtx context.Context) {
 		proto.RegisterRegistrationServiceServer(grpcHandler.s, grpcHandler.regHandler)
 		proto.RegisterDataAccessorServer(grpcHandler.s, grpcHandler.dataAccessor)
 		proto.RegisterAuthServiceServer(grpcHandler.s, grpcHandler.authService)
+		proto.RegisterFileAccessorServer(grpcHandler.s, grpcHandler.fileAccessor)
 		if err := grpcHandler.s.Serve(listen); err != nil {
 			panic(err)
 		}
