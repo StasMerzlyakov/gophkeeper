@@ -229,7 +229,7 @@ func encryptData(password string, plaintext string) (string, error) {
 	hmac := mac.Sum(nil)
 
 	// append this hmac to the plaintext
-	plaintext = string(hmac) + plaintext
+	plaintext = plaintext + string(hmac)
 
 	//create the cipher
 	block, err := aes.NewCipher(key)
@@ -275,8 +275,9 @@ func decryptData(password string, encrypted string) (string, error) {
 	stream.XORKeyStream(decrypted, decrypted)
 
 	// extract hmac from plaintext
-	extractedMac := decrypted[:32]
-	plaintext := decrypted[32:]
+	len := len(decrypted)
+	extractedMac := decrypted[len-32:]
+	plaintext := decrypted[:len-32]
 
 	// validate the hmac
 	mac := hmac.New(sha256.New, key)
