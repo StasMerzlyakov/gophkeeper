@@ -44,7 +44,7 @@ func TestFileAccesprUpload(t *testing.T) {
 			bytes:     buf,
 		}
 
-		mockHeler.EXPECT().CreateFileStreamer(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
+		mockHeler.EXPECT().CreateStreamFileReader(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
 			assert.Equal(t, fileInfo.Name, fInf.Name)
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
@@ -91,6 +91,7 @@ func TestFileAccesprUpload(t *testing.T) {
 
 			// testSender
 			assert.Equal(t, size, len(testSender.buf.Bytes()))
+			assert.Equal(t, int32(1), testSender.commitInvok.Load())
 			assert.True(t, bytes.Equal(buf, testSender.buf.Bytes()))
 		}
 	})
@@ -116,7 +117,7 @@ func TestFileAccesprUpload(t *testing.T) {
 			bytes:     buf,
 		}
 
-		mockHeler.EXPECT().CreateFileStreamer(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
+		mockHeler.EXPECT().CreateStreamFileReader(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
 			assert.Equal(t, fileInfo.Name, fInf.Name)
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
@@ -188,7 +189,7 @@ func TestFileAccesprUpload(t *testing.T) {
 			bytes:     buf,
 		}
 
-		mockHeler.EXPECT().CreateFileStreamer(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
+		mockHeler.EXPECT().CreateStreamFileReader(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
 			assert.Equal(t, fileInfo.Name, fInf.Name)
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
@@ -253,7 +254,7 @@ func TestFileAccesprUpload(t *testing.T) {
 			size: -1,
 		}
 
-		mockHeler.EXPECT().CreateFileStreamer(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
+		mockHeler.EXPECT().CreateStreamFileReader(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
 			assert.Equal(t, fileInfo.Name, fInf.Name)
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
@@ -308,7 +309,7 @@ func TestFileAccesprUpload(t *testing.T) {
 			err:  testError,
 		}
 
-		mockHeler.EXPECT().CreateFileStreamer(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
+		mockHeler.EXPECT().CreateStreamFileReader(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
 			assert.Equal(t, fileInfo.Name, fInf.Name)
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
@@ -378,7 +379,7 @@ func TestFileAccesprUpload(t *testing.T) {
 			bytes:     buf,
 		}
 
-		mockHeler.EXPECT().CreateFileStreamer(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
+		mockHeler.EXPECT().CreateStreamFileReader(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
 			assert.Equal(t, fileInfo.Name, fInf.Name)
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
@@ -444,7 +445,7 @@ func TestFileAccesprUpload(t *testing.T) {
 			err:  testError,
 		}
 
-		mockHeler.EXPECT().CreateFileStreamer(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
+		mockHeler.EXPECT().CreateStreamFileReader(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
 			assert.Equal(t, fileInfo.Name, fInf.Name)
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
@@ -517,7 +518,7 @@ func TestFileAccesprUpload(t *testing.T) {
 			bytes:     buf,
 		}
 
-		mockHeler.EXPECT().CreateFileStreamer(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
+		mockHeler.EXPECT().CreateStreamFileReader(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
 			assert.Equal(t, fileInfo.Name, fInf.Name)
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
@@ -587,7 +588,7 @@ func TestFileAccesprUpload(t *testing.T) {
 			chunkSize: chunkSize,
 		}
 
-		mockHeler.EXPECT().CreateFileStreamer(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
+		mockHeler.EXPECT().CreateStreamFileReader(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
 			assert.Equal(t, fileInfo.Name, fInf.Name)
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
@@ -654,7 +655,7 @@ func TestFileAccesprUpload(t *testing.T) {
 			chunkSize: chunkSize,
 		}
 
-		mockHeler.EXPECT().CreateFileStreamer(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
+		mockHeler.EXPECT().CreateStreamFileReader(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
 			assert.Equal(t, fileInfo.Name, fInf.Name)
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil

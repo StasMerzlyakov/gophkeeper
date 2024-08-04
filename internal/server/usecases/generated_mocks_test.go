@@ -549,6 +549,21 @@ func (m *MockFileStorage) EXPECT() *MockFileStorageMockRecorder {
 	return m.recorder
 }
 
+// CreateStreamFileReader mocks base method.
+func (m *MockFileStorage) CreateStreamFileReader(arg0 context.Context, arg1, arg2 string) (domain.StreamFileReader, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateStreamFileReader", arg0, arg1, arg2)
+	ret0, _ := ret[0].(domain.StreamFileReader)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateStreamFileReader indicates an expected call of CreateStreamFileReader.
+func (mr *MockFileStorageMockRecorder) CreateStreamFileReader(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateStreamFileReader", reflect.TypeOf((*MockFileStorage)(nil).CreateStreamFileReader), arg0, arg1, arg2)
+}
+
 // CreateStreamFileWriter mocks base method.
 func (m *MockFileStorage) CreateStreamFileWriter(arg0 context.Context, arg1 string) (domain.StreamFileWriter, error) {
 	m.ctrl.T.Helper()

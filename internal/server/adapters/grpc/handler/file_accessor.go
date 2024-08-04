@@ -9,8 +9,6 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	"github.com/StasMerzlyakov/gophkeeper/internal/proto"
 	"github.com/golang/protobuf/ptypes/empty"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 func NewFileAccessor(accessor FileAccessor) *fileAccessor {
@@ -50,6 +48,53 @@ func (fa *fileAccessor) DeleteFileInfo(ctx context.Context, req *proto.DeleteFil
 		return nil, fmt.Errorf("%v err - %w", action, err)
 	}
 	return nil, nil
+}
+
+func (fa *fileAccessor) LoadFile(req *proto.LoadFileRequest, clientStream proto.FileAccessor_LoadFileServer) error {
+	action := domain.GetAction(1)
+
+	ctx := clientStream.Context()
+	log := domain.GetCtxLogger(ctx)
+	log.Debugw(action, "msg", "start")
+	sent := 0
+
+	storage, err := fa.accessor.CreateStreamFileReader(ctx, &domain.FileInfo{
+		Name: req.Name,
+	})
+	if err != nil {
+		return fmt.Errorf("%v err - %w", action, err)
+	}
+
+	defer storage.Close()
+
+	fileSize := storage.FileSize()
+
+	for {
+		bytes, err := storage.Next()
+		size := len(bytes)
+		if size != 0 {
+			if err := clientStream.Send(&proto.LoadFileResponse{
+				SizeInBytes: int32(fileSize),
+				Data:        bytes,
+			}); err != nil {
+				err = fmt.Errorf("%v next err - %w", action, err)
+				return err
+			}
+		}
+
+		if errors.Is(err, io.EOF) {
+			break
+		}
+
+		if err != nil {
+			err = fmt.Errorf("%v next err - %w", action, err)
+			return err
+		}
+		sent += size
+	}
+
+	log.Debugw(action, "msg", fmt.Sprintf("send bytes %d", sent))
+	return nil
 }
 
 func (fa *fileAccessor) UploadFile(stream proto.FileAccessor_UploadFileServer) (err error) {
@@ -118,8 +163,4 @@ func (fa *fileAccessor) UploadFile(stream proto.FileAccessor_UploadFileServer) (
 
 	log.Debugw(action, "msg", fmt.Sprintf("received %d", received))
 	return nil
-}
-
-func (fa *fileAccessor) LoadFile(lr *proto.LoadFileRequest, ls proto.FileAccessor_LoadFileServer) error {
-	return status.Errorf(codes.Unimplemented, "method LoadFile not implemented")
 }

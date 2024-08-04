@@ -247,3 +247,14 @@ func (aw *serverStatusWrapper) CreateFileSender(ctx context.Context) (domain.Str
 	retErr := aw.invokeOnlineFn(ctx, fn)
 	return data, retErr
 }
+
+func (aw *serverStatusWrapper) CreateFileReceiver(ctx context.Context, name string) (domain.StreamFileReader, error) {
+	var data domain.StreamFileReader
+	var err error
+	fn := func(ctx context.Context) error {
+		data, err = aw.server.CreateFileReceiver(ctx, name)
+		return err
+	}
+	retErr := aw.invokeOnlineFn(ctx, fn)
+	return data, retErr
+}

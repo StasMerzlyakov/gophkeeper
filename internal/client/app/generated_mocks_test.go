@@ -64,6 +64,21 @@ func (mr *MockAppServerMockRecorder) CreateBankCard(arg0, arg1 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBankCard", reflect.TypeOf((*MockAppServer)(nil).CreateBankCard), arg0, arg1)
 }
 
+// CreateFileReceiver mocks base method.
+func (m *MockAppServer) CreateFileReceiver(arg0 context.Context, arg1 string) (domain.StreamFileReader, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateFileReceiver", arg0, arg1)
+	ret0, _ := ret[0].(domain.StreamFileReader)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateFileReceiver indicates an expected call of CreateFileReceiver.
+func (mr *MockAppServerMockRecorder) CreateFileReceiver(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFileReceiver", reflect.TypeOf((*MockAppServer)(nil).CreateFileReceiver), arg0, arg1)
+}
+
 // CreateFileSender mocks base method.
 func (m *MockAppServer) CreateFileSender(arg0 context.Context) (domain.StreamFileWriter, error) {
 	m.ctrl.T.Helper()
@@ -714,19 +729,34 @@ func (mr *MockDomainHelperMockRecorder) CheckUserPasswordData(arg0 interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUserPasswordData", reflect.TypeOf((*MockDomainHelper)(nil).CheckUserPasswordData), arg0)
 }
 
-// CreateFileStreamer mocks base method.
-func (m *MockDomainHelper) CreateFileStreamer(arg0 *domain.FileInfo) (domain.StreamFileReader, error) {
+// CreateStreamFileReader mocks base method.
+func (m *MockDomainHelper) CreateStreamFileReader(arg0 *domain.FileInfo) (domain.StreamFileReader, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateFileStreamer", arg0)
+	ret := m.ctrl.Call(m, "CreateStreamFileReader", arg0)
 	ret0, _ := ret[0].(domain.StreamFileReader)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CreateFileStreamer indicates an expected call of CreateFileStreamer.
-func (mr *MockDomainHelperMockRecorder) CreateFileStreamer(arg0 interface{}) *gomock.Call {
+// CreateStreamFileReader indicates an expected call of CreateStreamFileReader.
+func (mr *MockDomainHelperMockRecorder) CreateStreamFileReader(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFileStreamer", reflect.TypeOf((*MockDomainHelper)(nil).CreateFileStreamer), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateStreamFileReader", reflect.TypeOf((*MockDomainHelper)(nil).CreateStreamFileReader), arg0)
+}
+
+// CreateStreamFileWriter mocks base method.
+func (m *MockDomainHelper) CreateStreamFileWriter(arg0 string) (domain.StreamFileWriter, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateStreamFileWriter", arg0)
+	ret0, _ := ret[0].(domain.StreamFileWriter)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateStreamFileWriter indicates an expected call of CreateStreamFileWriter.
+func (mr *MockDomainHelperMockRecorder) CreateStreamFileWriter(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateStreamFileWriter", reflect.TypeOf((*MockDomainHelper)(nil).CreateStreamFileWriter), arg0)
 }
 
 // DecryptHello mocks base method.

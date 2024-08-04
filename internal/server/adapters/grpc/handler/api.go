@@ -38,4 +38,5 @@ type FileAccessor interface {
 	GetFileInfoList(ctx context.Context) ([]domain.FileInfo, error)
 	DeleteFileInfo(ctx context.Context, name string) error
 	CreateStreamFileWriter(ctx context.Context) (domain.StreamFileWriter, error)
+	CreateStreamFileReader(ctx context.Context, info *domain.FileInfo) (domain.StreamFileReader, error)
 }

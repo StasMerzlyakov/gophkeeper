@@ -255,15 +255,6 @@ func (ac *viewController) GetFileInfo(name string) {
 		}, nil)
 }
 
-func (ac *viewController) SaveFile(info *domain.FileInfo) {
-	ac.invokeFn(
-		func(ctx context.Context) error {
-			return fmt.Errorf("NOT IMPLEMENTED YET")
-		}, func() {
-			ac.GetFilesInfoList()
-		})
-}
-
 func (ac *viewController) DeleteFile(name string) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
@@ -361,6 +352,53 @@ func (ac *viewController) DeleteUpdatePasswordData(hint string) {
 			return nil
 		}, func() {
 			ac.GetUserPasswordDataList()
+		})
+}
+
+func (ac *viewController) SaveFile(info *domain.FileInfo) {
+	log.Debug("SaveFile start")
+	cancelChan := make(chan struct{}, 1)
+	errorChan := make(chan error, 1)
+	log := GetMainLogger()
+	var canceled atomic.Bool
+
+	go func() {
+		cancelFnHandler := func() {
+			if canceled.CompareAndSwap(false, true) {
+				log.Debug("cancel invoked !!!")
+				cancelChan <- struct{}{}
+			}
+		}
+
+		progerssFn := func(procesed int, common int) {
+			if common > 0 {
+				progressText := fmt.Sprintf("loading %d of %d", procesed, common)
+				percentage := float64(procesed) * 100 / float64(common)
+				if percentage > 100 {
+					percentage = 100
+				}
+				ac.appView.CreateProgressBar(fmt.Sprintf("Loading %s", info.Name), percentage, progressText, cancelFnHandler)
+			}
+		}
+
+		ctx := context.Background()
+
+		ac.fileAccessor.LoadFile(ctx, info, progerssFn, cancelChan, errorChan)
+		log.Debug("Load complete")
+		select {
+		case err := <-errorChan:
+			ac.appView.ShowMsg(err.Error())
+		default:
+			ac.GetFilesInfoList()
+		}
+
+	}()
+
+	ac.invokeFn(
+		func(ctx context.Context) error {
+			return fmt.Errorf("NOT IMPLEMENTED YET")
+		}, func() {
+			ac.GetFilesInfoList()
 		})
 }
 

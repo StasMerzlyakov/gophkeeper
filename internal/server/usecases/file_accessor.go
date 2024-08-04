@@ -95,7 +95,7 @@ func (fa *fileAccessor) CreateStreamFileWriter(ctx context.Context) (domain.Stre
 	return wrt, nil
 }
 
-func (fa *fileAccessor) CreateStreamReader(ctx context.Context, info *domain.FileInfo) (domain.StreamFileReader, error) {
+func (fa *fileAccessor) CreateStreamFileReader(ctx context.Context, info *domain.FileInfo) (domain.StreamFileReader, error) {
 	log := domain.GetCtxLogger(ctx)
 	action := domain.GetAction(1)
 

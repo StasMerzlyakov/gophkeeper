@@ -54,7 +54,8 @@ type DomainHelper interface {
 	CheckFileForRead(info *domain.FileInfo) error
 	CheckFileForWrite(inf *domain.FileInfo) error
 
-	CreateFileStreamer(info *domain.FileInfo) (domain.StreamFileReader, error)
+	CreateStreamFileReader(info *domain.FileInfo) (domain.StreamFileReader, error)
+	CreateStreamFileWriter(dir string) (domain.StreamFileWriter, error)
 }
 
 type AppView interface {
@@ -104,4 +105,5 @@ type AppServer interface {
 	GetFileInfoList(ctx context.Context) ([]domain.FileInfo, error)
 	DeleteFileInfo(ctx context.Context, name string) error
 	CreateFileSender(ctx context.Context) (domain.StreamFileWriter, error)
+	CreateFileReceiver(ctx context.Context, name string) (domain.StreamFileReader, error)
 }

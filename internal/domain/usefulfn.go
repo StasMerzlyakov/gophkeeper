@@ -442,9 +442,22 @@ func CheckFileForWrite(info *FileInfo) error {
 		return fmt.Errorf("%w wrong dir name %s", ErrClientDataIncorrect, dir)
 	}
 
+	ok, err := IsWritable(dir)
+	if err != nil {
+		return fmt.Errorf("%w can't test directory wriatble %s by info.Path", ErrClientDataIncorrect, dir)
+	}
+
+	if !ok {
+		return fmt.Errorf("%w directory is not writable %s", ErrClientDataIncorrect, dir)
+	}
+
 	return nil
 }
 
-func CreateFileStreamer(name string) (StreamFileReader, error) {
+func CreateStreamFileReader(name string) (StreamFileReader, error) {
 	return NewStreamFileReader(name, FileChunkSize)
+}
+
+func CreateStreamFileWriter(dir string) (StreamFileWriter, error) {
+	return NewStreamFileWriter(dir)
 }

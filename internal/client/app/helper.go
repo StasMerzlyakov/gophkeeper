@@ -63,6 +63,10 @@ func (h *helper) CheckFileForWrite(info *domain.FileInfo) error {
 	return domain.CheckFileForWrite(info)
 }
 
-func (h *helper) CreateFileStreamer(info *domain.FileInfo) (domain.StreamFileReader, error) {
-	return domain.CreateFileStreamer(info.Path)
+func (h *helper) CreateStreamFileReader(info *domain.FileInfo) (domain.StreamFileReader, error) {
+	return domain.CreateStreamFileReader(info.Path)
+}
+
+func (h *helper) CreateStreamFileWriter(dir string) (domain.StreamFileWriter, error) {
+	return domain.CreateStreamFileWriter(dir)
 }
