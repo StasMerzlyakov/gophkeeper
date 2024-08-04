@@ -29,31 +29,7 @@ func (fl *fileAccessor) LoadFile(ctx context.Context,
 		return
 	}
 
-	dir := filepath.Dir(info.Path)
 	basename := filepath.Base(info.Path)
-	writer, err := fl.helper.CreateStreamFileWriter(dir)
-	if err != nil {
-		err := fmt.Errorf("%w load file %s err %s", domain.ErrClientInternal, info.Name, err.Error())
-		log.Warn(err.Error())
-		errorChan <- err
-		return
-	}
-
-	defer func() {
-		err := writer.Rollback(ctx)
-		if err != nil {
-			err := fmt.Errorf("%w - %v error - writer.Rollback %v", domain.ErrClientDataIncorrect, action, err.Error())
-			log.Warn(err.Error())
-		}
-	}()
-
-	reader, err := fl.appServer.CreateFileReceiver(ctx, info.Name)
-	if err != nil {
-		err := fmt.Errorf("%w load file %s err %s", domain.ErrClientInternal, info.Name, err.Error())
-		log.Warn(err.Error())
-		errorChan <- err
-		return
-	}
 
 	forDecrypChan := make(chan []byte)
 
@@ -88,6 +64,13 @@ func (fl *fileAccessor) LoadFile(ctx context.Context,
 	go func() {
 		defer GetMainLogger().Debugf("read goroutine complete")
 		defer opWg.Done()
+		reader, err := fl.appServer.CreateFileReceiver(ctx, info.Name)
+		if err != nil {
+			err := fmt.Errorf("%w load file %s err %s", domain.ErrClientInternal, info.Name, err.Error())
+			log.Warn(err.Error())
+			errorChan <- err
+			return
+		}
 		defer reader.Close()
 		readed := 0
 		var rdCn chan []byte
@@ -189,6 +172,24 @@ func (fl *fileAccessor) LoadFile(ctx context.Context,
 
 		sendCrx, cancelFn := context.WithCancel(ctx)
 		defer cancelFn()
+
+		dir := filepath.Dir(info.Path)
+
+		writer, err := fl.helper.CreateStreamFileWriter(dir)
+		if err != nil {
+			err := fmt.Errorf("%w load file %s err %s", domain.ErrClientInternal, info.Name, err.Error())
+			log.Warn(err.Error())
+			errorChan <- err
+			return
+		}
+
+		defer func() {
+			err := writer.Rollback(ctx)
+			if err != nil {
+				err := fmt.Errorf("%w - %v error - writer.Rollback %v", domain.ErrClientDataIncorrect, action, err.Error())
+				log.Warn(err.Error())
+			}
+		}()
 
 	Loop:
 		for {

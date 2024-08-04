@@ -45,6 +45,7 @@ func (h *handler) CreateFileSender(ctx context.Context) (domain.StreamFileWriter
 }
 
 func (h *handler) CreateFileReceiver(ctx context.Context, name string) (domain.StreamFileReader, error) {
+
 	if stream, err := h.fileAccessor.LoadFile(ctx, &proto.LoadFileRequest{
 		Name: name,
 	}); err != nil {

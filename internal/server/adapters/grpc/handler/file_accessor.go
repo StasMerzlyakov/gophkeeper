@@ -58,9 +58,18 @@ func (fa *fileAccessor) LoadFile(req *proto.LoadFileRequest, clientStream proto.
 	log.Debugw(action, "msg", "start")
 	sent := 0
 
-	storage, err := fa.accessor.CreateStreamFileReader(ctx, &domain.FileInfo{
+	for i := 0; i < 10; i++ {
+		sent += domain.FileChunkSize
+		clientStream.Send(&proto.LoadFileResponse{
+			SizeInBytes: int32(domain.FileChunkSize) * 10,
+			Data:        make([]byte, domain.FileChunkSize),
+		})
+	}
+
+	/*storage, err := fa.accessor.CreateStreamFileReader(ctx, &domain.FileInfo{
 		Name: req.Name,
 	})
+
 	if err != nil {
 		return fmt.Errorf("%v err - %w", action, err)
 	}
@@ -92,7 +101,7 @@ func (fa *fileAccessor) LoadFile(req *proto.LoadFileRequest, clientStream proto.
 		}
 		sent += size
 	}
-
+	*/
 	log.Debugw(action, "msg", fmt.Sprintf("send bytes %d", sent))
 	return nil
 }

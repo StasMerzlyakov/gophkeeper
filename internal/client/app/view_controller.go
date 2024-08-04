@@ -393,13 +393,6 @@ func (ac *viewController) SaveFile(info *domain.FileInfo) {
 		}
 
 	}()
-
-	ac.invokeFn(
-		func(ctx context.Context) error {
-			return fmt.Errorf("NOT IMPLEMENTED YET")
-		}, func() {
-			ac.GetFilesInfoList()
-		})
 }
 
 func (ac *viewController) UploadFile(info *domain.FileInfo) {

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"io"
 	"sync"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
@@ -27,25 +28,36 @@ func (sr *streamReceiver) FileSize() int64 {
 	return sr.fileSize
 }
 func (sr *streamReceiver) Next() ([]byte, error) {
+
+	action := domain.GetAction(1)
+	log := app.GetMainLogger()
+
 	if rep, err := sr.stream.Recv(); err != nil {
+
+		if err == io.EOF {
+			return nil, nil
+		}
+
+		log.Errorf("%v receive err %v ???", action, sr.stream.Context().Err())
 		return nil, fmt.Errorf("%w receive err", err)
 	} else {
 		sr.once.Do(func() {
 			sr.fileSize = int64(rep.SizeInBytes)
 		})
+		log.Debugf("%v receive %v bytes", action, len(rep.Data))
 		return rep.Data[:], nil
 	}
 }
 
 func (sr *streamReceiver) Close() {
-	action := domain.GetAction(1)
+	/*action := domain.GetAction(1)
 	log := app.GetMainLogger()
 
-	log.Debug("%v start", action)
+	log.Debugf("%v start", action)
 
 	if err := sr.stream.CloseSend(); err != nil {
-		log.Debug("%v close err %v", action, err.Error())
+		log.Debugf("%v close err %v", action, err.Error())
 		return
 	}
-	log.Debug("%v complete", action)
+	log.Debugf("%v complete", action) */
 }

@@ -263,7 +263,13 @@ func TestFileAccesprUpload(t *testing.T) {
 		mockStorage := NewMockAppStorage(ctrl)
 		mockStorage.EXPECT().IsFileInfoExists(gomock.Any()).Return(false).Times(1)
 
-		fa := app.NewFileAccessor().DomainHelper(mockHeler).AppStorage(mockStorage)
+		mockServer := NewMockAppServer(ctrl)
+		testSender := &testFileSender{
+			exptectedName: fileInfo.Name,
+		}
+		mockServer.EXPECT().CreateFileSender(gomock.Any()).Return(testSender, nil).Times(1)
+
+		fa := app.NewFileAccessor().DomainHelper(mockHeler).AppStorage(mockStorage).AppServer(mockServer)
 
 		ctx, doneFn := context.WithTimeout(context.Background(), 3*time.Second)
 		defer doneFn()

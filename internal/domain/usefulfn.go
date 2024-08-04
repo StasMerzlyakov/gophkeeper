@@ -426,6 +426,9 @@ func CheckFileForRead(info *FileInfo) error {
 
 func CheckFileForWrite(info *FileInfo) error {
 	path := info.Path
+	if info.Path == "" {
+		return fmt.Errorf("%w path is emptry", ErrClientDataIncorrect)
+	}
 	_, err := os.Stat(info.Path)
 	if err == nil {
 		return fmt.Errorf("%w file by path %s already exists", ErrClientDataIncorrect, info.Path)

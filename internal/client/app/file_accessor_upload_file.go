@@ -36,27 +36,9 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 		return
 	}
 
-	reader, err := fl.helper.CreateStreamFileReader(info)
-	if err != nil {
-		err := fmt.Errorf("%w upload file %s err %s", domain.ErrClientInternal, info.Name, err.Error())
-		log.Warn(err.Error())
-		errorChan <- err
-		return
-	}
-
 	forEncryptChan := make(chan []byte) // chan for file readed chunck
 
 	forSendChan := make(chan []byte) // chan for prepared chunks (encryption)
-
-	// Reading operation
-	fileSize := int(reader.FileSize())
-	if fileSize <= 0 {
-		errorChan <- fmt.Errorf("%w unexpected file size", domain.ErrClientInternal)
-		return
-	}
-	if progerssFn != nil {
-		progerssFn(0, fileSize)
-	}
 
 	var opWg sync.WaitGroup
 
@@ -87,6 +69,27 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 	go func() {
 		defer GetMainLogger().Debugf("read goroutine complete")
 		defer opWg.Done()
+
+		reader, err := fl.helper.CreateStreamFileReader(info)
+		if err != nil {
+			err := fmt.Errorf("%w upload file %s err %s", domain.ErrClientInternal, info.Name, err.Error())
+			log.Warn(err.Error())
+			errorChan <- err
+			close(jobTermiatedCh)
+			return
+		}
+
+		// Reading operation
+		fileSize := int(reader.FileSize())
+		if fileSize <= 0 {
+			errorChan <- fmt.Errorf("%w unexpected file size", domain.ErrClientInternal)
+			close(jobTermiatedCh)
+			return
+		}
+		if progerssFn != nil {
+			progerssFn(0, fileSize)
+		}
+
 		defer reader.Close()
 		readed := 0
 		var rdCn chan []byte
