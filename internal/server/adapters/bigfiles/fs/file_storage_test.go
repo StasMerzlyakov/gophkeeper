@@ -86,7 +86,8 @@ func TestFileStorage(t *testing.T) {
 		}()
 
 		bucketPath := filepath.Join(storagePath, bucket)
-		os.MkdirAll(bucketPath, os.ModePerm)
+		err := os.MkdirAll(bucketPath, os.ModePerm)
+		require.NoError(t, err)
 
 		f, err := os.CreateTemp(bucketPath, "sample")
 		require.NoError(t, err)
