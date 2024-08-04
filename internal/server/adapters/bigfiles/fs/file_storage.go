@@ -53,7 +53,10 @@ func (fs *fileStorage) GetFileInfoList(ctx context.Context, bucket string) ([]do
 
 func (fs *fileStorage) DeleteFileInfo(ctx context.Context, bucket string, name string) error {
 	filePath := filepath.Join(fs.path, bucket, name)
-	return os.Remove(filePath)
+	if err := os.Remove(filePath); err != nil {
+		return fmt.Errorf("%w delete err %s", domain.ErrClientDataIncorrect, err.Error())
+	}
+	return nil
 }
 func (fs *fileStorage) CreateStreamFileWriter(ctx context.Context, bucket string) (domain.StreamFileWriter, error) {
 	dirPath := filepath.Join(fs.path, bucket)

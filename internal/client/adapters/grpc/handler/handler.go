@@ -25,7 +25,7 @@ func NewHandler(conf *config.ClientConf) (*handler, error) {
 
 	h := &handler{
 		// TODO DEVEL XAK
-		jwtToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjI3NjgwMzcsIlVzZXJJRCI6MX0.KtcP9vasYYxD1T0ymplPU2zIOON9culyhM0odOkBCxI",
+		//jwtToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjI3NjgwMzcsIlVzZXJJRCI6MX0.KtcP9vasYYxD1T0ymplPU2zIOON9culyhM0odOkBCxI",
 	}
 
 	client, err := grpc.NewClient(conf.ServerAddress,

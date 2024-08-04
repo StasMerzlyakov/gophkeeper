@@ -40,7 +40,7 @@ func (sw *streamFileWriter) WriteChunk(ctx context.Context, name string, chunk [
 			return
 		}
 
-		fullPath := filepath.Join(sw.folderPath, TempFileNamePrefix+name)
+		fullPath := filepath.Join(sw.folderPath, name)
 
 		if _, err := os.Stat(fullPath); err == nil {
 			// file exists
@@ -51,16 +51,31 @@ func (sw *streamFileWriter) WriteChunk(ctx context.Context, name string, chunk [
 			return
 		}
 
-		f, err := os.OpenFile(fullPath, os.O_CREATE|os.O_WRONLY, 0600)
+		fullTempPath := filepath.Join(sw.folderPath, TempFileNamePrefix+name)
+
+		if _, err := os.Stat(fullTempPath); err == nil {
+			// file exists
+			onceErr = fmt.Errorf("%w file already exists", ErrClientDataIncorrect)
+			return
+		} else if !errors.Is(err, os.ErrNotExist) {
+			onceErr = fmt.Errorf("%w test filePaht %s error", ErrServerInternal, fullTempPath)
+			return
+		}
+
+		f, err := os.OpenFile(fullTempPath, os.O_CREATE|os.O_WRONLY, 0600)
 		if err != nil {
-			onceErr = fmt.Errorf("%w open file %s error %s", ErrServerInternal, fullPath, err.Error())
+			onceErr = fmt.Errorf("%w open file %s error %s", ErrServerInternal, fullTempPath, err.Error())
 			return
 		}
 		sw.file = f
-		sw.tempFilePath = fullPath
+		sw.tempFilePath = fullTempPath
 	})
 	if onceErr != nil {
 		return onceErr
+	}
+
+	if sw.fileName != name {
+		return fmt.Errorf("%w write chunk err - wrong cnunk name %s", ErrServerInternal, name)
 	}
 
 	if _, err := sw.file.Write(chunk); err != nil {
