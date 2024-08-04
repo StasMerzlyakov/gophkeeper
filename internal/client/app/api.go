@@ -75,7 +75,8 @@ type AppView interface {
 	ShowNewUserPasswordDataView()
 	ShowFileInfoView(info *domain.FileInfo)
 	ShowFileInfoListView(filesInfoList []domain.FileInfo)
-	ShowProgressBar(title string, progressText string, percentage float64, cancelFn func())
+
+	CreateProgressBar(title string, percentage float64, progressText string, cancelFn func())
 }
 
 type AppServer interface {
@@ -102,5 +103,5 @@ type AppServer interface {
 
 	GetFileInfoList(ctx context.Context) ([]domain.FileInfo, error)
 	DeleteFileInfo(ctx context.Context, name string) error
-	SendFile(ctx context.Context) (domain.StreamFileWriter, error)
+	CreateFileSender(ctx context.Context) (domain.StreamFileWriter, error)
 }

@@ -42,7 +42,7 @@ func (tApp *tuiApp) ShowBankCardListView(cardsNumber []string) {
 					case tcell.KeyCtrlQ:
 						tApp.app.Stop()
 					case tcell.KeyCtrlB:
-						tApp.pages.SwitchToPage(DataPageMain)
+						tApp.ShowDataAccessView()
 					}
 					return event
 				})

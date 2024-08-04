@@ -71,7 +71,7 @@ func main() {
 	appCtrl.SetServer(statusWrapper).SetAppStorage(storage.NewStorage())
 
 	// view
-	tView := tui.NewApp(conf)
+	tView := tui.NewApplicationView(conf)
 	tView.SetController(appCtrl)
 
 	appCtrl.SetInfoView(tView)

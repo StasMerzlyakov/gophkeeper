@@ -11,4 +11,7 @@ var (
 	ErrClientDataIncorrect   = errors.New("client data incorrect")
 	ErrClientInternal        = errors.New("client implementation error")
 	ErrServerIsNotResponding = errors.New("server is not responding")
+
+	ErrClientInteruptoin = errors.New("user interuption")
+	ErrClientAppStopped  = errors.New("application stopped")
 )

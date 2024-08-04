@@ -64,6 +64,21 @@ func (mr *MockAppServerMockRecorder) CreateBankCard(arg0, arg1 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBankCard", reflect.TypeOf((*MockAppServer)(nil).CreateBankCard), arg0, arg1)
 }
 
+// CreateFileSender mocks base method.
+func (m *MockAppServer) CreateFileSender(arg0 context.Context) (domain.StreamFileWriter, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateFileSender", arg0)
+	ret0, _ := ret[0].(domain.StreamFileWriter)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateFileSender indicates an expected call of CreateFileSender.
+func (mr *MockAppServerMockRecorder) CreateFileSender(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFileSender", reflect.TypeOf((*MockAppServer)(nil).CreateFileSender), arg0)
+}
+
 // CreateUserPasswordData mocks base method.
 func (m *MockAppServer) CreateUserPasswordData(arg0 context.Context, arg1 *domain.EncryptedUserPasswordData) error {
 	m.ctrl.T.Helper()
@@ -264,21 +279,6 @@ func (mr *MockAppServerMockRecorder) Registrate(arg0, arg1 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Registrate", reflect.TypeOf((*MockAppServer)(nil).Registrate), arg0, arg1)
 }
 
-// SendFile mocks base method.
-func (m *MockAppServer) SendFile(arg0 context.Context) (domain.StreamFileWriter, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SendFile", arg0)
-	ret0, _ := ret[0].(domain.StreamFileWriter)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// SendFile indicates an expected call of SendFile.
-func (mr *MockAppServerMockRecorder) SendFile(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendFile", reflect.TypeOf((*MockAppServer)(nil).SendFile), arg0)
-}
-
 // Start mocks base method.
 func (m *MockAppServer) Start() {
 	m.ctrl.T.Helper()
@@ -352,6 +352,18 @@ func NewMockAppView(ctrl *gomock.Controller) *MockAppView {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockAppView) EXPECT() *MockAppViewMockRecorder {
 	return m.recorder
+}
+
+// CreateProgressBar mocks base method.
+func (m *MockAppView) CreateProgressBar(arg0 string, arg1 float64, arg2 string, arg3 func()) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "CreateProgressBar", arg0, arg1, arg2, arg3)
+}
+
+// CreateProgressBar indicates an expected call of CreateProgressBar.
+func (mr *MockAppViewMockRecorder) CreateProgressBar(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateProgressBar", reflect.TypeOf((*MockAppView)(nil).CreateProgressBar), arg0, arg1, arg2, arg3)
 }
 
 // ShowBankCardListView mocks base method.
@@ -508,18 +520,6 @@ func (m *MockAppView) ShowNewUserPasswordDataView() {
 func (mr *MockAppViewMockRecorder) ShowNewUserPasswordDataView() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowNewUserPasswordDataView", reflect.TypeOf((*MockAppView)(nil).ShowNewUserPasswordDataView))
-}
-
-// ShowProgressBar mocks base method.
-func (m *MockAppView) ShowProgressBar(arg0, arg1 string, arg2 float64, arg3 func()) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "ShowProgressBar", arg0, arg1, arg2, arg3)
-}
-
-// ShowProgressBar indicates an expected call of ShowProgressBar.
-func (mr *MockAppViewMockRecorder) ShowProgressBar(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowProgressBar", reflect.TypeOf((*MockAppView)(nil).ShowProgressBar), arg0, arg1, arg2, arg3)
 }
 
 // ShowRegMasterKeyView mocks base method.

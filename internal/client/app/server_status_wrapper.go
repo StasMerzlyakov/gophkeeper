@@ -236,12 +236,12 @@ func (aw *serverStatusWrapper) DeleteFileInfo(ctx context.Context, name string) 
 	})
 }
 
-func (aw *serverStatusWrapper) SendFile(ctx context.Context) (domain.StreamFileWriter, error) {
+func (aw *serverStatusWrapper) CreateFileSender(ctx context.Context) (domain.StreamFileWriter, error) {
 
 	var data domain.StreamFileWriter
 	var err error
 	fn := func(ctx context.Context) error {
-		data, err = aw.server.SendFile(ctx)
+		data, err = aw.server.CreateFileSender(ctx)
 		return err
 	}
 	retErr := aw.invokeOnlineFn(ctx, fn)

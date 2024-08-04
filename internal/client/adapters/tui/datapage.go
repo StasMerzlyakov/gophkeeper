@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -9,6 +10,9 @@ func (tApp *tuiApp) ShowDataAccessView() {
 
 	go func() {
 		tApp.app.QueueUpdateDraw(func() {
+			log := app.GetMainLogger()
+			log.Debug("DataPageMain start")
+
 			tApp.dataMainFlex.Clear()
 
 			box := tview.NewBox().SetBorder(true).SetTitle("UserData")
@@ -52,6 +56,7 @@ func (tApp *tuiApp) ShowDataAccessView() {
 				})
 			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(DataPageMain)
+			log.Debug("DataPageMain shown")
 		})
 	}()
 }

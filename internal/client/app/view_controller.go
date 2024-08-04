@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"sync/atomic"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
@@ -364,39 +365,40 @@ func (ac *viewController) DeleteUpdatePasswordData(hint string) {
 }
 
 func (ac *viewController) UploadFile(info *domain.FileInfo) {
+	log.Debug("Upload start")
+	cancelChan := make(chan struct{}, 1)
+	errorChan := make(chan error, 1)
+	log := GetMainLogger()
+	var canceled atomic.Bool
+
 	go func() {
-		cancelChan := make(chan struct{}, 1)
 		cancelFnHandler := func() {
-			if cancelChan != nil {
+			if canceled.CompareAndSwap(false, true) {
+				log.Debug("cancel invoked !!!")
 				cancelChan <- struct{}{}
-				cancelChan = nil // Just once is enough
 			}
 		}
 
-		resultHandlerFn := func(err error) {
-			log := GetMainLogger()
-			log.Debug("result handling")
-
-			if err != nil {
-				ac.appView.ShowMsg(err.Error())
-			} else {
-				ac.appView.ShowMsg("Uploading complete")
-				ac.GetFilesInfoList()
+		progerssFn := func(procesed int, common int) {
+			if common > 0 {
+				progressText := fmt.Sprintf("uploading %d of %d", procesed, common)
+				percentage := float64(procesed) * 100 / float64(common)
+				if percentage > 100 {
+					percentage = 100
+				}
+				ac.appView.CreateProgressBar(fmt.Sprintf("Uploading %s", info.Name), percentage, progressText, cancelFnHandler)
 			}
-		}
-
-		progerssFn := func(done int, common int) {
-			log := GetMainLogger()
-			percentage := float64(done*100) / float64(common)
-			progressText := fmt.Sprintf("uploading %d of %d", done, common)
-			log.Debugf("uploaded %s %s", progressText, fmt.Sprintf("Uploading %s", info.Name))
-			ac.appView.ShowProgressBar(fmt.Sprintf("Uploading %s", info.Name), progressText, percentage, cancelFnHandler)
 		}
 
 		ctx := context.Background()
-		var err error
-		if err = ac.fileAccessor.UploadFile(ctx, info, resultHandlerFn, progerssFn, cancelChan); err != nil {
+
+		ac.fileAccessor.UploadFile(ctx, info, progerssFn, cancelChan, errorChan)
+		log.Debug("Upload complete")
+		select {
+		case err := <-errorChan:
 			ac.appView.ShowMsg(err.Error())
+		default:
+			ac.GetFilesInfoList()
 		}
 	}()
 

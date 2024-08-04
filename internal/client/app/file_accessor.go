@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"sync"
-	"time"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
@@ -61,9 +60,9 @@ func (fl *fileAccessor) Stop(ctx context.Context) {
 // UploadFile start long server uploading operation.
 func (fl *fileAccessor) UploadFile(ctx context.Context,
 	info *domain.FileInfo,
-	resultHandler func(err error),
 	progerssFn func(send int, all int),
-	cancelChan <-chan struct{}) error {
+	cancelChan <-chan struct{},
+	errorChan chan<- error) {
 
 	log := GetMainLogger()
 	action := domain.GetAction(1)
@@ -72,21 +71,24 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 	if err := fl.helper.CheckFileForRead(info); err != nil {
 		err := fmt.Errorf("%w - %v error - upload file err %v", domain.ErrClientDataIncorrect, action, err.Error())
 		log.Warn(err.Error())
-		return err
+		errorChan <- err
+		return
 	}
 
 	// test by local storage
 	if fl.appStorage.IsFileInfoExists(info.Name) {
 		err := fmt.Errorf("%w fileInfo %s already exists. change name", domain.ErrClientDataIncorrect, info.Name)
 		log.Warn(err.Error())
-		return err
+		errorChan <- err
+		return
 	}
 
 	reader, err := fl.helper.CreateFileStreamer(info)
 	if err != nil {
 		err := fmt.Errorf("%w upload file %s err %s", domain.ErrClientInternal, info.Name, err.Error())
 		log.Warn(err.Error())
-		return err
+		errorChan <- err
+		return
 	}
 
 	forEncryptChan := make(chan []byte) // chan for file readed chunck
@@ -95,32 +97,36 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 
 	// Reading operation
 	fileSize := int(reader.FileSize())
-	progerssFn(0, fileSize)
+	if fileSize <= 0 {
+		errorChan <- fmt.Errorf("%w unexpected file size", domain.ErrClientInternal)
+		return
+	}
+	if progerssFn != nil {
+		progerssFn(0, fileSize)
+	}
 
 	var opWg sync.WaitGroup
 
-	errorChan := make(chan error, 1)
-	doneCh := make(chan struct{})
-	stopCh := make(chan struct{})
-
-	var opErr error
+	jobDoneCh := make(chan struct{})
+	jobTermiatedCh := make(chan struct{})
 
 	opWg.Add(1)
 	go func() {
 		defer GetMainLogger().Debugf("wait goroutine complete")
 		defer opWg.Done()
 		select {
-		case opErr = <-errorChan: // error occures
-			log.Warn(fmt.Sprintf("opeartion %s error %s", action, opErr.Error()))
-			close(stopCh)
 		case <-cancelChan:
-			log.Debug("opeartion was cancelsed")
-			opErr = fmt.Errorf("opeartion was cancelsed")
-			close(stopCh)
+			errorChan <- fmt.Errorf("%w opeartion was canceled", domain.ErrClientInteruptoin)
+			close(jobTermiatedCh)
+			log.Debugf("%v operation cancled", action)
 		case <-fl.stopCh:
-			log.Warn("opeartion 1")
-		case <-doneCh: // success
-			log.Warn("opeartion 2")
+			errorChan <- fmt.Errorf("%w opeartion was stopped", domain.ErrClientAppStopped)
+			close(jobTermiatedCh)
+			log.Debugf("%v app stop", action)
+		case <-jobDoneCh: // success
+			log.Debugf("%v done", action)
+		case <-jobTermiatedCh: // error occures
+			log.Debugf("%v termianted", action)
 		}
 	}()
 
@@ -129,49 +135,62 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 		defer GetMainLogger().Debugf("read goroutine complete")
 		defer opWg.Done()
 		defer reader.Close()
-		defer close(forEncryptChan)
 		readed := 0
 		var rdCn chan []byte
 		var isLast bool
+		var progressCount int
 	Loop:
 		for {
+			// test stop first
+			select {
+			case <-jobTermiatedCh:
+				log.Debug("read goroutine terminated")
+				break Loop
+			default:
+			}
 			chunk, err := reader.Next()
 			chunkSize := len(chunk)
 			readed += chunkSize
-			progerssFn(readed, fileSize)
+			progressCount++
+			if progressCount == 10 {
+				if progerssFn != nil {
+					progerssFn(readed, fileSize)
+				}
+				progressCount = 0
+			}
 
 			if err != nil {
 				if errors.Is(err, io.EOF) {
 					isLast = true
 				} else {
 					errorChan <- err
+					close(jobTermiatedCh)
+					break Loop
 				}
 			}
 			if len(chunk) > 0 {
 				rdCn = forEncryptChan
 			} else {
+				close(forEncryptChan)
 				break Loop
 			}
 
 			select {
 			case rdCn <- chunk:
-
 				if isLast {
+					close(forEncryptChan)
 					break Loop
 				}
 				rdCn = nil
-			case <-fl.stopCh:
-				// complete operation and finish
-				break Loop
-			case <-stopCh:
-				// any error occurs
+			case <-jobTermiatedCh:
+				log.Debug("read goroutine terminated")
 				break Loop
 			}
 		}
 
 	}()
 
-	// Encryption operation
+	// Encryption operation TODO
 	opWg.Add(1)
 	go func() {
 		defer GetMainLogger().Debugf("encr goroutine complete")
@@ -184,6 +203,14 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 
 	Loop:
 		for {
+			// test stop first
+			select {
+			case <-jobTermiatedCh:
+				log.Debug("encr goroutine terminated")
+				break Loop
+			default:
+			}
+
 			select {
 			case val, ok := <-rCh:
 				if !ok {
@@ -192,7 +219,6 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 				} else {
 					// TODO - do encryption
 					encrypted = val
-					time.Sleep(500 * time.Millisecond)
 					rCh = nil
 					wrtCh = forSendChan
 				}
@@ -200,11 +226,8 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 				encrypted = nil
 				rCh = forEncryptChan
 				wrtCh = nil
-			case <-stopCh:
-				// any error occurs
-				break Loop
-			case <-fl.stopCh:
-				// complete operation and finish
+			case <-jobTermiatedCh:
+				log.Debug("encr goroutine terminated")
 				break Loop
 			}
 		}
@@ -219,7 +242,7 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 		sendCrx, cancelFn := context.WithCancel(ctx)
 		defer cancelFn()
 
-		sender, err := fl.appServer.SendFile(sendCrx)
+		sender, err := fl.appServer.CreateFileSender(sendCrx)
 		if err != nil {
 			err := fmt.Errorf("%w upload file %s err", err, info.Name)
 			log.Warn(err.Error())
@@ -230,41 +253,49 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 	Loop:
 		for {
 			select {
+			case <-jobTermiatedCh:
+				log.Debug("send goroutine terminated")
+				if err := sender.Rollback(sendCrx); err != nil {
+					log.Warnf("sender rollabck error %v", err.Error())
+				}
+				break Loop
+			default:
+			}
+			select {
 			case chunk, ok := <-forSendChan:
 				if !ok {
 					// success
-					err := sender.Commit(sendCrx)
-					if err != nil {
-						GetMainLogger().Debugf("sender closed err %s", err.Error())
+					if err := sender.Commit(sendCrx); err != nil {
+						log.Warnf("write commit error %v", err.Error())
 						errorChan <- err
+						close(jobTermiatedCh)
 					} else {
-						GetMainLogger().Debugf("sender closed")
-						defer close(doneCh)
+						close(jobDoneCh)
 					}
 					break Loop
 				} else {
 					if err := sender.WriteChunk(sendCrx, info.Name, chunk); err != nil {
+						log.Warnf("write chun error %v", err.Error())
 						errorChan <- err
-						GetMainLogger().Infof("chunk sending err %s", err.Error())
+						if err := sender.Rollback(sendCrx); err != nil {
+							log.Warnf("sender rollabck error %v", err.Error())
+						}
+						close(jobTermiatedCh)
 						break Loop
 					}
-					GetMainLogger().Debugf("chunk is sent")
 				}
-			case <-stopCh:
-				// any error occurs
-				sender.Rollback(sendCrx)
-				break Loop
-			case <-fl.stopCh:
-				// complete operation and finish
+			case <-jobTermiatedCh:
+				log.Debug("send goroutine terminated")
+				if err := sender.Rollback(sendCrx); err != nil {
+					log.Warnf("sender rollabck error %v", err.Error())
+				}
 				break Loop
 			}
 		}
 	}()
 
 	opWg.Wait()
-	resultHandler(opErr)
 	log.Debugf("%v complete", action)
-	return nil
 }
 
 func (fl *fileAccessor) GetFileInfoList(ctx context.Context) error {

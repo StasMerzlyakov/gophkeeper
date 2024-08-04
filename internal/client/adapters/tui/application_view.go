@@ -39,7 +39,7 @@ const (
 	FileInfoListPage = "FileInfoListPath"
 )
 
-func NewApp(conf *config.ClientConf) *tuiApp {
+func NewApplicationView(conf *config.ClientConf) *tuiApp {
 	return &tuiApp{}
 }
 
@@ -117,19 +117,22 @@ func (tApp *tuiApp) ShowMsg(msg string) {
 	}()
 }
 
-func (tApp *tuiApp) ShowProgressBar(title string, progressText string, percentage float64, cancelFn func()) {
+func (tApp *tuiApp) CreateProgressBar(title string, percentage float64, progressText string, cancelFn func()) {
 	go func() {
 		tApp.app.QueueUpdateDraw(func() {
 			log := app.GetMainLogger()
-			log.Debug("ProgressBar show start")
-			pBar := NewProgressBar().
+			log.Trace("ProgressBar show start")
+
+			progBar := NewProgressBar().
 				AddCancelButton("Cancel").
-				SetProgressText(progressText).
 				SetPercentage(percentage).
-				SetCancelFunc(cancelFn)
-			pBar.SetTitle(title)
-			tApp.app.SetRoot(pBar, true).SetFocus(pBar)
-			log.Debug("ProgressBar shown")
+				SetProgressText(progressText).
+				SetCancelFunc(func() {
+					cancelFn()
+				})
+			progBar.SetTitle(title)
+			tApp.app.SetRoot(progBar, true).SetFocus(progBar)
+			log.Trace("ProgressBar shown")
 		})
 	}()
 }
@@ -188,7 +191,7 @@ func (tApp *tuiApp) Start() error {
 	tApp.pages.AddPage(FileInfoPage, tApp.fileInfoFlex, true, false)
 
 	go func() {
-		time.Sleep(1 * time.Second)
+		time.Sleep(time.Second)
 		tApp.controller.GetFilesInfoList()
 	}()
 

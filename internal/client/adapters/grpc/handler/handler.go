@@ -24,8 +24,8 @@ func NewHandler(conf *config.ClientConf) (*handler, error) {
 	}
 
 	h := &handler{
-		// TODO FIX ME
-		jwtToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjI3MDg4NDYsIlVzZXJJRCI6MX0.LzsroYeQtBryu6Y87Uo8WKfwvylXR1rbKFya-grtstI",
+		// TODO DEVEL XAK
+		jwtToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjI3NjgwMzcsIlVzZXJJRCI6MX0.KtcP9vasYYxD1T0ymplPU2zIOON9culyhM0odOkBCxI",
 	}
 
 	client, err := grpc.NewClient(conf.ServerAddress,
@@ -179,7 +179,7 @@ func (h *handler) PassLoginOTP(ctx context.Context, otpPass string) error {
 	h.sessionID = ""
 	h.jwtToken = resp.Token
 	log := app.GetMainLogger()
-	log.Errorf(h.jwtToken) //  TODO REMOVE ME !!!!
+	log.Errorf(h.jwtToken) //  // TODO DEVEL XAK
 	return nil
 }
 

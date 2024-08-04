@@ -31,6 +31,16 @@ type ProgressBar struct {
 
 	// The optional callback for when the user clicked one of the cancel buttons.
 	cancel func()
+
+	isWork bool
+}
+
+func (m *ProgressBar) Cancel() {
+	m.isWork = false
+}
+
+func (m *ProgressBar) IsWork() bool {
+	return m.isWork
 }
 
 func GetProgressGlyph(width, percentage float64, btext string) string {
@@ -61,6 +71,7 @@ func NewProgressBar() *ProgressBar {
 	m := &ProgressBar{
 		Box:       tview.NewBox().SetBorder(true).SetBackgroundColor(tview.Styles.ContrastBackgroundColor),
 		textColor: tview.Styles.PrimaryTextColor,
+		isWork:    true,
 	}
 	m.form = tview.NewForm().
 		SetButtonsAlign(tview.AlignCenter).
