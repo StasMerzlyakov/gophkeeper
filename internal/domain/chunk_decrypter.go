@@ -5,7 +5,6 @@ import (
 	"crypto/cipher"
 	"crypto/hmac"
 	"crypto/sha256"
-	"encoding/base64"
 	"fmt"
 	"hash"
 	"sync"
@@ -17,7 +16,7 @@ func NewChunkDecrypter(password string) *chunkDecrypter {
 
 	return &chunkDecrypter{
 		pass:        password,
-		tailStorage: NewTailStorage(sha256.BlockSize),
+		tailStorage: NewTailStorage(sha256.Size),
 	}
 }
 
@@ -33,18 +32,16 @@ type chunkDecrypter struct {
 
 func (che *chunkDecrypter) WriteChunk(chunk []byte) ([]byte, error) {
 	che.readHeaderOnce.Do(func() {
-		if len(chunk) < aes.BlockSize+saltLen {
+		if len(chunk) < aes.BlockSize+pbkdf2SaltLen {
 			panic("chunk too short") // it is possible to use buffer to store sufficient number of bytes
 		}
 
-		salt := chunk[:saltLen]
-		fmt.Println("decr salt: " + base64.StdEncoding.EncodeToString(salt))
+		salt := chunk[:pbkdf2SaltLen]
 
 		// get the IV from the ciphertext
-		iv := chunk[saltLen : aes.BlockSize+saltLen]
-		fmt.Println("decr iv: " + base64.StdEncoding.EncodeToString(iv))
+		iv := chunk[pbkdf2SaltLen : aes.BlockSize+pbkdf2SaltLen]
 
-		key := pbkdf2.Key([]byte(che.pass), salt, iterations, keyLen, sha256.New)
+		key := pbkdf2.Key([]byte(che.pass), salt, pbkdf2Iter, keyLen, sha256.New)
 
 		block, err := aes.NewCipher(key)
 		if err != nil {
@@ -55,13 +52,16 @@ func (che *chunkDecrypter) WriteChunk(chunk []byte) ([]byte, error) {
 		che.hasher = hmac.New(sha256.New, key)
 		che.pass = ""
 
-		chunk = chunk[:aes.BlockSize+saltLen] // remove salt + iv
+		chunk = chunk[aes.BlockSize+pbkdf2SaltLen:] // remove salt + iv
 	})
 
 	// decrypt chunk
 	che.cipher.XORKeyStream(chunk, chunk)
 
 	res := che.tailStorage.Write(chunk)
+	if _, err := che.hasher.Write(res); err != nil {
+		return nil, fmt.Errorf("decrypt err - %w", err)
+	}
 	return res, nil
 }
 

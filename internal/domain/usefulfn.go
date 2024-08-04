@@ -38,9 +38,9 @@ const (
 )
 
 const (
-	saltLen    = 32
-	keyLen     = 32
-	iterations = 100002
+	pbkdf2SaltLen = 32
+	keyLen        = 2 * aes.BlockSize
+	pbkdf2Iter    = 100002
 )
 
 const (
@@ -214,22 +214,22 @@ func DecryptOTPKey(secretKey string, encryptedOTPKey string) (string, error) {
 func encryptData(password string, plaintext string) (string, error) {
 
 	// allocate memory to hold the header of the ciphertext
-	header := make([]byte, saltLen+aes.BlockSize)
+	header := make([]byte, pbkdf2SaltLen+aes.BlockSize)
 
 	// generate salt
-	salt := header[:saltLen]
+	salt := header[:pbkdf2SaltLen]
 	if _, err := io.ReadFull(rand.Reader, salt); err != nil {
 		panic(err)
 	}
 
 	// generate initialization vector
-	iv := header[saltLen : aes.BlockSize+saltLen]
+	iv := header[pbkdf2SaltLen : aes.BlockSize+pbkdf2SaltLen]
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
 		panic(err)
 	}
 
 	// generate a 32 bit key with the provided password
-	key := pbkdf2.Key([]byte(password), salt, iterations, keyLen, sha256.New)
+	key := pbkdf2.Key([]byte(password), salt, pbkdf2Iter, keyLen, sha256.New)
 
 	// generate a hmac for the message with the key
 	mac := hmac.New(sha256.New, key)
@@ -250,7 +250,7 @@ func encryptData(password string, plaintext string) (string, error) {
 
 	// encrypt
 	stream := cipher.NewCFBEncrypter(block, iv)
-	stream.XORKeyStream(ciphertext[aes.BlockSize+saltLen:], []byte(plaintext))
+	stream.XORKeyStream(ciphertext[aes.BlockSize+pbkdf2SaltLen:], []byte(plaintext))
 	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
@@ -262,12 +262,12 @@ func decryptData(password string, encrypted string) (string, error) {
 		return "", fmt.Errorf("%w decrypt err %s", ErrServerInternal, err.Error())
 	}
 	// get the salt from the ciphertext
-	salt := ciphertext[:saltLen]
+	salt := ciphertext[:pbkdf2SaltLen]
 	// get the IV from the ciphertext
-	iv := ciphertext[saltLen : aes.BlockSize+saltLen]
+	iv := ciphertext[pbkdf2SaltLen : aes.BlockSize+pbkdf2SaltLen]
 
 	// generate the key with the KDF
-	key := pbkdf2.Key([]byte(password), salt, iterations, keyLen, sha256.New)
+	key := pbkdf2.Key([]byte(password), salt, pbkdf2Iter, keyLen, sha256.New)
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -278,7 +278,7 @@ func decryptData(password string, encrypted string) (string, error) {
 		return "", fmt.Errorf("%w wrong key length size", ErrServerInternal)
 	}
 
-	decrypted := ciphertext[saltLen+aes.BlockSize:]
+	decrypted := ciphertext[pbkdf2SaltLen+aes.BlockSize:]
 	stream := cipher.NewCFBDecrypter(block, iv)
 	stream.XORKeyStream(decrypted, decrypted)
 

@@ -7,8 +7,6 @@ import (
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
-	"encoding/base64"
-	"fmt"
 	"hash"
 	"io"
 	"sync"
@@ -19,25 +17,22 @@ import (
 func NewChunkEncrypter(password string) *chunkEncrypter {
 
 	// allocate memory to hold the header of the ciphertext
-	header := make([]byte, saltLen+aes.BlockSize)
+	header := make([]byte, pbkdf2SaltLen+aes.BlockSize)
 
 	// generate salt
-	salt := header[:saltLen]
+	salt := header[:pbkdf2SaltLen]
 	if _, err := io.ReadFull(rand.Reader, salt); err != nil {
 		panic(err)
 	}
 
-	fmt.Println("encr salt: " + base64.StdEncoding.EncodeToString(salt))
-
 	// generate initialization vector
-	iv := header[saltLen : aes.BlockSize+saltLen]
+	iv := header[pbkdf2SaltLen : aes.BlockSize+pbkdf2SaltLen]
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
 		panic(err)
 	}
 
-	fmt.Println("encr iv: " + base64.StdEncoding.EncodeToString(iv))
 	// generate a 32 bit key with the provided password
-	key := pbkdf2.Key([]byte(password), salt, iterations, keyLen, sha256.New)
+	key := pbkdf2.Key([]byte(password), salt, pbkdf2Iter, keyLen, sha256.New)
 
 	hasher := hmac.New(sha256.New, key)
 
@@ -78,7 +73,9 @@ func (che *chunkEncrypter) WriteChunk(chunk []byte) ([]byte, error) {
 	}
 
 	encrChank := make([]byte, len(chunk))
+
 	che.cipher.XORKeyStream(encrChank, chunk)
+
 	if _, err := res.Write(encrChank); err != nil {
 		panic(err)
 	}
