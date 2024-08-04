@@ -1,7 +1,10 @@
 package fs_test
 
 import (
+	"bytes"
 	"context"
+	"crypto/rand"
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
@@ -14,59 +17,136 @@ import (
 )
 
 func TestFileStorage(t *testing.T) {
+	t.Run("test_steram_writer", func(t *testing.T) {
+		tempDir := os.TempDir()
 
-	tempDir := os.TempDir()
+		storagePath := filepath.Join(tempDir, "temp-storage")
+		defer func() {
+			err := os.RemoveAll(storagePath)
+			require.NoError(t, err)
+		}()
 
-	storagePath := filepath.Join(tempDir, "temp-storage")
-	defer func() {
-		err := os.RemoveAll(storagePath)
+		fs := fs.NewFileStorage(&config.ServerConf{
+			FStoragePath: storagePath,
+		})
+
+		ctx := context.Background()
+		bucket := uuid.New().String()
+
+		lst, err := fs.GetFileInfoList(ctx, bucket)
+
 		require.NoError(t, err)
-	}()
+		require.Equal(t, 0, len(lst))
 
-	fs := fs.NewFileStorage(&config.ServerConf{
-		FStoragePath: storagePath,
+		writer, err := fs.CreateStreamFileWriter(ctx, bucket)
+		require.NoError(t, err)
+		require.NotNil(t, writer)
+
+		chunk1 := "hello "
+		chunk2 := "world"
+		fileName := "name"
+
+		err = writer.WriteChunk(ctx, fileName, []byte(chunk1))
+		require.NoError(t, err)
+
+		err = writer.WriteChunk(ctx, fileName, []byte(chunk2))
+		require.NoError(t, err)
+
+		err = writer.WriteChunk(ctx, fileName+"!", []byte(chunk2))
+		require.ErrorIs(t, err, domain.ErrServerInternal)
+
+		lst, err = fs.GetFileInfoList(ctx, bucket)
+		require.NoError(t, err)
+		require.Equal(t, 0, len(lst))
+
+		err = writer.Commit(ctx)
+		require.NoError(t, err)
+
+		lst, err = fs.GetFileInfoList(ctx, bucket)
+		require.NoError(t, err)
+		require.Equal(t, 1, len(lst))
+
+		err = fs.DeleteFileInfo(ctx, bucket, fileName)
+		require.NoError(t, err)
+
+		err = fs.DeleteFileInfo(ctx, bucket+"?", fileName)
+		require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
 	})
 
-	ctx := context.Background()
-	bucket := uuid.New().String()
+	t.Run("test_steram_reader", func(t *testing.T) {
 
-	lst, err := fs.GetFileInfoList(ctx, bucket)
+		tempDir := os.TempDir()
 
-	require.NoError(t, err)
-	require.Equal(t, 0, len(lst))
+		bucket := uuid.New().String()
 
-	writer, err := fs.CreateStreamFileWriter(ctx, bucket)
-	require.NoError(t, err)
-	require.NotNil(t, writer)
+		storagePath := filepath.Join(tempDir, "temp-storage")
+		defer func() {
+			err := os.RemoveAll(storagePath)
+			require.NoError(t, err)
+		}()
 
-	chunk1 := "hello "
-	chunk2 := "world"
-	fileName := "name"
+		bucketPath := filepath.Join(storagePath, bucket)
+		os.MkdirAll(bucketPath, os.ModePerm)
 
-	err = writer.WriteChunk(ctx, fileName, []byte(chunk1))
-	require.NoError(t, err)
+		f, err := os.CreateTemp(bucketPath, "sample")
+		require.NoError(t, err)
 
-	err = writer.WriteChunk(ctx, fileName, []byte(chunk2))
-	require.NoError(t, err)
+		defer func() {
+			err := os.Remove(f.Name())
+			require.NoError(t, err)
+		}()
 
-	err = writer.WriteChunk(ctx, fileName+"!", []byte(chunk2))
-	require.ErrorIs(t, err, domain.ErrServerInternal)
+		chunkSize := domain.FileChunkSize
 
-	lst, err = fs.GetFileInfoList(ctx, bucket)
-	require.NoError(t, err)
-	require.Equal(t, 0, len(lst))
+		bufSize := chunkSize*2 + chunkSize/2
+		buf := make([]byte, bufSize)
 
-	err = writer.Commit(ctx)
-	require.NoError(t, err)
+		_, err = rand.Read(buf)
+		require.NoError(t, err)
 
-	lst, err = fs.GetFileInfoList(ctx, bucket)
-	require.NoError(t, err)
-	require.Equal(t, 1, len(lst))
+		_, err = f.Write(buf)
+		require.NoError(t, err)
 
-	err = fs.DeleteFileInfo(ctx, bucket, fileName)
-	require.NoError(t, err)
+		err = f.Close()
+		require.NoError(t, err)
 
-	err = fs.DeleteFileInfo(ctx, bucket+"?", fileName)
-	require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
+		fs := fs.NewFileStorage(&config.ServerConf{
+			FStoragePath: storagePath,
+		})
 
+		name := filepath.Base(f.Name())
+
+		ctx := context.Background()
+		reader, err := fs.CreateStreamFileReader(ctx, bucket, name)
+
+		require.NoError(t, err)
+		require.NotNil(t, reader)
+
+		require.Equal(t, int64(bufSize), reader.FileSize())
+
+		var resultBuf bytes.Buffer
+
+		chunk1, err := reader.Next()
+		require.NoError(t, err)
+		require.NotNil(t, chunk1)
+		resultBuf.Write(chunk1)
+
+		chunk2, err := reader.Next()
+		require.NoError(t, err)
+		require.NotNil(t, chunk2)
+		resultBuf.Write(chunk2)
+
+		chunk3, err := reader.Next()
+		require.NoError(t, err)
+		require.NotNil(t, chunk3)
+		resultBuf.Write(chunk3)
+
+		require.Equal(t, 0, bytes.Compare(buf, resultBuf.Bytes()))
+		chunk4, err := reader.Next()
+		require.ErrorIs(t, err, io.EOF)
+		require.Equal(t, 0, len(chunk4))
+
+		reader.Close()
+
+	})
 }

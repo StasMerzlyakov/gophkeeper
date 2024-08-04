@@ -2,9 +2,9 @@ package domain
 
 import "os"
 
-func NewStreamFileReader(info *FileInfo, fileChunkSize int) (*streamFileReader, error) {
+func NewStreamFileReader(path string, fileChunkSize int) (*streamFileReader, error) {
 
-	file, err := os.Open(info.Path)
+	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}

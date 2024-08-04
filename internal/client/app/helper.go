@@ -64,5 +64,5 @@ func (h *helper) CheckFileForWrite(info *domain.FileInfo) error {
 }
 
 func (h *helper) CreateFileStreamer(info *domain.FileInfo) (domain.StreamFileReader, error) {
-	return domain.CreateFileStreamer(info)
+	return domain.CreateFileStreamer(info.Path)
 }

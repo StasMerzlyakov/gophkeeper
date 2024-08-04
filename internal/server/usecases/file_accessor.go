@@ -94,3 +94,25 @@ func (fa *fileAccessor) CreateStreamFileWriter(ctx context.Context) (domain.Stre
 	log.Debugw(action, "msg", "complete")
 	return wrt, nil
 }
+
+func (fa *fileAccessor) CreateStreamReader(ctx context.Context, info *domain.FileInfo) (domain.StreamFileReader, error) {
+	log := domain.GetCtxLogger(ctx)
+	action := domain.GetAction(1)
+
+	log.Debugw(action, "msg", "start")
+
+	bucket, err := fa.stflStorage.GetUserFilesBucket(ctx)
+	if err != nil {
+		log.Infow(action, "err", err.Error())
+		return nil, err
+	}
+
+	rdr, err := fa.fileStorage.CreateStreamFileReader(ctx, bucket, info.Name)
+	if err != nil {
+		log.Infow(action, "crete err", err.Error())
+		return nil, err
+	}
+
+	log.Debugw(action, "msg", "complete")
+	return rdr, nil
+}

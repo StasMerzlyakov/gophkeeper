@@ -35,10 +35,7 @@ func TestStreamFileReader(t *testing.T) {
 	err = f.Close()
 	require.NoError(t, err)
 
-	info := &domain.FileInfo{
-		Path: f.Name(),
-	}
-	reader, err := domain.NewStreamFileReader(info, chunkSize)
+	reader, err := domain.NewStreamFileReader(f.Name(), chunkSize)
 	require.NoError(t, err)
 	require.NotNil(t, reader)
 

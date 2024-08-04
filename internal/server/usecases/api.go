@@ -34,6 +34,7 @@ type FileStorage interface {
 	GetFileInfoList(ctx context.Context, bucket string) ([]domain.FileInfo, error)
 	DeleteFileInfo(ctx context.Context, bucket string, name string) error
 	CreateStreamFileWriter(ctx context.Context, bucket string) (domain.StreamFileWriter, error)
+	CreateStreamFileReader(ctx context.Context, bucket string, name string) (domain.StreamFileReader, error)
 }
 
 type TemporaryStorage interface {

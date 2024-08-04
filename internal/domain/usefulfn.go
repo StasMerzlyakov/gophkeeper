@@ -445,6 +445,6 @@ func CheckFileForWrite(info *FileInfo) error {
 	return nil
 }
 
-func CreateFileStreamer(info *FileInfo) (StreamFileReader, error) {
-	return NewStreamFileReader(info, FileChunkSize)
+func CreateFileStreamer(name string) (StreamFileReader, error) {
+	return NewStreamFileReader(name, FileChunkSize)
 }

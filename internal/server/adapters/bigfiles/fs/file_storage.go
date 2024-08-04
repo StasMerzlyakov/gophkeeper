@@ -58,7 +58,13 @@ func (fs *fileStorage) DeleteFileInfo(ctx context.Context, bucket string, name s
 	}
 	return nil
 }
+
 func (fs *fileStorage) CreateStreamFileWriter(ctx context.Context, bucket string) (domain.StreamFileWriter, error) {
 	dirPath := filepath.Join(fs.path, bucket)
 	return domain.NewStreamFileWriter(dirPath)
+}
+
+func (fs *fileStorage) CreateStreamFileReader(ctx context.Context, bucket string, name string) (domain.StreamFileReader, error) {
+	filePath := filepath.Join(fs.path, bucket, name)
+	return domain.NewStreamFileReader(filePath, domain.FileChunkSize)
 }

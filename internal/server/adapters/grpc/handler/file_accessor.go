@@ -123,5 +123,3 @@ func (fa *fileAccessor) UploadFile(stream proto.FileAccessor_UploadFileServer) (
 func (fa *fileAccessor) LoadFile(lr *proto.LoadFileRequest, ls proto.FileAccessor_LoadFileServer) error {
 	return status.Errorf(codes.Unimplemented, "method LoadFile not implemented")
 }
-
-//rpc DeleteFileInfo(DeleteFileInfoRequest) returns (google.protobuf.Empty);

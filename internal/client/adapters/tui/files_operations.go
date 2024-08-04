@@ -129,7 +129,7 @@ func (tApp *tuiApp) ShowFileInfoView(info *domain.FileInfo) {
 				SetDirection(tview.FlexRow).
 				AddItem(
 					tview.NewForm().
-						AddInputField("Path", info.Path, 40, nil, func(path string) {
+						AddInputField("Path to store", info.Path, 40, nil, func(path string) {
 							info.Path = path
 						}).
 						AddButton("Delete", func() {
