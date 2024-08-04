@@ -1,6 +1,8 @@
 package tui
 
 import (
+	"time"
+
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/gdamore/tcell/v2"
@@ -187,6 +189,11 @@ func (tApp *tuiApp) Start() error {
 	tApp.pages.AddPage(UploadFilePage, tApp.uploadFilePageFlex, true, false)
 	tApp.pages.AddPage(FileTreePagh, tApp.fileTreeView, true, false)
 	tApp.pages.AddPage(FileInfoPage, tApp.fileInfoFlex, true, false)
+
+	go func() {
+		time.Sleep(time.Second)
+		tApp.controller.GetFilesInfoList()
+	}()
 
 	if err := tApp.app.SetRoot(tApp.pages, true).EnableMouse(false).Run(); err != nil {
 		log := app.GetMainLogger()

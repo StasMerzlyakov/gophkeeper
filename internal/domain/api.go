@@ -23,3 +23,15 @@ type StreamFileReader interface {
 	Next() ([]byte, error)
 	Close()
 }
+
+// ChunkEncrypter is used for big files encryption
+type ChunkEncrypter interface {
+	WriteChunk(chunk []byte) ([]byte, error)
+	Finish() ([]byte, error)
+}
+
+// ChunkDecrypter is used for big files encryption
+type ChunkDecrypter interface {
+	WriteChunk(chunk []byte) ([]byte, error)
+	Finish() error
+}
