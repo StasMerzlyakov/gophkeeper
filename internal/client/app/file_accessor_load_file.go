@@ -122,7 +122,6 @@ func (fl *fileAccessor) LoadFile(ctx context.Context,
 		}
 	}()
 
-	// Decrypt operation TODO
 	opWg.Add(1)
 	go func() {
 		defer GetMainLogger().Debugf("decr goroutine complete")
@@ -132,6 +131,8 @@ func (fl *fileAccessor) LoadFile(ctx context.Context,
 		var decrypted []byte
 		var rCh = forDecrypChan
 		var wrtCh chan ([]byte)
+		decrypter := fl.helper.CreateChunkDecrypter(fl.appStorage.GetMasterPassword())
+		var err error
 
 	Loop:
 		for {
@@ -147,10 +148,20 @@ func (fl *fileAccessor) LoadFile(ctx context.Context,
 			case val, ok := <-rCh:
 				if !ok {
 					// success
+					err = decrypter.Finish()
+					if err != nil {
+						errorChan <- err
+						close(jobTermiatedCh)
+					}
 					break Loop
 				} else {
-					// TODO - do encryption
-					decrypted = val
+					decrypted, err = decrypter.WriteChunk(val)
+					if err != nil {
+						errorChan <- err
+						close(jobTermiatedCh)
+						break Loop
+					}
+
 					rCh = nil
 					wrtCh = forWriteChan
 				}

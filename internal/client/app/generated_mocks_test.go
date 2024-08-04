@@ -729,6 +729,34 @@ func (mr *MockDomainHelperMockRecorder) CheckUserPasswordData(arg0 interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUserPasswordData", reflect.TypeOf((*MockDomainHelper)(nil).CheckUserPasswordData), arg0)
 }
 
+// CreateChunkDecrypter mocks base method.
+func (m *MockDomainHelper) CreateChunkDecrypter(arg0 string) domain.ChunkDecrypter {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateChunkDecrypter", arg0)
+	ret0, _ := ret[0].(domain.ChunkDecrypter)
+	return ret0
+}
+
+// CreateChunkDecrypter indicates an expected call of CreateChunkDecrypter.
+func (mr *MockDomainHelperMockRecorder) CreateChunkDecrypter(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateChunkDecrypter", reflect.TypeOf((*MockDomainHelper)(nil).CreateChunkDecrypter), arg0)
+}
+
+// CreateChunkEncrypter mocks base method.
+func (m *MockDomainHelper) CreateChunkEncrypter(arg0 string) domain.ChunkEncrypter {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateChunkEncrypter", arg0)
+	ret0, _ := ret[0].(domain.ChunkEncrypter)
+	return ret0
+}
+
+// CreateChunkEncrypter indicates an expected call of CreateChunkEncrypter.
+func (mr *MockDomainHelperMockRecorder) CreateChunkEncrypter(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateChunkEncrypter", reflect.TypeOf((*MockDomainHelper)(nil).CreateChunkEncrypter), arg0)
+}
+
 // CreateStreamFileReader mocks base method.
 func (m *MockDomainHelper) CreateStreamFileReader(arg0 *domain.FileInfo) (domain.StreamFileReader, error) {
 	m.ctrl.T.Helper()

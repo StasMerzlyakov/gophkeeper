@@ -158,6 +158,10 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 		var encrypted []byte
 		var rCh = forEncryptChan
 		var wrtCh chan ([]byte)
+		var err error
+		encryptor := fl.helper.CreateChunkEncrypter(fl.appStorage.GetMasterPassword())
+
+		var done bool
 
 	Loop:
 		for {
@@ -173,17 +177,37 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 			case val, ok := <-rCh:
 				if !ok {
 					// success
-					break Loop
+					encrypted, err = encryptor.Finish()
+					if len(encrypted) == 0 {
+						break Loop
+					}
+					if err != nil {
+						errorChan <- err
+						close(jobTermiatedCh)
+						break Loop
+					}
+					rCh = nil
+					wrtCh = forSendChan
+					done = true
 				} else {
-					// TODO - do encryption
-					encrypted = val
+					encrypted, err = encryptor.WriteChunk(val)
+					if err != nil {
+						errorChan <- err
+						close(jobTermiatedCh)
+						break Loop
+					}
+
 					rCh = nil
 					wrtCh = forSendChan
 				}
 			case wrtCh <- encrypted:
+				if done {
+					break Loop
+				}
 				encrypted = nil
 				rCh = forEncryptChan
 				wrtCh = nil
+
 			case <-jobTermiatedCh:
 				log.Debug("encr goroutine terminated")
 				break Loop

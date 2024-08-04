@@ -5,7 +5,9 @@ import (
 	"context"
 	"crypto/rand"
 	"errors"
+	"fmt"
 	"path/filepath"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -46,7 +48,13 @@ func TestFileAccesprLoad(t *testing.T) {
 
 		}).Times(1)
 
+		mockHeler.EXPECT().CreateChunkDecrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkDecrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkDecryptor{}
+		})
+
 		mockStorage := NewMockAppStorage(ctrl)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
 
 		size := 512
 		chunkSize := 1024
@@ -128,6 +136,11 @@ func TestFileAccesprLoad(t *testing.T) {
 		}).Times(1)
 
 		mockStorage := NewMockAppStorage(ctrl)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
+		mockHeler.EXPECT().CreateChunkDecrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkDecrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkDecryptor{}
+		})
 
 		size := 1024 * 4
 		chunkSize := 1024
@@ -210,6 +223,11 @@ func TestFileAccesprLoad(t *testing.T) {
 		}).Times(1)
 
 		mockStorage := NewMockAppStorage(ctrl)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
+		mockHeler.EXPECT().CreateChunkDecrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkDecrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkDecryptor{}
+		})
 
 		size := 1024*4 + 512
 		chunkSize := 1024
@@ -292,6 +310,11 @@ func TestFileAccesprLoad(t *testing.T) {
 		}).Times(1)
 
 		mockStorage := NewMockAppStorage(ctrl)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
+		mockHeler.EXPECT().CreateChunkDecrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkDecrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkDecryptor{}
+		})
 
 		testError := errors.New("testError")
 		testReder := &testFileStreamerErr{
@@ -368,6 +391,11 @@ func TestFileAccesprLoad(t *testing.T) {
 		}).Times(1)
 
 		mockStorage := NewMockAppStorage(ctrl)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
+		mockHeler.EXPECT().CreateChunkDecrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkDecrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkDecryptor{}
+		})
 
 		size := 1024*4 + 512
 		chunkSize := 1024
@@ -451,6 +479,11 @@ func TestFileAccesprLoad(t *testing.T) {
 		}).Times(1)
 
 		mockStorage := NewMockAppStorage(ctrl)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
+		mockHeler.EXPECT().CreateChunkDecrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkDecrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkDecryptor{}
+		})
 
 		testError := errors.New("testError")
 		testReder := &testFileStreamerErr{
@@ -528,6 +561,11 @@ func TestFileAccesprLoad(t *testing.T) {
 		}).Times(1)
 
 		mockStorage := NewMockAppStorage(ctrl)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
+		mockHeler.EXPECT().CreateChunkDecrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkDecrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkDecryptor{}
+		})
 
 		size := 512
 		chunkSize := 1024
@@ -609,6 +647,11 @@ func TestFileAccesprLoad(t *testing.T) {
 		}).Times(1)
 
 		mockStorage := NewMockAppStorage(ctrl)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
+		mockHeler.EXPECT().CreateChunkDecrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkDecrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkDecryptor{}
+		})
 
 		mockServer := NewMockAppServer(ctrl)
 
@@ -685,6 +728,11 @@ func TestFileAccesprLoad(t *testing.T) {
 		}).Times(1)
 
 		mockStorage := NewMockAppStorage(ctrl)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
+		mockHeler.EXPECT().CreateChunkDecrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkDecrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkDecryptor{}
+		})
 
 		mockServer := NewMockAppServer(ctrl)
 
@@ -736,3 +784,20 @@ func TestFileAccesprLoad(t *testing.T) {
 	})
 
 }
+
+type testChunkDecryptor struct {
+	finishInv atomic.Int32
+}
+
+func (tcd *testChunkDecryptor) WriteChunk(chunk []byte) ([]byte, error) {
+	return chunk, nil
+}
+
+func (tcd *testChunkDecryptor) Finish() error {
+	if tcd.finishInv.CompareAndSwap(0, 1) {
+		return nil
+	}
+	return fmt.Errorf("unexpected finish calls")
+}
+
+var _ domain.ChunkDecrypter = (*testChunkDecryptor)(nil)

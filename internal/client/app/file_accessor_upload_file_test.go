@@ -49,9 +49,14 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkEncrypter{}
+		})
 
 		mockStorage := NewMockAppStorage(ctrl)
 		mockStorage.EXPECT().IsFileInfoExists(gomock.Any()).Return(false).Times(1)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
 
 		mockServer := NewMockAppServer(ctrl)
 		testSender := &testFileSender{
@@ -122,9 +127,14 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkEncrypter{}
+		})
 
 		mockStorage := NewMockAppStorage(ctrl)
 		mockStorage.EXPECT().IsFileInfoExists(gomock.Any()).Return(false).Times(1)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
 
 		mockServer := NewMockAppServer(ctrl)
 		testSender := &testFileSender{
@@ -194,9 +204,14 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkEncrypter{}
+		})
 
 		mockStorage := NewMockAppStorage(ctrl)
 		mockStorage.EXPECT().IsFileInfoExists(gomock.Any()).Return(false).Times(1)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
 
 		mockServer := NewMockAppServer(ctrl)
 		testSender := &testFileSender{
@@ -259,9 +274,14 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkEncrypter{}
+		})
 
 		mockStorage := NewMockAppStorage(ctrl)
 		mockStorage.EXPECT().IsFileInfoExists(gomock.Any()).Return(false).Times(1)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
 
 		mockServer := NewMockAppServer(ctrl)
 		testSender := &testFileSender{
@@ -320,9 +340,14 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkEncrypter{}
+		})
 
 		mockStorage := NewMockAppStorage(ctrl)
 		mockStorage.EXPECT().IsFileInfoExists(gomock.Any()).Return(false).Times(1)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
 
 		mockServer := NewMockAppServer(ctrl)
 		testSender := &testFileSender{
@@ -390,9 +415,14 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkEncrypter{}
+		})
 
 		mockStorage := NewMockAppStorage(ctrl)
 		mockStorage.EXPECT().IsFileInfoExists(gomock.Any()).Return(false).Times(1)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
 
 		mockServer := NewMockAppServer(ctrl)
 		testError := errors.New("testErr")
@@ -456,9 +486,14 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkEncrypter{}
+		})
 
 		mockStorage := NewMockAppStorage(ctrl)
 		mockStorage.EXPECT().IsFileInfoExists(gomock.Any()).Return(false).Times(1)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
 
 		mockServer := NewMockAppServer(ctrl)
 		rollErr := errors.New("roll_err")
@@ -512,6 +547,10 @@ func TestFileAccesprUpload(t *testing.T) {
 
 		mockHeler := NewMockDomainHelper(ctrl)
 		mockHeler.EXPECT().CheckFileForRead(gomock.Any()).Return(nil).Times(1)
+		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkEncrypter{}
+		})
 
 		size := 512
 		chunkSize := 1024
@@ -532,6 +571,7 @@ func TestFileAccesprUpload(t *testing.T) {
 
 		mockStorage := NewMockAppStorage(ctrl)
 		mockStorage.EXPECT().IsFileInfoExists(gomock.Any()).Return(false).Times(1)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
 
 		mockServer := NewMockAppServer(ctrl)
 		testError := errors.New("commit err")
@@ -599,9 +639,14 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkEncrypter{}
+		})
 
 		mockStorage := NewMockAppStorage(ctrl)
 		mockStorage.EXPECT().IsFileInfoExists(gomock.Any()).Return(false).Times(1)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
 
 		mockServer := NewMockAppServer(ctrl)
 		testSender := &testFileInfiniteSender{
@@ -666,9 +711,14 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
+			assert.Equal(t, "masterPass", pass)
+			return &testChunkEncrypter{}
+		})
 
 		mockStorage := NewMockAppStorage(ctrl)
 		mockStorage.EXPECT().IsFileInfoExists(gomock.Any()).Return(false).Times(1)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
 
 		mockServer := NewMockAppServer(ctrl)
 		testSender := &testFileInfiniteSender{
@@ -946,3 +996,20 @@ func (tf *testFileStreamerErr) Next() ([]byte, error) {
 func (tf *testFileStreamerErr) Close() {
 	tf.closeInfok.Add(1)
 }
+
+type testChunkEncrypter struct {
+	finishInv atomic.Int32
+}
+
+func (tcd *testChunkEncrypter) WriteChunk(chunk []byte) ([]byte, error) {
+	return chunk, nil
+}
+
+func (tcd *testChunkEncrypter) Finish() ([]byte, error) {
+	if tcd.finishInv.CompareAndSwap(0, 1) {
+		return nil, nil
+	}
+	return nil, fmt.Errorf("unexpected finish calls")
+}
+
+var _ domain.ChunkEncrypter = (*testChunkEncrypter)(nil)

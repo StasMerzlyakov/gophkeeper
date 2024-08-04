@@ -70,3 +70,10 @@ func (h *helper) CreateStreamFileReader(info *domain.FileInfo) (domain.StreamFil
 func (h *helper) CreateStreamFileWriter(dir string) (domain.StreamFileWriter, error) {
 	return domain.CreateStreamFileWriter(dir)
 }
+
+func (h *helper) CreateChunkEncrypter(password string) domain.ChunkEncrypter {
+	return domain.NewChunkEncrypter(password)
+}
+func (h *helper) CreateChunkDecrypter(password string) domain.ChunkDecrypter {
+	return domain.NewChunkDecrypter(password)
+}
