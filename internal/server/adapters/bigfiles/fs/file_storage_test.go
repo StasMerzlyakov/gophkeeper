@@ -16,9 +16,12 @@ import (
 func TestFileStorage(t *testing.T) {
 
 	tempDir := os.TempDir()
-	defer os.Remove(tempDir)
 
-	storagePath := filepath.Join(tempDir, "storage")
+	storagePath := filepath.Join(tempDir, "temp-storage")
+	defer func() {
+		err := os.RemoveAll(storagePath)
+		require.NoError(t, err)
+	}()
 
 	fs := fs.NewFileStorage(&config.ServerConf{
 		FStoragePath: storagePath,
@@ -65,7 +68,5 @@ func TestFileStorage(t *testing.T) {
 
 	err = fs.DeleteFileInfo(ctx, bucket+"?", fileName)
 	require.ErrorIs(t, err, domain.ErrClientDataIncorrect)
-
-	//GetFileInfoList(ctx context.Context, bucket string) ([]domain.FileInfo, error)
 
 }
