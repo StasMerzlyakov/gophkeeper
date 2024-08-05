@@ -80,5 +80,11 @@ func (fl *fileAccessor) DeleteFile(ctx context.Context, name string) error {
 		return err
 	}
 	log.Debugf("%v complete", action)
-	return fl.appStorage.DeleteFileInfo(name)
+
+	if err := fl.appStorage.DeleteFileInfo(name); err != nil {
+		err := fmt.Errorf("%w - %v error", err, action)
+		log.Warn(err.Error())
+		return fmt.Errorf("%w - %v", domain.ErrClientInternal, err.Error())
+	}
+	return nil
 }
