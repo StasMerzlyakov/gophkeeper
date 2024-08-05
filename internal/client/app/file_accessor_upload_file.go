@@ -94,7 +94,6 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 		readed := 0
 		var rdCn chan []byte
 		var isLast bool
-		var progressCount int
 	Loop:
 		for {
 			// test stop first
@@ -118,12 +117,9 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 
 			chunkSize := len(chunk)
 			readed += chunkSize
-			progressCount++
-			if progressCount == 10 {
-				if progerssFn != nil {
-					progerssFn(readed, fileSize)
-				}
-				progressCount = 0
+
+			if progerssFn != nil {
+				progerssFn(readed, fileSize)
 			}
 
 			if len(chunk) > 0 {

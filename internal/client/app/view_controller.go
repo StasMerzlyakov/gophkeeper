@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
@@ -362,7 +363,16 @@ func (ac *viewController) SaveFile(info *domain.FileInfo) {
 	log := GetMainLogger()
 	var canceled atomic.Bool
 
+	var progressCount atomic.Int32
+	var progressCommon atomic.Int32
+
+	closeProgress := make(chan struct{}, 1)
+
 	go func() {
+		defer func() {
+			closeProgress <- struct{}{}
+		}()
+
 		cancelFnHandler := func() {
 			if canceled.CompareAndSwap(false, true) {
 				log.Debug("cancel invoked !!!")
@@ -370,14 +380,29 @@ func (ac *viewController) SaveFile(info *domain.FileInfo) {
 			}
 		}
 
-		progerssFn := func(procesed int, common int) {
-			if common > 0 {
-				progressText := fmt.Sprintf("loading %d of %d", procesed, common)
-				percentage := float64(procesed) * 100 / float64(common)
-				if percentage > 100 {
-					percentage = 100
+		go func() { // separate goroutine for proggress view
+			for {
+				select {
+				case <-closeProgress:
+					return
+				case <-time.After(1 * time.Second):
+					procesed := progressCount.Load()
+					common := progressCommon.Load()
+					progressText := fmt.Sprintf("loading %d of %d", procesed, common)
+					percentage := float64(procesed) * 100 / float64(common)
+					if percentage > 100 {
+						percentage = 100
+					}
+					ac.appView.CreateProgressBar(fmt.Sprintf("Loading %s", info.Name), percentage, progressText, cancelFnHandler)
 				}
-				ac.appView.CreateProgressBar(fmt.Sprintf("Loading %s", info.Name), percentage, progressText, cancelFnHandler)
+			}
+		}()
+
+		progerssFn := func(procesed int, common int) {
+			if common > 0 && procesed > 0 {
+				progressCount.Store(int32(procesed))
+				progressCommon.Store(int32(common))
+
 			}
 		}
 
@@ -402,6 +427,11 @@ func (ac *viewController) UploadFile(info *domain.FileInfo) {
 	log := GetMainLogger()
 	var canceled atomic.Bool
 
+	var progressCount atomic.Int32
+	var progressCommon atomic.Int32
+
+	closeProgress := make(chan struct{}, 1)
+
 	go func() {
 		cancelFnHandler := func() {
 			if canceled.CompareAndSwap(false, true) {
@@ -410,14 +440,28 @@ func (ac *viewController) UploadFile(info *domain.FileInfo) {
 			}
 		}
 
-		progerssFn := func(procesed int, common int) {
-			if common > 0 {
-				progressText := fmt.Sprintf("uploading %d of %d", procesed, common)
-				percentage := float64(procesed) * 100 / float64(common)
-				if percentage > 100 {
-					percentage = 100
+		go func() { // separate goroutine for proggress view
+			for {
+				select {
+				case <-closeProgress:
+					return
+				case <-time.After(1 * time.Second):
+					procesed := progressCount.Load()
+					common := progressCommon.Load()
+					progressText := fmt.Sprintf("loading %d of %d", procesed, common)
+					percentage := float64(procesed) * 100 / float64(common)
+					if percentage > 100 {
+						percentage = 100
+					}
+					ac.appView.CreateProgressBar(fmt.Sprintf("Loading %s", info.Name), percentage, progressText, cancelFnHandler)
 				}
-				ac.appView.CreateProgressBar(fmt.Sprintf("Uploading %s", info.Name), percentage, progressText, cancelFnHandler)
+			}
+		}()
+		progerssFn := func(procesed int, common int) {
+			if common > 0 && procesed > 0 {
+				progressCount.Store(int32(procesed))
+				progressCommon.Store(int32(common))
+
 			}
 		}
 

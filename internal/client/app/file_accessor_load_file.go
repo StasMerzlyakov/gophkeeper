@@ -75,7 +75,6 @@ func (fl *fileAccessor) LoadFile(ctx context.Context,
 		readed := 0
 		var rdCn chan []byte
 		var isLast bool
-		var progressCount int
 	Loop:
 		for {
 			chunk, err := reader.Next()
@@ -93,12 +92,9 @@ func (fl *fileAccessor) LoadFile(ctx context.Context,
 
 			chunkSize := len(chunk)
 			readed += chunkSize
-			progressCount++
-			if progressCount == 10 {
-				if progerssFn != nil {
-					progerssFn(readed, fileSize)
-				}
-				progressCount = 0
+
+			if progerssFn != nil {
+				progerssFn(readed, fileSize)
 			}
 
 			if len(chunk) > 0 {
