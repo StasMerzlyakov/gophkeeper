@@ -23,10 +23,7 @@ func NewHandler(conf *config.ClientConf) (*handler, error) {
 		return nil, fmt.Errorf("%w can't read CACert - %v", domain.ErrClientInternal, err.Error())
 	}
 
-	h := &handler{
-		// TODO DEVEL XAK
-		//jwtToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjI3ODM1MjgsIlVzZXJJRCI6MX0.eV4FjvydX6n7RaIqZ0M7x65vSBfJpiVuymd9DQOfY_0",
-	}
+	h := &handler{}
 
 	client, err := grpc.NewClient(conf.ServerAddress,
 		grpc.WithTransportCredentials(cred),
@@ -178,8 +175,6 @@ func (h *handler) PassLoginOTP(ctx context.Context, otpPass string) error {
 	}
 	h.sessionID = ""
 	h.jwtToken = resp.Token
-	log := app.GetMainLogger()
-	log.Errorf(h.jwtToken) //  // TODO DEVEL XAK
 	return nil
 }
 
