@@ -93,7 +93,7 @@ func (tApp *tuiApp) ShowNewBankCardView() {
 					case tcell.KeyCtrlQ:
 						tApp.app.Stop()
 					case tcell.KeyCtrlB:
-						tApp.pages.SwitchToPage(BankCardListPage)
+						tApp.controller.GetBankCardList()
 					}
 					return event
 				})
@@ -150,7 +150,7 @@ func (tApp *tuiApp) ShowEditBankCardView(bankCard *domain.BankCard) {
 					case tcell.KeyCtrlQ:
 						tApp.app.Stop()
 					case tcell.KeyCtrlB:
-						tApp.pages.SwitchToPage(BankCardListPage)
+						tApp.controller.GetBankCardList()
 					}
 					return event
 				})

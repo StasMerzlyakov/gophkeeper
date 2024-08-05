@@ -81,6 +81,7 @@ type AppView interface {
 	ShowFileInfoListView(filesInfoList []domain.FileInfo)
 
 	CreateProgressBar(title string, percentage float64, progressText string, cancelFn func())
+	CloseProgerssBar()
 }
 
 type AppServer interface {

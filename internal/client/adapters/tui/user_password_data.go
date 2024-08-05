@@ -88,7 +88,7 @@ func (tApp *tuiApp) ShowEditUserPasswordDataView(data *domain.UserPasswordData) 
 					case tcell.KeyCtrlQ:
 						tApp.app.Stop()
 					case tcell.KeyCtrlB:
-						tApp.pages.SwitchToPage(UserPasswordDataListPage)
+						tApp.controller.GetUserPasswordDataList()
 					}
 					return event
 				})
@@ -135,7 +135,7 @@ func (tApp *tuiApp) ShowNewUserPasswordDataView() {
 					case tcell.KeyCtrlQ:
 						tApp.app.Stop()
 					case tcell.KeyCtrlB:
-						tApp.pages.SwitchToPage(UserPasswordDataListPage)
+						tApp.controller.GetUserPasswordDataList()
 					}
 					return event
 				})

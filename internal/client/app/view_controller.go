@@ -178,7 +178,6 @@ func (ac *viewController) AddBankCard(bankCardView *domain.BankCardView) {
 			}
 
 			if err := ac.dataAccessor.AddBankCard(ctx, bankCard); err != nil {
-				ac.appView.ShowMsg(err.Error()) // show the error and change page to cardList
 				return err
 			}
 			return nil
@@ -196,7 +195,6 @@ func (ac *viewController) UpdateBankCard(bankCardView *domain.BankCardView) {
 			}
 
 			if err := ac.dataAccessor.UpdateBankCard(ctx, bankCard); err != nil {
-				ac.appView.ShowMsg(err.Error()) // show the error and change page to cardList
 				return err
 			}
 			return nil
@@ -210,7 +208,7 @@ func (ac *viewController) DeleteBankCard(number string) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			if err := ac.dataAccessor.DeleteBankCard(ctx, number); err != nil {
-				ac.appView.ShowMsg(err.Error()) // show the error and leave the current page
+				return err
 			}
 			return nil
 		}, func() {
@@ -315,7 +313,6 @@ func (ac *viewController) AddUserPasswordData(data *domain.UserPasswordData) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			if err := ac.dataAccessor.AddUserPasswordData(ctx, data); err != nil {
-				ac.appView.ShowMsg(err.Error())
 				return err
 			}
 			return nil
@@ -327,7 +324,6 @@ func (ac *viewController) UpdatePasswordData(data *domain.UserPasswordData) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			if err := ac.dataAccessor.UpdateUserPasswordData(ctx, data); err != nil {
-				ac.appView.ShowMsg(err.Error())
 				return err
 			}
 			return nil
@@ -339,7 +335,7 @@ func (ac *viewController) DeleteUpdatePasswordData(hint string) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			if err := ac.dataAccessor.DeleteUserPasswordData(ctx, hint); err != nil {
-				ac.appView.ShowMsg(err.Error())
+				return err
 			}
 			return nil
 		}, func() {
@@ -372,11 +368,14 @@ func (ac *viewController) SaveFile(info *domain.FileInfo) {
 		}
 
 		go func() { // separate goroutine for proggress view
+			initShowTime := 100 * time.Millisecond
 			for {
 				select {
 				case <-closeProgress:
+					ac.appView.CloseProgerssBar()
 					return
-				case <-time.After(1 * time.Second):
+				case <-time.After(initShowTime):
+					initShowTime = 1 * time.Second
 					procesed := progressCount.Load()
 					common := progressCommon.Load()
 					progressText := fmt.Sprintf("loading %d of %d", procesed, common)
@@ -424,6 +423,9 @@ func (ac *viewController) UploadFile(info *domain.FileInfo) {
 	closeProgress := make(chan struct{}, 1)
 
 	go func() {
+		defer func() {
+			closeProgress <- struct{}{}
+		}()
 		cancelFnHandler := func() {
 			if canceled.CompareAndSwap(false, true) {
 				log.Debug("cancel invoked !!!")
@@ -432,19 +434,24 @@ func (ac *viewController) UploadFile(info *domain.FileInfo) {
 		}
 
 		go func() { // separate goroutine for proggress view
+
+			initShowTime := 100 * time.Millisecond
+
 			for {
 				select {
 				case <-closeProgress:
+					ac.appView.CloseProgerssBar()
 					return
-				case <-time.After(1 * time.Second):
+				case <-time.After(initShowTime):
+					initShowTime = 1 * time.Second
 					procesed := progressCount.Load()
 					common := progressCommon.Load()
-					progressText := fmt.Sprintf("loading %d of %d", procesed, common)
+					progressText := fmt.Sprintf("uploading %d of %d", procesed, common)
 					percentage := float64(procesed) * 100 / float64(common)
 					if percentage > 100 {
 						percentage = 100
 					}
-					ac.appView.CreateProgressBar(fmt.Sprintf("Loading %s", info.Name), percentage, progressText, cancelFnHandler)
+					ac.appView.CreateProgressBar(fmt.Sprintf("Uploading %s", info.Name), percentage, progressText, cancelFnHandler)
 				}
 			}
 		}()

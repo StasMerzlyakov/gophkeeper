@@ -115,6 +115,14 @@ func (tApp *tuiApp) ShowMsg(msg string) {
 	}()
 }
 
+func (tApp *tuiApp) CloseProgerssBar() {
+	go func() {
+		tApp.app.QueueUpdateDraw(func() {
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
+		})
+	}()
+}
+
 func (tApp *tuiApp) CreateProgressBar(title string, percentage float64, progressText string, cancelFn func()) {
 	go func() {
 		tApp.app.QueueUpdateDraw(func() {

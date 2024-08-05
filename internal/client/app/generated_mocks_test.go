@@ -369,6 +369,18 @@ func (m *MockAppView) EXPECT() *MockAppViewMockRecorder {
 	return m.recorder
 }
 
+// CloseProgerssBar mocks base method.
+func (m *MockAppView) CloseProgerssBar() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "CloseProgerssBar")
+}
+
+// CloseProgerssBar indicates an expected call of CloseProgerssBar.
+func (mr *MockAppViewMockRecorder) CloseProgerssBar() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloseProgerssBar", reflect.TypeOf((*MockAppView)(nil).CloseProgerssBar))
+}
+
 // CreateProgressBar mocks base method.
 func (m *MockAppView) CreateProgressBar(arg0 string, arg1 float64, arg2 string, arg3 func()) {
 	m.ctrl.T.Helper()
