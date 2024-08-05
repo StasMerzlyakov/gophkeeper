@@ -31,7 +31,7 @@ func printVersion() {
 
 func main() {
 
-	printVersion()
+	printVersion() // pring to stdout
 
 	flagSet := flag.NewFlagSet("main", flag.ContinueOnError)
 	conf, err := config.LoadClientConf(flagSet)
@@ -50,6 +50,11 @@ func main() {
 	log.SetFormatter(&logrus.JSONFormatter{})
 
 	app.SetMainLogger(log)
+
+	// pring version to log
+	log.Infof("Build version: %s", buildVersion)
+	log.Infof("Build date: %s", buildDate)
+	log.Infof("Build commit: %s", buildCommit)
 
 	// grpc
 	helper, err := handler.NewHandler(conf)
