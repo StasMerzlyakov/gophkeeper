@@ -66,7 +66,7 @@ func (fl *fileAccessor) LoadFile(ctx context.Context,
 		defer opWg.Done()
 		reader, err := fl.appServer.CreateFileReceiver(ctx, info.Name)
 		if err != nil {
-			err := fmt.Errorf("%w load file %s err %s", domain.ErrClientInternal, info.Name, err.Error())
+			err := fmt.Errorf("%w load file %s err %s", domain.ErrServerIsNotResponding, info.Name, err.Error())
 			log.Warn(err.Error())
 			errorChan <- err
 			return
@@ -84,7 +84,7 @@ func (fl *fileAccessor) LoadFile(ctx context.Context,
 				if errors.Is(err, io.EOF) {
 					isLast = true
 				} else {
-					errorChan <- err
+					errorChan <- fmt.Errorf("%w - read next bytes err %s ", domain.ErrServerIsNotResponding, err.Error())
 					close(jobTermiatedCh)
 					break Loop
 				}
@@ -150,14 +150,15 @@ func (fl *fileAccessor) LoadFile(ctx context.Context,
 					// success
 					err = decrypter.Finish()
 					if err != nil {
-						errorChan <- err
+						errorChan <- fmt.Errorf("%w decyrpt finish - %s", domain.ErrClientDataIsNotRestored, err.Error())
 						close(jobTermiatedCh)
+						break Loop
 					}
 					break Loop
 				} else {
 					decrypted, err = decrypter.WriteChunk(val)
 					if err != nil {
-						errorChan <- err
+						errorChan <- fmt.Errorf("%w decyrpt write chunk err - %s", domain.ErrClientInternal, err.Error())
 						close(jobTermiatedCh)
 						break Loop
 					}
@@ -219,7 +220,7 @@ func (fl *fileAccessor) LoadFile(ctx context.Context,
 					// success
 					if err := writer.Commit(sendCrx); err != nil {
 						log.Warnf("write commit error %v", err.Error())
-						errorChan <- err
+						errorChan <- fmt.Errorf("%w write commit err %s", domain.ErrClientInternal, err.Error())
 						close(jobTermiatedCh)
 					} else {
 						close(jobDoneCh)
@@ -227,8 +228,8 @@ func (fl *fileAccessor) LoadFile(ctx context.Context,
 					break Loop
 				} else {
 					if err := writer.WriteChunk(sendCrx, basename, chunk); err != nil {
-						log.Warnf("write chun error %v", err.Error())
-						errorChan <- err
+						log.Warnf("write chun err %v", err.Error())
+						errorChan <- fmt.Errorf("%w write chun err %s", domain.ErrClientInternal, err.Error())
 						if err := writer.Rollback(sendCrx); err != nil {
 							log.Warnf("sender rollabck error %v", err.Error())
 						}

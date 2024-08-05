@@ -8,9 +8,12 @@ var (
 	ErrDublicateKeyViolation = errors.New("dublicate key violation error")
 	ErrDataNotExists         = errors.New("data not exists error")
 	ErrAuthDataIncorrect     = errors.New("wrong auth data")
-	ErrClientDataIncorrect   = errors.New("client data incorrect")
-	ErrClientInternal        = errors.New("client implementation error")
-	ErrServerIsNotResponding = errors.New("server is not responding")
+
+	ErrClientDataIncorrect = errors.New("client data incorrect")
+	ErrClientInternal      = errors.New("client internal error")
+
+	ErrClientDataIsNotRestored = errors.New("data is not restored")
+	ErrServerIsNotResponding   = errors.New("server is not responding")
 
 	ErrClientInteruptoin = errors.New("user interuption")
 	ErrClientAppStopped  = errors.New("application stopped")
