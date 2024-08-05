@@ -7,6 +7,7 @@ import (
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
+	"fmt"
 	"hash"
 	"io"
 	"sync"
@@ -29,6 +30,8 @@ func NewChunkEncrypterByReader(password string, reader io.Reader) *chunkEncrypte
 		panic(err)
 	}
 
+	decr := NewChunkDecrypter(password)
+
 	// generate a 32 bit key with the provided password
 	key := pbkdf2.Key([]byte(password), salt, Pbkdf2Iter, EncryptAESKeyLen, sha256.New)
 
@@ -42,9 +45,10 @@ func NewChunkEncrypterByReader(password string, reader io.Reader) *chunkEncrypte
 	cipher := cipher.NewCFBEncrypter(block, iv)
 
 	return &chunkEncrypter{
-		header: header,
-		hasher: hasher,
-		cipher: cipher,
+		header:    header,
+		hasher:    hasher,
+		cipher:    cipher,
+		decriptor: decr,
 	}
 }
 
@@ -59,6 +63,7 @@ type chunkEncrypter struct {
 	hasher          hash.Hash
 	cipher          cipher.Stream
 	writeHeaderOnce sync.Once
+	decriptor       *chunkDecrypter
 }
 
 func (che *chunkEncrypter) WriteChunk(chunk []byte) ([]byte, error) {
@@ -71,16 +76,20 @@ func (che *chunkEncrypter) WriteChunk(chunk []byte) ([]byte, error) {
 
 	// update hash
 	if _, err := che.hasher.Write(chunk); err != nil {
-		panic(err)
+		return nil, fmt.Errorf("%w can't write chunk", err)
 	}
 
 	che.cipher.XORKeyStream(chunk, chunk)
 
 	if _, err := res.Write(chunk); err != nil {
-		panic(err)
+		return nil, fmt.Errorf("%w can't write chunk", err)
 	}
 
 	result := res.Bytes()
+
+	if _, err := che.decriptor.WriteChunk(result); err != nil {
+		return nil, fmt.Errorf("%w can't write chunk", err)
+	}
 
 	return result, nil
 }
@@ -90,6 +99,14 @@ func (che *chunkEncrypter) Finish() ([]byte, error) {
 	// encrypt hmac
 
 	che.cipher.XORKeyStream(mac, mac) // encrypt mac
+
+	if _, err := che.decriptor.WriteChunk(mac); err != nil {
+		return nil, fmt.Errorf("%w can't write chunk", err)
+	}
+
+	if err := che.decriptor.Finish(); err != nil {
+		return nil, fmt.Errorf("%w finish err", err)
+	}
 
 	return mac, nil
 }
