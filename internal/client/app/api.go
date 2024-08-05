@@ -57,7 +57,7 @@ type DomainHelper interface {
 	CreateStreamFileReader(info *domain.FileInfo) (domain.StreamFileReader, error)
 	CreateStreamFileWriter(dir string) (domain.StreamFileWriter, error)
 
-	CreateChunkEncrypter(password string) domain.ChunkEncrypter
+	CreateChunkEncrypter(password string) (domain.ChunkEncrypter, error)
 	CreateChunkDecrypter(password string) domain.ChunkDecrypter
 }
 

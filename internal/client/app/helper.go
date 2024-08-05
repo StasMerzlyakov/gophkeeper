@@ -71,7 +71,7 @@ func (h *helper) CreateStreamFileWriter(dir string) (domain.StreamFileWriter, er
 	return domain.CreateStreamFileWriter(dir)
 }
 
-func (h *helper) CreateChunkEncrypter(password string) domain.ChunkEncrypter {
+func (h *helper) CreateChunkEncrypter(password string) (domain.ChunkEncrypter, error) {
 	return domain.NewChunkEncrypter(password)
 }
 func (h *helper) CreateChunkDecrypter(password string) domain.ChunkDecrypter {

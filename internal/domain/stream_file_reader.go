@@ -15,18 +15,18 @@ func NewStreamFileReader(path string, fileChunkSize int) (*streamFileReader, err
 	}
 
 	return &streamFileReader{
-		buf:  make([]byte, fileChunkSize),
-		file: file,
-		size: inf.Size(),
+		file:          file,
+		size:          inf.Size(),
+		fileChunkSize: fileChunkSize,
 	}, nil
 }
 
 var _ StreamFileReader = (*streamFileReader)(nil)
 
 type streamFileReader struct {
-	buf  []byte
-	file *os.File
-	size int64
+	file          *os.File
+	size          int64
+	fileChunkSize int
 }
 
 func (sf *streamFileReader) FileSize() int64 {
@@ -34,11 +34,12 @@ func (sf *streamFileReader) FileSize() int64 {
 }
 
 func (sf *streamFileReader) Next() ([]byte, error) {
-	n, err := sf.file.Read(sf.buf)
+	buf := make([]byte, sf.fileChunkSize)
+	n, err := sf.file.Read(buf)
 	if err != nil {
-		return sf.buf[:n], err
+		return buf[:n], err
 	}
-	return sf.buf[:n], nil
+	return buf[:n], nil
 }
 func (sf *streamFileReader) Close() {
 	err := sf.file.Close()

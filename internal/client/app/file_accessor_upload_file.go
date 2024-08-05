@@ -155,7 +155,12 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 		var rCh = forEncryptChan
 		var wrtCh chan ([]byte)
 		var err error
-		encryptor := fl.helper.CreateChunkEncrypter(fl.appStorage.GetMasterPassword())
+		encryptor, err := fl.helper.CreateChunkEncrypter(fl.appStorage.GetMasterPassword())
+		if err != nil {
+			errorChan <- fmt.Errorf("%w - create encryptor  err %s", domain.ErrClientInternal, err.Error())
+			close(jobTermiatedCh)
+			return
+		}
 
 		var done bool
 

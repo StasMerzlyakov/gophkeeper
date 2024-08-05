@@ -721,7 +721,7 @@ func TestFileAccesprLoad(t *testing.T) {
 
 		select {
 		case <-ctx.Done():
-			t.Error("upload is not complete")
+			t.Error("load is not complete")
 		case <-doneCh:
 			// test errorChan is empty
 			select {
@@ -807,7 +807,7 @@ func TestFileAccesprLoad(t *testing.T) {
 
 		select {
 		case <-ctx.Done():
-			t.Error("upload is not complete")
+			t.Error("load is not complete")
 		case <-doneCh:
 			// test errorChan is empty
 			select {

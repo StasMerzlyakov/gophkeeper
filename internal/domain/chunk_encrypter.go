@@ -25,11 +25,15 @@ func NewChunkEncrypterByReader(password string, reader io.Reader) (*chunkEncrypt
 	if _, err := io.ReadFull(reader, salt); err != nil {
 		return nil, fmt.Errorf("salt init err %w", err)
 	}
+
+	fmt.Println("encr   salt " + base64.StdEncoding.EncodeToString(salt))
+
 	// generate initialization vector
 	iv := header[Pbkdf2SaltLen : aes.BlockSize+Pbkdf2SaltLen]
 	if _, err := io.ReadFull(reader, iv); err != nil {
 		return nil, fmt.Errorf("iv init err %w", err)
 	}
+	fmt.Println("encr   iv " + base64.StdEncoding.EncodeToString(iv))
 
 	decr := NewChunkDecrypter(password)
 

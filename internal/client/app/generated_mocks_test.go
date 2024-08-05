@@ -756,11 +756,12 @@ func (mr *MockDomainHelperMockRecorder) CreateChunkDecrypter(arg0 interface{}) *
 }
 
 // CreateChunkEncrypter mocks base method.
-func (m *MockDomainHelper) CreateChunkEncrypter(arg0 string) domain.ChunkEncrypter {
+func (m *MockDomainHelper) CreateChunkEncrypter(arg0 string) (domain.ChunkEncrypter, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateChunkEncrypter", arg0)
 	ret0, _ := ret[0].(domain.ChunkEncrypter)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // CreateChunkEncrypter indicates an expected call of CreateChunkEncrypter.
