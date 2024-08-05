@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"fmt"
+	"sync"
 	"testing"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
@@ -11,12 +12,31 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type testReader struct {
+	mtx sync.Mutex
+	idx int
+}
+
+func (tr *testReader) Read(p []byte) (n int, err error) {
+	tr.mtx.Lock()
+	defer tr.mtx.Unlock()
+	n = len(p)
+	err = nil
+
+	for indx := range p {
+		p[indx] = byte(tr.idx)
+		tr.idx++
+	}
+
+	return
+}
+
 func TestChunkEncryptDecryptTest(t *testing.T) {
 
 	t.Run("test_1", func(t *testing.T) {
 		masterPass := "masterPass"
 
-		encryptor := domain.NewChunkEncrypter(masterPass)
+		encryptor := domain.NewChunkEncrypterByReader(masterPass, &testReader{})
 		decryptor := domain.NewChunkDecrypter(masterPass)
 
 		var actualBuf bytes.Buffer
@@ -168,5 +188,4 @@ func TestChunkEncryptDecryptTest(t *testing.T) {
 		actual := actualBuf.Bytes()
 		assert.Equal(t, 0, bytes.Compare(expected, actual))
 	})
-
 }

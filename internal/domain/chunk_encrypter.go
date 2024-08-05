@@ -14,25 +14,23 @@ import (
 	"golang.org/x/crypto/pbkdf2"
 )
 
-func NewChunkEncrypter(password string) *chunkEncrypter {
-
+func NewChunkEncrypterByReader(password string, reader io.Reader) *chunkEncrypter {
 	// allocate memory to hold the header of the ciphertext
-	header := make([]byte, pbkdf2SaltLen+aes.BlockSize)
+	header := make([]byte, Pbkdf2SaltLen+aes.BlockSize)
 
 	// generate salt
-	salt := header[:pbkdf2SaltLen]
-	if _, err := io.ReadFull(rand.Reader, salt); err != nil {
+	salt := header[:Pbkdf2SaltLen]
+	if _, err := io.ReadFull(reader, salt); err != nil {
 		panic(err)
 	}
-
 	// generate initialization vector
-	iv := header[pbkdf2SaltLen : aes.BlockSize+pbkdf2SaltLen]
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+	iv := header[Pbkdf2SaltLen : aes.BlockSize+Pbkdf2SaltLen]
+	if _, err := io.ReadFull(reader, iv); err != nil {
 		panic(err)
 	}
 
 	// generate a 32 bit key with the provided password
-	key := pbkdf2.Key([]byte(password), salt, pbkdf2Iter, keyLen, sha256.New)
+	key := pbkdf2.Key([]byte(password), salt, Pbkdf2Iter, EncryptAESKeyLen, sha256.New)
 
 	hasher := hmac.New(sha256.New, key)
 
@@ -48,6 +46,10 @@ func NewChunkEncrypter(password string) *chunkEncrypter {
 		hasher: hasher,
 		cipher: cipher,
 	}
+}
+
+func NewChunkEncrypter(password string) *chunkEncrypter {
+	return NewChunkEncrypterByReader(password, rand.Reader)
 }
 
 var _ ChunkEncrypter = (*chunkEncrypter)(nil)
@@ -72,20 +74,22 @@ func (che *chunkEncrypter) WriteChunk(chunk []byte) ([]byte, error) {
 		panic(err)
 	}
 
-	encrChank := make([]byte, len(chunk))
+	che.cipher.XORKeyStream(chunk, chunk)
 
-	che.cipher.XORKeyStream(encrChank, chunk)
-
-	if _, err := res.Write(encrChank); err != nil {
+	if _, err := res.Write(chunk); err != nil {
 		panic(err)
 	}
 
-	return res.Bytes(), nil
+	result := res.Bytes()
+
+	return result, nil
 }
 
 func (che *chunkEncrypter) Finish() ([]byte, error) {
-	hmac := che.hasher.Sum(nil)
+	mac := che.hasher.Sum(nil)
 	// encrypt hmac
-	che.cipher.XORKeyStream(hmac, hmac)
-	return hmac, nil
+
+	che.cipher.XORKeyStream(mac, mac) // encrypt mac
+
+	return mac, nil
 }

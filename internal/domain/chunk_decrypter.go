@@ -32,16 +32,16 @@ type chunkDecrypter struct {
 
 func (che *chunkDecrypter) WriteChunk(chunk []byte) ([]byte, error) {
 	che.readHeaderOnce.Do(func() {
-		if len(chunk) < aes.BlockSize+pbkdf2SaltLen {
+		if len(chunk) < aes.BlockSize+Pbkdf2SaltLen {
 			panic("chunk too short") // it is possible to use buffer to store sufficient number of bytes
 		}
 
-		salt := chunk[:pbkdf2SaltLen]
+		salt := chunk[:Pbkdf2SaltLen]
 
 		// get the IV from the ciphertext
-		iv := chunk[pbkdf2SaltLen : aes.BlockSize+pbkdf2SaltLen]
+		iv := chunk[Pbkdf2SaltLen : aes.BlockSize+Pbkdf2SaltLen]
 
-		key := pbkdf2.Key([]byte(che.pass), salt, pbkdf2Iter, keyLen, sha256.New)
+		key := pbkdf2.Key([]byte(che.pass), salt, Pbkdf2Iter, EncryptAESKeyLen, sha256.New)
 
 		block, err := aes.NewCipher(key)
 		if err != nil {
@@ -49,31 +49,36 @@ func (che *chunkDecrypter) WriteChunk(chunk []byte) ([]byte, error) {
 		}
 
 		che.cipher = cipher.NewCFBDecrypter(block, iv)
+
 		che.hasher = hmac.New(sha256.New, key)
+
 		che.pass = ""
 
-		chunk = chunk[aes.BlockSize+pbkdf2SaltLen:] // remove salt + iv
+		chunk = chunk[aes.BlockSize+Pbkdf2SaltLen:] // remove salt + iv
 	})
 
 	// decrypt chunk
-	che.cipher.XORKeyStream(chunk, chunk)
-
 	res := che.tailStorage.Write(chunk)
+
+	che.cipher.XORKeyStream(res, res)
+
 	if _, err := che.hasher.Write(res); err != nil {
 		return nil, fmt.Errorf("decrypt err - %w", err)
 	}
+
 	return res, nil
 }
 
 func (che *chunkDecrypter) Finish() error {
-	expectedMac, err := che.tailStorage.Finish()
+	mac, err := che.tailStorage.Finish()
 	if err != nil {
 		return fmt.Errorf("decrypt err - %w", err)
 	}
+	che.cipher.XORKeyStream(mac, mac) // encryp mac
 
 	extractedMac := che.hasher.Sum(nil)
 
-	if !hmac.Equal(extractedMac, expectedMac) {
+	if !hmac.Equal(extractedMac, mac) {
 		return fmt.Errorf("decrypt err - hmac not equal")
 	}
 

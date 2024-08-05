@@ -31,6 +31,7 @@ test: clean
 	go clean -testcache
 	go test ./... -coverprofile cover.out
 
+
 proto:
 	mkdir -p ./internal/proto
 	protoc --go_out=./internal/proto --go_opt=paths=source_relative \

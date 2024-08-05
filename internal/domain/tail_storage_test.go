@@ -167,3 +167,19 @@ func TestTailStorage(t *testing.T) {
 	})
 
 }
+
+func TestTailStorageHello(t *testing.T) {
+
+	tail := make([]byte, 32)
+	_, err := rand.Read(tail)
+	require.NoError(t, err)
+
+	hello := "hello"
+
+	tailStorage := domain.NewTailStorage(32)
+	res := tailStorage.Write([]byte(hello))
+	assert.Nil(t, res)
+
+	res = tailStorage.Write(tail)
+	assert.Equal(t, hello, string(res))
+}

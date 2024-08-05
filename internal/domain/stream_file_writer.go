@@ -86,6 +86,10 @@ func (sw *streamFileWriter) WriteChunk(ctx context.Context, name string, chunk [
 
 func (sw *streamFileWriter) Commit(ctx context.Context) error {
 
+	if sw.file == nil {
+		return nil
+	}
+
 	if err := sw.file.Close(); err != nil {
 		return fmt.Errorf("%w close file %s err %s", ErrServerInternal, sw.file.Name(), err.Error())
 	}
