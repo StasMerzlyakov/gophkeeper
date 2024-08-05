@@ -49,9 +49,11 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+
+		testEncrypter := &testChunkEncrypter{}
 		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
 			assert.Equal(t, "masterPass", pass)
-			return &testChunkEncrypter{}
+			return testEncrypter
 		})
 
 		mockStorage := NewMockAppStorage(ctrl)
@@ -98,6 +100,8 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, size, len(testSender.buf.Bytes()))
 			assert.Equal(t, int32(1), testSender.commitInvok.Load())
 			assert.True(t, bytes.Equal(buf, testSender.buf.Bytes()))
+
+			assert.Equal(t, int32(1), testEncrypter.finishInv.Load())
 		}
 	})
 
@@ -127,9 +131,11 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+
+		testEncrypter := &testChunkEncrypter{}
 		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
 			assert.Equal(t, "masterPass", pass)
-			return &testChunkEncrypter{}
+			return testEncrypter
 		})
 
 		mockStorage := NewMockAppStorage(ctrl)
@@ -175,6 +181,9 @@ func TestFileAccesprUpload(t *testing.T) {
 			// testSender
 			assert.Equal(t, size, len(testSender.buf.Bytes()))
 			assert.True(t, bytes.Equal(buf, testSender.buf.Bytes()))
+
+			// testEncrypter
+			assert.Equal(t, int32(1), testEncrypter.finishInv.Load())
 		}
 	})
 
@@ -204,9 +213,11 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+
+		testEncrypter := &testChunkEncrypter{}
 		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
 			assert.Equal(t, "masterPass", pass)
-			return &testChunkEncrypter{}
+			return testEncrypter
 		})
 
 		mockStorage := NewMockAppStorage(ctrl)
@@ -252,6 +263,9 @@ func TestFileAccesprUpload(t *testing.T) {
 			// testSender
 			assert.Equal(t, size, len(testSender.buf.Bytes()))
 			assert.True(t, bytes.Equal(buf, testSender.buf.Bytes()))
+
+			// testEncrypter
+			assert.Equal(t, int32(1), testEncrypter.finishInv.Load())
 		}
 
 	})
@@ -274,9 +288,11 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+
+		testEncrypter := &testChunkEncrypter{}
 		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
 			assert.Equal(t, "masterPass", pass)
-			return &testChunkEncrypter{}
+			return testEncrypter
 		})
 
 		mockStorage := NewMockAppStorage(ctrl)
@@ -314,6 +330,9 @@ func TestFileAccesprUpload(t *testing.T) {
 				// testReader
 				assert.Equal(t, int32(0), testReder.nextInfok.Load())
 				assert.Equal(t, int32(0), testReder.closeInfok.Load())
+
+				// testEncrypter
+				assert.Equal(t, int32(0), testEncrypter.finishInv.Load())
 			default:
 				t.Error("errorChan is empty")
 			}
@@ -340,9 +359,11 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+
+		testEncrypter := &testChunkEncrypter{}
 		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
 			assert.Equal(t, "masterPass", pass)
-			return &testChunkEncrypter{}
+			return testEncrypter
 		})
 
 		mockStorage := NewMockAppStorage(ctrl)
@@ -376,7 +397,7 @@ func TestFileAccesprUpload(t *testing.T) {
 			// test errorChan is empty
 			select {
 			case err := <-errorChan:
-				assert.ErrorIs(t, err, testError)
+				assert.ErrorIs(t, err, domain.ErrClientInternal)
 				// testReader
 				assert.Equal(t, int32(1), testReder.nextInfok.Load())
 				assert.Equal(t, int32(1), testReder.closeInfok.Load())
@@ -384,6 +405,9 @@ func TestFileAccesprUpload(t *testing.T) {
 				assert.Equal(t, int32(1), testSender.rollbackInvok.Load())
 				assert.Equal(t, int32(0), testSender.commitInvok.Load())
 				assert.Equal(t, int32(0), testSender.writeChunk.Load())
+
+				// testEncrypter
+				assert.Equal(t, int32(0), testEncrypter.finishInv.Load())
 			default:
 				t.Error("errorChan is empty")
 			}
@@ -415,9 +439,11 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+
+		testEncrypter := &testChunkEncrypter{}
 		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
 			assert.Equal(t, "masterPass", pass)
-			return &testChunkEncrypter{}
+			return testEncrypter
 		})
 
 		mockStorage := NewMockAppStorage(ctrl)
@@ -453,13 +479,16 @@ func TestFileAccesprUpload(t *testing.T) {
 			// test errorChan is empty
 			select {
 			case err := <-errorChan:
-				assert.ErrorIs(t, err, testError)
+				assert.ErrorIs(t, err, domain.ErrServerIsNotResponding)
 				// testReader
 				assert.Equal(t, int32(1), testReder.closeInfok.Load())
 
 				assert.Equal(t, int32(1), testSender.rollbackInvok.Load())
 				assert.Equal(t, int32(0), testSender.commitInvok.Load())
 				assert.Equal(t, int32(1), testSender.writeChunk.Load())
+
+				// testEncrypter
+				assert.Equal(t, int32(0), testEncrypter.finishInv.Load())
 			default:
 				t.Error("errorChan is empty")
 			}
@@ -486,9 +515,11 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+
+		testEncrypter := &testChunkEncrypter{}
 		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
 			assert.Equal(t, "masterPass", pass)
-			return &testChunkEncrypter{}
+			return testEncrypter
 		})
 
 		mockStorage := NewMockAppStorage(ctrl)
@@ -524,7 +555,7 @@ func TestFileAccesprUpload(t *testing.T) {
 			// test errorChan is empty
 			select {
 			case err := <-errorChan:
-				assert.ErrorIs(t, err, testError)
+				assert.ErrorIs(t, err, domain.ErrClientInternal)
 				// testReader
 				assert.Equal(t, int32(1), testReder.nextInfok.Load())
 				assert.Equal(t, int32(1), testReder.closeInfok.Load())
@@ -532,6 +563,9 @@ func TestFileAccesprUpload(t *testing.T) {
 				assert.Equal(t, int32(1), testSender.rollbackInvok.Load())
 				assert.Equal(t, int32(0), testSender.commitInvok.Load())
 				assert.Equal(t, int32(0), testSender.writeChunk.Load())
+
+				// testEncrypter
+				assert.Equal(t, int32(0), testEncrypter.finishInv.Load())
 			default:
 				t.Error("errorChan is empty")
 			}
@@ -547,9 +581,11 @@ func TestFileAccesprUpload(t *testing.T) {
 
 		mockHeler := NewMockDomainHelper(ctrl)
 		mockHeler.EXPECT().CheckFileForRead(gomock.Any()).Return(nil).Times(1)
+
+		testEncrypter := &testChunkEncrypter{}
 		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
 			assert.Equal(t, "masterPass", pass)
-			return &testChunkEncrypter{}
+			return testEncrypter
 		})
 
 		size := 512
@@ -602,7 +638,7 @@ func TestFileAccesprUpload(t *testing.T) {
 			// test errorChan is empty
 			select {
 			case err := <-errorChan:
-				assert.ErrorIs(t, err, testError)
+				assert.ErrorIs(t, err, domain.ErrServerIsNotResponding)
 
 				// testReader
 				assert.Equal(t, 0, len(testReder.bytes))
@@ -612,6 +648,9 @@ func TestFileAccesprUpload(t *testing.T) {
 				// testSender
 				assert.Equal(t, int32(0), testSender.rollbackInvok.Load())
 				assert.Equal(t, int32(1), testSender.commitInvok.Load())
+
+				// testEncrypter
+				assert.Equal(t, int32(1), testEncrypter.finishInv.Load())
 			default:
 				t.Error("errorChan not empty")
 			}
@@ -639,9 +678,11 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+
+		testEncrypter := &testChunkEncrypter{}
 		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
 			assert.Equal(t, "masterPass", pass)
-			return &testChunkEncrypter{}
+			return testEncrypter
 		})
 
 		mockStorage := NewMockAppStorage(ctrl)
@@ -685,6 +726,9 @@ func TestFileAccesprUpload(t *testing.T) {
 
 				// testSender
 				assert.Equal(t, int32(1), testSender.rollbackInvok.Load())
+
+				// testEncrypter
+				assert.Equal(t, int32(0), testEncrypter.finishInv.Load())
 			default:
 				t.Error("errorChan not empty")
 			}
@@ -711,9 +755,11 @@ func TestFileAccesprUpload(t *testing.T) {
 			assert.Equal(t, fileInfo.Path, fInf.Path)
 			return testReder, nil
 		})
+
+		testEncrypter := &testChunkEncrypter{}
 		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
 			assert.Equal(t, "masterPass", pass)
-			return &testChunkEncrypter{}
+			return testEncrypter
 		})
 
 		mockStorage := NewMockAppStorage(ctrl)
@@ -747,7 +793,6 @@ func TestFileAccesprUpload(t *testing.T) {
 		case <-ctx.Done():
 			t.Error("upload is not complete")
 		case <-doneCh:
-			// test errorChan is empty
 			select {
 			case err := <-errorChan:
 				assert.ErrorIs(t, err, domain.ErrClientInteruptoin)
@@ -757,8 +802,168 @@ func TestFileAccesprUpload(t *testing.T) {
 
 				// testSender
 				assert.Equal(t, int32(1), testSender.rollbackInvok.Load())
+
+				// testEncrypter
+				assert.Equal(t, int32(0), testEncrypter.finishInv.Load())
 			default:
 				t.Error("errorChan not empty")
+			}
+		}
+	})
+
+	t.Run("test_app_encrypt_write_chunck_err", func(t *testing.T) {
+
+		fileInfo := &domain.FileInfo{
+			Name: "autotest",
+			Path: "./build/atuotest",
+		}
+
+		mockHeler := NewMockDomainHelper(ctrl)
+		mockHeler.EXPECT().CheckFileForRead(gomock.Any()).Return(nil).Times(1)
+
+		chunkSize := 1024
+		testReder := &testFileInfinitStreamer{
+			chunkSize: chunkSize,
+		}
+
+		mockHeler.EXPECT().CreateStreamFileReader(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
+			assert.Equal(t, fileInfo.Name, fInf.Name)
+			assert.Equal(t, fileInfo.Path, fInf.Path)
+			return testReder, nil
+		})
+
+		testErr := errors.New("testErr")
+		testEncrypter := &testWriteChunkErrEncrypter{
+			err: testErr,
+		}
+		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
+			assert.Equal(t, "masterPass", pass)
+			return testEncrypter
+		})
+
+		mockStorage := NewMockAppStorage(ctrl)
+		mockStorage.EXPECT().IsFileInfoExists(gomock.Any()).Return(false).Times(1)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
+
+		mockServer := NewMockAppServer(ctrl)
+		testSender := &testFileInfiniteSender{
+			exptectedName: fileInfo.Name,
+		}
+		mockServer.EXPECT().CreateFileSender(gomock.Any()).Return(testSender, nil).Times(1)
+
+		fa := app.NewFileAccessor().DomainHelper(mockHeler).AppStorage(mockStorage).AppServer(mockServer)
+
+		ctx, doneFn := context.WithTimeout(context.Background(), 3*time.Second)
+		defer doneFn()
+
+		cancelChan := make(chan struct{}, 1)
+		errorChan := make(chan error, 1)
+
+		doneCh := make(chan struct{}, 1)
+		go func() {
+			defer func() { doneCh <- struct{}{} }()
+			fa.UploadFile(ctx, fileInfo, nil, cancelChan, errorChan)
+		}()
+
+		select {
+		case <-ctx.Done():
+			t.Error("upload is not complete")
+		case <-doneCh:
+			select {
+			case err := <-errorChan:
+				assert.ErrorIs(t, err, domain.ErrClientInternal)
+
+				// testReader
+				assert.Equal(t, int32(1), testReder.closeInfok.Load())
+
+				// testSender
+				assert.Equal(t, int32(1), testSender.rollbackInvok.Load())
+
+				// testEncrypter
+				assert.Equal(t, int32(0), testEncrypter.finishInv.Load())
+			default:
+				t.Error("errorChan not empty")
+			}
+		}
+	})
+
+	t.Run("test_app_encrypt_finish_err", func(t *testing.T) {
+
+		fileInfo := &domain.FileInfo{
+			Name: "autotest",
+			Path: "./build/atuotest",
+		}
+
+		mockHeler := NewMockDomainHelper(ctrl)
+		mockHeler.EXPECT().CheckFileForRead(gomock.Any()).Return(nil).Times(1)
+
+		size := 512
+		chunkSize := 1024
+		buf := make([]byte, size)
+		_, err := rand.Read(buf)
+		require.NoError(t, err)
+		testReder := &testFileStreamer{
+			chunkSize: chunkSize,
+			size:      size,
+			bytes:     buf,
+		}
+		mockHeler.EXPECT().CreateStreamFileReader(gomock.Any()).DoAndReturn(func(fInf *domain.FileInfo) (domain.StreamFileReader, error) {
+			assert.Equal(t, fileInfo.Name, fInf.Name)
+			assert.Equal(t, fileInfo.Path, fInf.Path)
+			return testReder, nil
+		})
+
+		testErr := errors.New("testErr")
+		testEncrypter := &testFinishErrEncrypter{
+			err: testErr,
+		}
+		mockHeler.EXPECT().CreateChunkEncrypter(gomock.Any()).DoAndReturn(func(pass string) domain.ChunkEncrypter {
+			assert.Equal(t, "masterPass", pass)
+			return testEncrypter
+		})
+
+		mockStorage := NewMockAppStorage(ctrl)
+		mockStorage.EXPECT().IsFileInfoExists(gomock.Any()).Return(false).Times(1)
+		mockStorage.EXPECT().GetMasterPassword().Return("masterPass").Times(1)
+
+		mockServer := NewMockAppServer(ctrl)
+		testSender := &testFileInfiniteSender{
+			exptectedName: fileInfo.Name,
+		}
+		mockServer.EXPECT().CreateFileSender(gomock.Any()).Return(testSender, nil).Times(1)
+
+		fa := app.NewFileAccessor().DomainHelper(mockHeler).AppStorage(mockStorage).AppServer(mockServer)
+
+		ctx, doneFn := context.WithTimeout(context.Background(), 3*time.Second)
+		defer doneFn()
+
+		cancelChan := make(chan struct{}, 1)
+		errorChan := make(chan error, 1)
+
+		doneCh := make(chan struct{}, 1)
+		go func() {
+			defer func() { doneCh <- struct{}{} }()
+			fa.UploadFile(ctx, fileInfo, nil, cancelChan, errorChan)
+		}()
+
+		select {
+		case <-ctx.Done():
+			t.Error("upload is not complete")
+		case <-doneCh:
+			select {
+			case err := <-errorChan:
+				assert.ErrorIs(t, err, domain.ErrClientInternal)
+
+				// testReader
+				assert.Equal(t, int32(1), testReder.closeInfok.Load())
+
+				// testSender
+				assert.Equal(t, int32(1), testSender.rollbackInvok.Load())
+
+				// testEncrypter
+				assert.Equal(t, int32(1), testEncrypter.finishInv.Load())
+			default:
+				t.Error("errorChan is empty")
 			}
 		}
 	})
@@ -1013,3 +1218,35 @@ func (tcd *testChunkEncrypter) Finish() ([]byte, error) {
 }
 
 var _ domain.ChunkEncrypter = (*testChunkEncrypter)(nil)
+
+type testWriteChunkErrEncrypter struct {
+	finishInv atomic.Int32
+	err       error
+}
+
+func (tcd *testWriteChunkErrEncrypter) WriteChunk(chunk []byte) ([]byte, error) {
+	return chunk, tcd.err
+}
+
+func (tcd *testWriteChunkErrEncrypter) Finish() ([]byte, error) {
+	tcd.finishInv.Add(1)
+	return nil, nil
+}
+
+var _ domain.ChunkEncrypter = (*testWriteChunkErrEncrypter)(nil)
+
+type testFinishErrEncrypter struct {
+	finishInv atomic.Int32
+	err       error
+}
+
+func (tcd *testFinishErrEncrypter) WriteChunk(chunk []byte) ([]byte, error) {
+	return chunk, nil
+}
+
+func (tcd *testFinishErrEncrypter) Finish() ([]byte, error) {
+	tcd.finishInv.Add(1)
+	return nil, tcd.err
+}
+
+var _ domain.ChunkEncrypter = (*testFinishErrEncrypter)(nil)

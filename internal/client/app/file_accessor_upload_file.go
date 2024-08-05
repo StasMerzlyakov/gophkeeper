@@ -110,7 +110,7 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 				if errors.Is(err, io.EOF) {
 					isLast = true
 				} else {
-					errorChan <- err
+					errorChan <- fmt.Errorf("%w - read data err %s", domain.ErrClientInternal, err.Error())
 					close(jobTermiatedCh)
 					break Loop
 				}
@@ -178,21 +178,23 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 				if !ok {
 					// success
 					encrypted, err = encryptor.Finish()
-					if len(encrypted) == 0 {
-						break Loop
-					}
 					if err != nil {
-						errorChan <- err
+						errorChan <- fmt.Errorf("%w - encrypt finish err %s", domain.ErrClientInternal, err.Error())
 						close(jobTermiatedCh)
 						break Loop
 					}
+
+					if len(encrypted) == 0 {
+						break Loop
+					}
+
 					rCh = nil
 					wrtCh = forSendChan
 					done = true
 				} else {
 					encrypted, err = encryptor.WriteChunk(val)
 					if err != nil {
-						errorChan <- err
+						errorChan <- fmt.Errorf("%w - encrypt write chunk err %s", domain.ErrClientInternal, err.Error())
 						close(jobTermiatedCh)
 						break Loop
 					}
@@ -228,7 +230,7 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 		if err != nil {
 			err := fmt.Errorf("%w upload file %s err", err, info.Name)
 			log.Warn(err.Error())
-			errorChan <- err
+			errorChan <- fmt.Errorf("%w create sender err - %s", domain.ErrServerIsNotResponding, err.Error())
 			return
 		}
 
@@ -249,7 +251,7 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 					// success
 					if err := sender.Commit(sendCrx); err != nil {
 						log.Warnf("write commit error %v", err.Error())
-						errorChan <- err
+						errorChan <- fmt.Errorf("%w send commit err - %s", domain.ErrServerIsNotResponding, err.Error())
 						close(jobTermiatedCh)
 					} else {
 						close(jobDoneCh)
@@ -258,7 +260,7 @@ func (fl *fileAccessor) UploadFile(ctx context.Context,
 				} else {
 					if err := sender.WriteChunk(sendCrx, info.Name, chunk); err != nil {
 						log.Warnf("write chun error %v", err.Error())
-						errorChan <- err
+						errorChan <- fmt.Errorf("%w write chunk err - %s", domain.ErrServerIsNotResponding, err.Error())
 						if err := sender.Rollback(sendCrx); err != nil {
 							log.Warnf("sender rollabck error %v", err.Error())
 						}
