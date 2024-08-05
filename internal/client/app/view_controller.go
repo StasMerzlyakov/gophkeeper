@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"crypto/rand"
-	"errors"
 	"fmt"
 	"sync"
 	"sync/atomic"
@@ -179,10 +178,8 @@ func (ac *viewController) AddBankCard(bankCardView *domain.BankCardView) {
 			}
 
 			if err := ac.dataAccessor.AddBankCard(ctx, bankCard); err != nil {
-				if errors.Is(err, domain.ErrClientDataIncorrect) {
-					return err // client error - show the error and leave the current page
-				}
 				ac.appView.ShowMsg(err.Error()) // show the error and change page to cardList
+				return err
 			}
 			return nil
 		}, func() {
@@ -199,10 +196,8 @@ func (ac *viewController) UpdateBankCard(bankCardView *domain.BankCardView) {
 			}
 
 			if err := ac.dataAccessor.UpdateBankCard(ctx, bankCard); err != nil {
-				if errors.Is(err, domain.ErrClientDataIncorrect) {
-					return err // client error - show the error and leave the current page
-				}
 				ac.appView.ShowMsg(err.Error()) // show the error and change page to cardList
+				return err
 			}
 			return nil
 		},
@@ -320,10 +315,8 @@ func (ac *viewController) AddUserPasswordData(data *domain.UserPasswordData) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			if err := ac.dataAccessor.AddUserPasswordData(ctx, data); err != nil {
-				if errors.Is(err, domain.ErrClientDataIncorrect) {
-					return err
-				}
 				ac.appView.ShowMsg(err.Error())
+				return err
 			}
 			return nil
 		}, func() {
@@ -334,10 +327,8 @@ func (ac *viewController) UpdatePasswordData(data *domain.UserPasswordData) {
 	ac.invokeFn(
 		func(ctx context.Context) error {
 			if err := ac.dataAccessor.UpdateUserPasswordData(ctx, data); err != nil {
-				if errors.Is(err, domain.ErrClientDataIncorrect) {
-					return err
-				}
 				ac.appView.ShowMsg(err.Error())
+				return err
 			}
 			return nil
 		}, func() {
