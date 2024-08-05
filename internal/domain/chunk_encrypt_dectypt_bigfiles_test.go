@@ -174,7 +174,7 @@ func TestBigFileEncryptDecryptChunkWriter(t *testing.T) {
 				encrTail, err := encryptor.Finish()
 				require.NoError(t, err)
 
-				tempFileWriter.WriteChunk(ctx, tempFileName, encrTail)
+				err = tempFileWriter.WriteChunk(ctx, tempFileName, encrTail)
 				require.NoError(t, err)
 
 				err = tempFileWriter.Commit(ctx)
