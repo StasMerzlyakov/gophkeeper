@@ -36,7 +36,8 @@ func TestChunkEncryptDecryptTest(t *testing.T) {
 	t.Run("test_1", func(t *testing.T) {
 		masterPass := "masterPass"
 
-		encryptor := domain.NewChunkEncrypterByReader(masterPass, &testReader{})
+		encryptor, err := domain.NewChunkEncrypterByReader(masterPass, &testReader{})
+		require.NoError(t, err)
 		decryptor := domain.NewChunkDecrypter(masterPass)
 
 		var actualBuf bytes.Buffer
@@ -45,7 +46,7 @@ func TestChunkEncryptDecryptTest(t *testing.T) {
 
 		str := "hello"
 
-		_, err := expectedBuf.Write([]byte(str))
+		_, err = expectedBuf.Write([]byte(str))
 		require.NoError(t, err)
 
 		encrypted, err := encryptor.WriteChunk([]byte(str))
@@ -84,7 +85,8 @@ func TestChunkEncryptDecryptTest(t *testing.T) {
 	t.Run("test_2", func(t *testing.T) {
 		masterPass := "masterPass"
 
-		encryptor := domain.NewChunkEncrypter(masterPass)
+		encryptor, err := domain.NewChunkEncrypter(masterPass)
+		require.NoError(t, err)
 		decryptor := domain.NewChunkDecrypter(masterPass)
 
 		var actualBuf bytes.Buffer
@@ -92,7 +94,7 @@ func TestChunkEncryptDecryptTest(t *testing.T) {
 
 		str := "hello"
 
-		_, err := expectedBuf.Write([]byte(str))
+		_, err = expectedBuf.Write([]byte(str))
 		require.NoError(t, err)
 
 		mess := []byte(str)
@@ -150,7 +152,9 @@ func TestChunkEncryptDecryptTest(t *testing.T) {
 	t.Run("test_2", func(t *testing.T) {
 		masterPass := "masterPass"
 
-		encryptor := domain.NewChunkEncrypter(masterPass)
+		encryptor, err := domain.NewChunkEncrypter(masterPass)
+		require.NoError(t, err)
+
 		decryptor := domain.NewChunkDecrypter(masterPass)
 
 		var actualBuf bytes.Buffer

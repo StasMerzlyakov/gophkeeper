@@ -5,6 +5,8 @@ import (
 	"crypto/cipher"
 	"crypto/hmac"
 	"crypto/sha256"
+	"encoding/base64"
+	"errors"
 	"fmt"
 	"hash"
 	"sync"
@@ -31,9 +33,11 @@ type chunkDecrypter struct {
 }
 
 func (che *chunkDecrypter) WriteChunk(chunk []byte) ([]byte, error) {
+	var err error
 	che.readHeaderOnce.Do(func() {
 		if len(chunk) < aes.BlockSize+Pbkdf2SaltLen {
-			panic("chunk too short") // it is possible to use buffer to store sufficient number of bytes
+			err = errors.New("chunk too short") // it is possible to use buffer to store sufficient number of bytes
+			return
 		}
 
 		salt := chunk[:Pbkdf2SaltLen]
@@ -43,9 +47,11 @@ func (che *chunkDecrypter) WriteChunk(chunk []byte) ([]byte, error) {
 
 		key := pbkdf2.Key([]byte(che.pass), salt, Pbkdf2Iter, EncryptAESKeyLen, sha256.New)
 
-		block, err := aes.NewCipher(key)
+		var block cipher.Block
+		block, err = aes.NewCipher(key)
 		if err != nil {
-			panic(err)
+			err = fmt.Errorf("init cipher err %w", err)
+			return
 		}
 
 		che.cipher = cipher.NewCFBDecrypter(block, iv)
@@ -57,16 +63,23 @@ func (che *chunkDecrypter) WriteChunk(chunk []byte) ([]byte, error) {
 		chunk = chunk[aes.BlockSize+Pbkdf2SaltLen:] // remove salt + iv
 	})
 
+	if err != nil {
+		return nil, err
+	}
+
 	// decrypt chunk
+
 	res := che.tailStorage.Write(chunk)
 
-	che.cipher.XORKeyStream(res, res)
+	chn := make([]byte, len(res))
+	copy(chn, res)
+	che.cipher.XORKeyStream(chn, chn)
 
-	if _, err := che.hasher.Write(res); err != nil {
+	if _, err := che.hasher.Write(chn); err != nil {
 		return nil, fmt.Errorf("decrypt err - %w", err)
 	}
 
-	return res, nil
+	return chn, nil
 }
 
 func (che *chunkDecrypter) Finish() error {
@@ -74,11 +87,19 @@ func (che *chunkDecrypter) Finish() error {
 	if err != nil {
 		return fmt.Errorf("decrypt err - %w", err)
 	}
-	che.cipher.XORKeyStream(mac, mac) // encryp mac
+	fmt.Println("decr   mac " + base64.StdEncoding.EncodeToString(mac))
+
+	chn := make([]byte, len(mac))
+	copy(chn, mac)
+	che.cipher.XORKeyStream(chn, chn) // encrypt mac
+
+	fmt.Println("decryptmac " + base64.StdEncoding.EncodeToString(chn))
 
 	extractedMac := che.hasher.Sum(nil)
 
-	if !hmac.Equal(extractedMac, mac) {
+	fmt.Println("extracted " + base64.StdEncoding.EncodeToString(extractedMac))
+
+	if !hmac.Equal(extractedMac, chn) {
 		return fmt.Errorf("decrypt err - hmac not equal")
 	}
 

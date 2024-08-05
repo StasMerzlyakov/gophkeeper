@@ -18,7 +18,8 @@ func TestBigFileEncryptDecryptChunkReader(t *testing.T) {
 
 	masterPass := "masterPass"
 
-	encryptor := domain.NewChunkEncrypter(masterPass)
+	encryptor, err := domain.NewChunkEncrypter(masterPass)
+	require.NoError(t, err)
 	f, err := os.CreateTemp("", "bif-file-encrypted-")
 	require.NoError(t, err)
 
@@ -121,7 +122,8 @@ func TestBigFileEncryptDecryptChunkWriter(t *testing.T) {
 
 	masterPass := "masterPass"
 
-	encryptor := domain.NewChunkEncrypter(masterPass)
+	encryptor, err := domain.NewChunkEncrypter(masterPass)
+	require.NoError(t, err)
 	tempFile, err := os.CreateTemp("", "bif-file-encrypted-")
 	require.NoError(t, err)
 	err = tempFile.Close()
