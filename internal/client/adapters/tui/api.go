@@ -2,7 +2,7 @@ package tui
 
 import "github.com/StasMerzlyakov/gophkeeper/internal/domain"
 
-type Controller interface {
+type ViewController interface {
 	LoginEMail(data *domain.EMailData)
 	LoginPassOTP(otpPass *domain.OTPPass)
 	LoginCheckMasterKey(masterPassword string)
@@ -15,10 +15,18 @@ type Controller interface {
 	UpdateBankCard(bankCard *domain.BankCardView)
 	DeleteBankCard(number string)
 	GetBankCard(number string)
+	NewBankCard()
 
 	GetUserPasswordDataList()
 	AddUserPasswordData(data *domain.UserPasswordData)
 	UpdatePasswordData(data *domain.UserPasswordData)
 	DeleteUpdatePasswordData(hint string)
 	GetUserPasswordData(hint string)
+	NewUserPasswordData()
+
+	UploadFile(info *domain.FileInfo)
+	SaveFile(info *domain.FileInfo)
+	GetFileInfo(name string)
+	DeleteFile(name string)
+	GetFilesInfoList()
 }

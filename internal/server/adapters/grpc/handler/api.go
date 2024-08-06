@@ -6,7 +6,7 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
-//go:generate mockgen -destination "./generated_mocks_test.go" -package ${GOPACKAGE}_test . Registrator,DataAccessor,AuthService
+//go:generate mockgen -destination "./generated_mocks_test.go" -package ${GOPACKAGE}_test . Registrator,DataAccessor,AuthService,FileAccessor
 
 type Registrator interface {
 	GetEMailStatus(ctx context.Context, email string) (domain.EMailStatus, error)
@@ -32,4 +32,11 @@ type DataAccessor interface {
 type AuthService interface {
 	Login(ctx context.Context, data *domain.EMailData) (domain.SessionID, error)
 	CheckOTP(ctx context.Context, currentID domain.SessionID, otpPass string) (domain.JWTToken, error)
+}
+
+type FileAccessor interface {
+	GetFileInfoList(ctx context.Context) ([]domain.FileInfo, error)
+	DeleteFileInfo(ctx context.Context, name string) error
+	CreateStreamFileWriter(ctx context.Context) (domain.StreamFileWriter, error)
+	CreateStreamFileReader(ctx context.Context, info *domain.FileInfo) (domain.StreamFileReader, error)
 }

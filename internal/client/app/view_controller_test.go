@@ -25,11 +25,13 @@ func TestController(t *testing.T) {
 		conf := &config.ClientConf{
 			InterationTimeout: 1 * time.Second,
 		}
-		appController := app.NewAppController(conf).SetServer(mockSrv)
+		appController := app.NewViewController(conf).SetServer(mockSrv)
 
 		appController.Start()
 		time.Sleep(3 * time.Second)
-		appController.Stop()
+		stpCtx, stopFn := context.WithTimeout(context.Background(), time.Second)
+		appController.Stop(stpCtx)
+		defer stopFn()
 	})
 
 	t.Run("start_stop_restore", func(t *testing.T) {
@@ -62,7 +64,7 @@ func TestController(t *testing.T) {
 
 		mockView.EXPECT().ShowLogOTPView().Times(1)
 
-		appController := app.NewAppController(conf).SetServer(mockSrv).SetInfoView(mockView)
+		appController := app.NewViewController(conf).SetServer(mockSrv).SetInfoView(mockView)
 
 		appController.Start()
 
@@ -83,6 +85,8 @@ func TestController(t *testing.T) {
 
 		time.Sleep(1 * time.Second)
 
-		appController.Stop()
+		stpCtx, stopFn := context.WithTimeout(context.Background(), time.Second)
+		appController.Stop(stpCtx)
+		defer stopFn()
 	})
 }

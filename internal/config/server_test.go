@@ -37,11 +37,16 @@ func TestLoadServConf(t *testing.T) {
 
 		assert.Equal(t, config.ServerDefaultSMTPHost, conf.SMTPHost)
 		assert.Equal(t, config.ServerDefaultSMTPPort, conf.SMTPPort)
+
+		assert.Equal(t, config.ServerDefaultSMTPUsername, conf.SMTPUsername)
+		assert.Equal(t, config.ServerDefaultSMTPPassword, conf.SMTPPassword)
+
 		assert.Equal(t, config.ServerDefaultServerEMail, conf.ServerEMail)
 
 		assert.Equal(t, config.ServerDefaultMaxConns, conf.MaxConns)
 		assert.Equal(t, config.ServerDefaultMaxConnLifetime, conf.MaxConnLifetime)
 		assert.Equal(t, config.ServerDefaultMaxConnIdleTime, conf.MaxConnIdleTime)
+		assert.Equal(t, config.ServerDefaultFStoragePath, conf.FStoragePath)
 	})
 
 	t.Run("env values durations", func(t *testing.T) {
@@ -87,6 +92,12 @@ func TestLoadServConf(t *testing.T) {
 		err = os.Setenv("SMTP_HOST", "127.0.0.1")
 		require.NoError(t, err)
 
+		err = os.Setenv("SMTP_USERNAME", "john.doe")
+		require.NoError(t, err)
+
+		err = os.Setenv("SMTP_PASSWORD", "s3cr3t")
+		require.NoError(t, err)
+
 		err = os.Setenv("SMTP_PORT", "26")
 		require.NoError(t, err)
 
@@ -103,6 +114,9 @@ func TestLoadServConf(t *testing.T) {
 		require.NoError(t, err)
 
 		err = os.Setenv("DATABASE_MAX_CONN_IDLE_TIME", "2m")
+		require.NoError(t, err)
+
+		err = os.Setenv("FS_STORAGE_PATH", "./")
 		require.NoError(t, err)
 
 		flagSet := flag.NewFlagSet(t.Name(), errorHandling)
@@ -124,10 +138,14 @@ func TestLoadServConf(t *testing.T) {
 		assert.Equal(t, 26, conf.SMTPPort)
 		assert.Equal(t, "gopheer@localhost", conf.ServerEMail)
 
+		assert.Equal(t, "john.doe", conf.SMTPUsername)
+		assert.Equal(t, "s3cr3t", conf.SMTPPassword)
+
 		assert.Equal(t, "db_uri", conf.DatabaseDN)
 		assert.Equal(t, 3, conf.MaxConns)
 		assert.Equal(t, 1*time.Minute, conf.MaxConnLifetime)
 		assert.Equal(t, 2*time.Minute, conf.MaxConnIdleTime)
+		assert.Equal(t, "./", conf.FStoragePath)
 	})
 
 	t.Run("env rewrite", func(t *testing.T) {

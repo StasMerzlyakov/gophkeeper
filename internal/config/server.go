@@ -25,6 +25,9 @@ const (
 	ServerDefaultMaxConnLifetime  = 5 * time.Minute
 	ServerDefaultMaxConnIdleTime  = 5 * time.Minute
 	ServerDefaultDatabaseDN       = "postgres://user:user@localhost:5432/gophkeeper"
+	ServerDefaultSMTPUsername     = ""
+	ServerDefaultSMTPPassword     = ""
+	ServerDefaultFStoragePath     = "/tmp"
 )
 
 type ServerConf struct {
@@ -38,11 +41,14 @@ type ServerConf struct {
 	DomainName       string        `env:"DOMAIN_NAME" json:"domainName,omitempty"`
 	SMTPHost         string        `env:"SMTP_HOST" json:"smtpHost,omitempty"`
 	SMTPPort         int           `env:"SMTP_PORT" json:"smtpPort,omitempty"`
+	SMTPUsername     string        `env:"SMTP_USERNAME" json:"smtpUsername,omitempty"`
+	SMTPPassword     string        `env:"SMTP_PASSWORD" json:"smtpPasword,omitempty"`
 	ServerEMail      string        `env:"SERVER_EMAIL" json:"serverEmail,omitempty"`
 	DatabaseDN       string        `env:"DATABASE_DN" json:"dbDN,omitempty"`
 	MaxConns         int           `env:"DATABASE_MAX_CONNS" json:"dbMaxConns,omitempty"`
 	MaxConnLifetime  time.Duration `env:"DATABASE_MAX_CONN_LIFE_TIME" json:"dbMaxConnLifeTime,omitempty"`
 	MaxConnIdleTime  time.Duration `env:"DATABASE_MAX_CONN_IDLE_TIME" json:"dbMaxConnIdleTime,omitempty"`
+	FStoragePath     string        `env:"FS_STORAGE_PATH" json:"fsStoragePath,omitempty"`
 }
 
 func defaultServConf() *ServerConf {
@@ -62,6 +68,9 @@ func defaultServConf() *ServerConf {
 		DatabaseDN:       ServerDefaultDatabaseDN,
 		MaxConnLifetime:  ServerDefaultMaxConnLifetime,
 		MaxConnIdleTime:  ServerDefaultMaxConnIdleTime,
+		SMTPPassword:     ServerDefaultSMTPPassword,
+		SMTPUsername:     ServerDefaultSMTPUsername,
+		FStoragePath:     ServerDefaultFStoragePath,
 	}
 }
 

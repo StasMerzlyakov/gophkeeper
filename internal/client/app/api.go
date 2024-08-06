@@ -15,18 +15,28 @@ type Pinger interface {
 type AppStorage interface {
 	SetMasterPassword(masterPassword string)
 	GetMasterPassword() string
+
 	SetBankCards(cards []domain.BankCard)
 	AddBankCard(bankCard *domain.BankCard) error
+	UpdateBankCard(bankCard *domain.BankCard) error
+	DeleteBankCard(number string) error
+	GetBankCard(number string) (*domain.BankCard, error)
+	GetBankCardNumberList() []string
+
+	GetUserPasswordData(hint string) (*domain.UserPasswordData, error)
+	UpdateUserPasswordData(data *domain.UserPasswordData) error
+	DeleteUserPasswordData(hint string) error
 	SetUserPasswordDatas(datas []domain.UserPasswordData)
 	AddUserPasswordData(data *domain.UserPasswordData) error
-	UpdateBankCard(bankCard *domain.BankCard) error
-	UpdatePasswordData(data *domain.UserPasswordData) error
-	DeleteBankCard(number string) error
-	DeleteUpdatePasswordData(hint string) error
-	GetBankCard(number string) (*domain.BankCard, error)
-	GetUpdatePasswordData(hint string) (*domain.UserPasswordData, error)
-	GetBankCardNumberList() []string
 	GetUserPasswordDataList() []string
+
+	AddFileInfo(fileInfo *domain.FileInfo) error
+	UpdateFileInfo(data *domain.FileInfo) error
+	DeleteFileInfo(name string) error
+	GetFileInfo(name string) (*domain.FileInfo, error)
+	GetFileInfoList() []domain.FileInfo
+	SetFilesInfo(infs []domain.FileInfo)
+	IsFileInfoExists(name string) bool
 }
 
 type DomainHelper interface {
@@ -40,6 +50,15 @@ type DomainHelper interface {
 	CheckUserPasswordData(data *domain.UserPasswordData) error
 	EncryptShortData(masterKey string, data string) (string, error)
 	DecryptShortData(masterKey string, ciphertext string) (string, error)
+
+	CheckFileForRead(info *domain.FileInfo) error
+	CheckFileForWrite(inf *domain.FileInfo) error
+
+	CreateStreamFileReader(info *domain.FileInfo) (domain.StreamFileReader, error)
+	CreateStreamFileWriter(dir string) (domain.StreamFileWriter, error)
+
+	CreateChunkEncrypter(password string) (domain.ChunkEncrypter, error)
+	CreateChunkDecrypter(password string) domain.ChunkDecrypter
 }
 
 type AppView interface {
@@ -53,9 +72,16 @@ type AppView interface {
 	ShowRegOTPView()
 	ShowRegMasterKeyView()
 	ShowBankCardListView(cardsNumber []string)
-	ShowBankCardView(bankCard *domain.BankCard)
+	ShowEditBankCardView(bankCard *domain.BankCard)
+	ShowNewBankCardView()
 	ShowUserPasswordDataListView(hints []string)
-	ShowUserPasswordDataView(data *domain.UserPasswordData)
+	ShowEditUserPasswordDataView(data *domain.UserPasswordData)
+	ShowNewUserPasswordDataView()
+	ShowFileInfoView(info *domain.FileInfo)
+	ShowFileInfoListView(filesInfoList []domain.FileInfo)
+
+	CreateProgressBar(title string, percentage float64, progressText string, cancelFn func())
+	CloseProgerssBar()
 }
 
 type AppServer interface {
@@ -79,4 +105,9 @@ type AppServer interface {
 	CreateUserPasswordData(ctx context.Context, data *domain.EncryptedUserPasswordData) error
 	UpdateUserPasswordData(ctx context.Context, data *domain.EncryptedUserPasswordData) error
 	DeleteUserPasswordData(ctx context.Context, hint string) error
+
+	GetFileInfoList(ctx context.Context) ([]domain.FileInfo, error)
+	DeleteFileInfo(ctx context.Context, name string) error
+	CreateFileSender(ctx context.Context) (domain.StreamFileWriter, error)
+	CreateFileReceiver(ctx context.Context, name string) (domain.StreamFileReader, error)
 }

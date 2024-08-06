@@ -4,7 +4,7 @@ package main
 import (
 	"flag"
 
-	smtpmock "github.com/mocktools/go-smtp-mock/v2"
+	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
@@ -17,7 +17,7 @@ var (
 )
 
 var postgresContainer *postgres.PostgresContainer
-var smtpServer *smtpmock.Server
+var smtpServer testcontainers.Container
 
 func init() {
 	flag.StringVar(&flagGophKeeperServerBinaryPath, "gophkeeper-binary-path", "", "GophKeeper binary")

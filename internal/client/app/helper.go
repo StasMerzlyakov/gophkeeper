@@ -4,6 +4,7 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 )
 
+// NewHelper create domain method warpper object. Useful for covering controller logic tests.
 func NewHelper(salfFn domain.SaltFn) *helper {
 	return &helper{
 		salfFn: salfFn,
@@ -52,4 +53,27 @@ func (h *helper) EncryptShortData(masterKey string, data string) (string, error)
 }
 func (h *helper) DecryptShortData(masterKey string, ciphertext string) (string, error) {
 	return domain.DecryptShortData(masterKey, ciphertext)
+}
+
+func (h *helper) CheckFileForRead(info *domain.FileInfo) error {
+	return domain.CheckFileForRead(info)
+}
+
+func (h *helper) CheckFileForWrite(info *domain.FileInfo) error {
+	return domain.CheckFileForWrite(info)
+}
+
+func (h *helper) CreateStreamFileReader(info *domain.FileInfo) (domain.StreamFileReader, error) {
+	return domain.CreateStreamFileReader(info.Path)
+}
+
+func (h *helper) CreateStreamFileWriter(dir string) (domain.StreamFileWriter, error) {
+	return domain.CreateStreamFileWriter(dir)
+}
+
+func (h *helper) CreateChunkEncrypter(password string) (domain.ChunkEncrypter, error) {
+	return domain.NewChunkEncrypter(password)
+}
+func (h *helper) CreateChunkDecrypter(password string) domain.ChunkDecrypter {
+	return domain.NewChunkDecrypter(password)
 }

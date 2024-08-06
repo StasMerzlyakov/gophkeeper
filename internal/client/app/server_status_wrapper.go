@@ -218,3 +218,43 @@ func (aw *serverStatusWrapper) DeleteUserPasswordData(ctx context.Context, hint 
 		return aw.server.DeleteUserPasswordData(ctx, hint)
 	})
 }
+
+func (aw *serverStatusWrapper) GetFileInfoList(ctx context.Context) ([]domain.FileInfo, error) {
+	var data []domain.FileInfo
+	var err error
+	fn := func(ctx context.Context) error {
+		data, err = aw.server.GetFileInfoList(ctx)
+		return err
+	}
+	retErr := aw.invokeOnlineFn(ctx, fn)
+	return data, retErr
+}
+
+func (aw *serverStatusWrapper) DeleteFileInfo(ctx context.Context, name string) error {
+	return aw.invokeOnlineFn(ctx, func(ctx context.Context) error {
+		return aw.server.DeleteFileInfo(ctx, name)
+	})
+}
+
+func (aw *serverStatusWrapper) CreateFileSender(ctx context.Context) (domain.StreamFileWriter, error) {
+
+	var data domain.StreamFileWriter
+	var err error
+	fn := func(ctx context.Context) error {
+		data, err = aw.server.CreateFileSender(ctx)
+		return err
+	}
+	retErr := aw.invokeOnlineFn(ctx, fn)
+	return data, retErr
+}
+
+func (aw *serverStatusWrapper) CreateFileReceiver(ctx context.Context, name string) (domain.StreamFileReader, error) {
+	var data domain.StreamFileReader
+	var err error
+	fn := func(ctx context.Context) error {
+		data, err = aw.server.CreateFileReceiver(ctx, name)
+		return err
+	}
+	retErr := aw.invokeOnlineFn(ctx, fn)
+	return data, retErr
+}

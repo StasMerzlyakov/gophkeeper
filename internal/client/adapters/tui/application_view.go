@@ -21,28 +21,38 @@ const (
 
 	DataPageMain = "DataPageMain"
 
-	BankCardPage     = "BankCardPage"
+	NewBankCardPage  = "NewBankCardPage"
+	EditBankCardPage = "EditBankCardPage"
+
 	BankCardListPage = "BankCardListPage"
 
-	UserPasswordDataPage     = "UserPasswordDataPage"
+	NewUserPasswordDataPage  = "NewUserPasswordDataPage"
+	EditUserPasswordDataPage = "EditUserPasswordDataPage"
+
 	UserPasswordDataListPage = "UserPasswordDataListPage"
+
+	UploadFilePage   = "UploadFilePage"
+	FileInfoPage     = "FileInfoPage"
+	FileTreePagh     = "FileTreePagh"
+	FileInfoListPage = "FileInfoListPath"
 )
 
-func NewApp(conf *config.ClientConf) *tuiApp {
+func NewApplicationView(conf *config.ClientConf) *tuiApp {
 	return &tuiApp{}
 }
 
 var _ app.AppView = (*tuiApp)(nil)
 
-func (tApp *tuiApp) SetController(controller Controller) *tuiApp {
+func (tApp *tuiApp) SetController(controller ViewController) *tuiApp {
 	tApp.controller = controller
 	return tApp
 }
 
 type tuiApp struct {
-	app        *tview.Application
-	pages      *tview.Pages
-	controller Controller
+	app         *tview.Application
+	progressBar *ProgressBar
+	pages       *tview.Pages
+	controller  ViewController
 
 	loginFlex     *tview.Flex
 	loginOTPFlex  *tview.Flex
@@ -55,10 +65,18 @@ type tuiApp struct {
 	dataMainFlex *tview.Flex
 
 	bankCardListFlex *tview.Flex
-	bankCardFlex     *tview.Flex
+	newBankCardFlex  *tview.Flex
+	editBankCardFlex *tview.Flex
 
 	userPasswordDataListFlex *tview.Flex
-	userPasswordDataFlex     *tview.Flex
+	newUserPasswordDataFlex  *tview.Flex
+	editUserPasswordDataFlex *tview.Flex
+
+	uploadFilePageFlex *tview.Flex
+	fileInfoListFlex   *tview.Flex
+
+	fileTreeView *tview.Flex
+	fileInfoFlex *tview.Flex
 }
 
 func (tApp *tuiApp) ShowError(err error) {
@@ -97,11 +115,38 @@ func (tApp *tuiApp) ShowMsg(msg string) {
 	}()
 }
 
+func (tApp *tuiApp) CloseProgerssBar() {
+	go func() {
+		tApp.app.QueueUpdateDraw(func() {
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
+		})
+	}()
+}
+
+func (tApp *tuiApp) CreateProgressBar(title string, percentage float64, progressText string, cancelFn func()) {
+	go func() {
+		tApp.app.QueueUpdateDraw(func() {
+			log := app.GetMainLogger()
+			log.Trace("ProgressBar show start")
+
+			progBar := NewProgressBar().
+				AddCancelButton("Cancel").
+				SetPercentage(percentage).
+				SetProgressText(progressText).
+				SetCancelFunc(func() {
+					cancelFn()
+				})
+			progBar.SetTitle(title)
+			tApp.app.SetRoot(progBar, true).SetFocus(progBar)
+			log.Trace("ProgressBar shown")
+		})
+	}()
+}
+
 func (tApp *tuiApp) Start() error {
 	tApp.app = tview.NewApplication()
 
 	tApp.pages = tview.NewPages()
-	tApp.pages.AddPage(InitPage, tApp.createStartForm(), true, true)
 
 	tApp.loginFlex = tview.NewFlex()
 	tApp.loginMKeyFlex = tview.NewFlex()
@@ -113,10 +158,20 @@ func (tApp *tuiApp) Start() error {
 
 	tApp.dataMainFlex = tview.NewFlex()
 	tApp.bankCardListFlex = tview.NewFlex()
-	tApp.bankCardFlex = tview.NewFlex()
+	tApp.newBankCardFlex = tview.NewFlex()
+	tApp.editBankCardFlex = tview.NewFlex()
 
 	tApp.userPasswordDataListFlex = tview.NewFlex()
-	tApp.userPasswordDataFlex = tview.NewFlex()
+	tApp.newUserPasswordDataFlex = tview.NewFlex()
+	tApp.editUserPasswordDataFlex = tview.NewFlex()
+
+	tApp.uploadFilePageFlex = tview.NewFlex()
+	tApp.fileTreeView = tview.NewFlex()
+	tApp.fileInfoListFlex = tview.NewFlex()
+	tApp.fileInfoFlex = tview.NewFlex()
+	tApp.progressBar = NewProgressBar()
+
+	tApp.pages.AddPage(InitPage, tApp.createStartForm(), true, true)
 
 	tApp.pages.AddPage(LoginEMailPage, tApp.loginFlex, true, false)
 	tApp.pages.AddPage(LoginOTPPage, tApp.loginOTPFlex, true, false)
@@ -129,10 +184,17 @@ func (tApp *tuiApp) Start() error {
 	tApp.pages.AddPage(DataPageMain, tApp.dataMainFlex, true, false)
 
 	tApp.pages.AddPage(BankCardListPage, tApp.bankCardListFlex, true, false)
-	tApp.pages.AddPage(BankCardPage, tApp.bankCardFlex, true, false)
+	tApp.pages.AddPage(NewBankCardPage, tApp.newBankCardFlex, true, false)
+	tApp.pages.AddPage(EditBankCardPage, tApp.editBankCardFlex, true, false)
 
 	tApp.pages.AddPage(UserPasswordDataListPage, tApp.userPasswordDataListFlex, true, false)
-	tApp.pages.AddPage(UserPasswordDataPage, tApp.userPasswordDataFlex, true, false)
+	tApp.pages.AddPage(NewUserPasswordDataPage, tApp.newUserPasswordDataFlex, true, false)
+	tApp.pages.AddPage(EditUserPasswordDataPage, tApp.editUserPasswordDataFlex, true, false)
+
+	tApp.pages.AddPage(FileInfoListPage, tApp.fileInfoListFlex, true, false)
+	tApp.pages.AddPage(UploadFilePage, tApp.uploadFilePageFlex, true, false)
+	tApp.pages.AddPage(FileTreePagh, tApp.fileTreeView, true, false)
+	tApp.pages.AddPage(FileInfoPage, tApp.fileInfoFlex, true, false)
 
 	if err := tApp.app.SetRoot(tApp.pages, true).EnableMouse(false).Run(); err != nil {
 		log := app.GetMainLogger()

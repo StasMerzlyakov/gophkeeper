@@ -120,7 +120,12 @@ func TestLoginer_CheckMasterKey(t *testing.T) {
 			return nil
 		}).Times(1)
 
-		loginer := app.NewLoginer().LoginSever(mockSrv).LoginHelper(mockHlp)
+		mockSt := NewMockAppStorage(ctrl)
+		mockSt.EXPECT().SetMasterPassword(gomock.Any()).Do(func(mKey string) {
+			assert.Equal(t, masterPassword, mKey)
+		})
+
+		loginer := app.NewLoginer().LoginSever(mockSrv).LoginHelper(mockHlp).LoginStorage(mockSt)
 		err, hint := loginer.CheckMasterKey(context.Background(), masterPassword)
 		assert.NoError(t, err)
 		assert.Empty(t, hint)

@@ -39,6 +39,7 @@ func (tApp *tuiApp) ShowLogOTPView() {
 					}
 					return event
 				})
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(LoginOTPPage)
 		})
 	}()
@@ -80,6 +81,7 @@ func (tApp *tuiApp) ShowLoginView() {
 					}
 					return event
 				})
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(LoginEMailPage)
 		})
 	}()
@@ -124,6 +126,7 @@ func (tApp *tuiApp) ShowMasterKeyView(hint string) {
 					}
 					return event
 				})
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(LoginMKeyPage)
 		})
 	}()

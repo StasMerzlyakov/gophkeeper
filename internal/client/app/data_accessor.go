@@ -53,14 +53,14 @@ func (dcc *dataAccessor) GetBankCardList(ctx context.Context) error {
 
 		encrypted, err := dcc.helper.DecryptShortData(masterPass, content)
 		if err != nil {
-			err := fmt.Errorf("%w - %v error - can't encrypt card with number %v", err, action, encr.Number)
+			err := fmt.Errorf("%w - %v error - %v - can't encrypt card with number %v", domain.ErrClientDataIncorrect, action, err.Error(), encr.Number)
 			log.Warn(err.Error())
 			return err
 		}
 
 		var bankCard domain.BankCard
 		if err := json.Unmarshal([]byte(encrypted), &bankCard); err != nil {
-			err := fmt.Errorf("%w - %v error - can't decode card data with number %v", err, action, encr.Number)
+			err := fmt.Errorf("%w - %v error - %v - can't decode card data with number %v", domain.ErrClientDataIncorrect, action, err.Error(), encr.Number)
 			log.Warn(err.Error())
 			return err
 		}
@@ -192,14 +192,14 @@ func (dcc *dataAccessor) GetUserPasswordDataList(ctx context.Context) error {
 
 		encrypted, err := dcc.helper.DecryptShortData(masterPass, content)
 		if err != nil {
-			err := fmt.Errorf("%w - %v error - can't encrypt userPassData with hint %v", err, action, encr.Hint)
+			err := fmt.Errorf("%w - %v error - %s - can't encrypt userPassData with hint %v", domain.ErrClientDataIncorrect, action, err.Error(), encr.Hint)
 			log.Warn(err.Error())
 			return err
 		}
 
 		var uPassData domain.UserPasswordData
 		if err := json.Unmarshal([]byte(encrypted), &uPassData); err != nil {
-			err := fmt.Errorf("%w - %v error - can't decode userPassData with hint %v", err, action, encr.Hint)
+			err := fmt.Errorf("%w - %v error - %s - can't decode userPassData with hint %v", domain.ErrClientDataIncorrect, action, err.Error(), encr.Hint)
 			log.Warn(err.Error())
 			return err
 		}

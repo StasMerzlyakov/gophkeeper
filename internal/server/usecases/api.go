@@ -9,7 +9,7 @@ import (
 	_ "github.com/golang/mock/mockgen/model"
 )
 
-//go:generate mockgen -destination "./generated_mocks_test.go" -package ${GOPACKAGE}_test . StateFullStorage,TemporaryStorage,EMailSender,RegistrationHelper
+//go:generate mockgen -destination "./generated_mocks_test.go" -package ${GOPACKAGE}_test . StateFullStorage,TemporaryStorage,EMailSender,RegistrationHelper,FileStorage
 
 type StateFullStorage interface {
 	IsEMailAvailable(ctx context.Context, email string) (bool, error)
@@ -26,6 +26,15 @@ type StateFullStorage interface {
 	CreateUserPasswordData(ctx context.Context, bnkCard *domain.EncryptedUserPasswordData) error
 	UpdateUserPasswordData(ctx context.Context, bnkCard *domain.EncryptedUserPasswordData) error
 	DeleteUserPasswordData(ctx context.Context, hint string) error
+
+	GetUserFilesBucket(ctx context.Context) (string, error)
+}
+
+type FileStorage interface {
+	GetFileInfoList(ctx context.Context, bucket string) ([]domain.FileInfo, error)
+	DeleteFileInfo(ctx context.Context, bucket string, name string) error
+	CreateStreamFileWriter(ctx context.Context, bucket string) (domain.StreamFileWriter, error)
+	CreateStreamFileReader(ctx context.Context, bucket string, name string) (domain.StreamFileReader, error)
 }
 
 type TemporaryStorage interface {

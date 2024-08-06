@@ -10,13 +10,13 @@ const refreshPeriod = 1 * time.Second
 
 type TTLMap struct {
 	ttl  time.Duration
-	data sync.Map
+	data *sync.Map
 }
 
 func NewTTLMap(ctx context.Context, ttl time.Duration) *TTLMap {
 	ttlMap := &TTLMap{
 		ttl:  ttl,
-		data: sync.Map{},
+		data: &sync.Map{},
 	}
 
 	go func() {

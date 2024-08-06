@@ -1,11 +1,22 @@
 package domain
 
-import "github.com/golang-jwt/jwt/v4"
+import (
+	"time"
+
+	"github.com/golang-jwt/jwt/v4"
+)
 
 // EMailData struct contains registration and login data
 type EMailData struct {
 	EMail    string
 	Password string
+}
+
+// FileInfo struct used in binary file operations
+type FileInfo struct {
+	Name   string
+	Upload time.Time
+	Path   string
 }
 
 // OPTPass struct is used for OTP password pass

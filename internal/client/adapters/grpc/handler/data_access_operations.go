@@ -10,8 +10,7 @@ import (
 
 func (h *handler) GetHelloData(ctx context.Context) (*domain.HelloData, error) {
 
-	req := &proto.HelloRequest{}
-	resp, err := h.dataAccessor.Hello(ctx, req)
+	resp, err := h.dataAccessor.Hello(ctx, nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: get hello data err ", err)
 	}
@@ -25,7 +24,7 @@ func (h *handler) GetHelloData(ctx context.Context) (*domain.HelloData, error) {
 
 func (h *handler) GetBankCardList(ctx context.Context) ([]domain.EncryptedBankCard, error) {
 
-	list, err := h.dataAccessor.GetBankCardList(ctx, &proto.BankCardListRequest{})
+	list, err := h.dataAccessor.GetBankCardList(ctx, nil)
 	if err != nil {
 		action := domain.GetAction(1)
 		return nil, fmt.Errorf("%v err - %w", action, err)
@@ -83,7 +82,7 @@ func (h *handler) UpdateBankCard(ctx context.Context, card *domain.EncryptedBank
 
 func (h *handler) GetUserPasswordDataList(ctx context.Context) ([]domain.EncryptedUserPasswordData, error) {
 
-	list, err := h.dataAccessor.GetUserPasswordDataList(ctx, &proto.UserPasswordDataRequest{})
+	list, err := h.dataAccessor.GetUserPasswordDataList(ctx, nil)
 	if err != nil {
 		action := domain.GetAction(1)
 		return nil, fmt.Errorf("%v err - %w", action, err)

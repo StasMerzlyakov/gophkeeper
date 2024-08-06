@@ -85,17 +85,17 @@ func TestApp(t *testing.T) {
 		err = app.AddUserPasswordData(data)
 		require.ErrorIs(t, err, domain.ErrClientInternal)
 
-		dt, err := app.GetUpdatePasswordData(data.Hint)
+		dt, err := app.GetUserPasswordData(data.Hint)
 		require.NoError(t, err)
 
 		require.Equal(t, dt.Hint, data.Hint)
 		require.Equal(t, dt.Login, data.Login)
 		require.Equal(t, dt.Passwrod, data.Passwrod)
 
-		err = app.DeleteUpdatePasswordData("yayyy")
+		err = app.DeleteUserPasswordData("yayyy")
 		require.ErrorIs(t, err, domain.ErrClientInternal)
 
-		err = app.DeleteUpdatePasswordData("ya.ru")
+		err = app.DeleteUserPasswordData("ya.ru")
 		require.NoError(t, err)
 
 		require.Equal(t, 0, len(app.GetUserPasswordDataList()))
@@ -108,6 +108,62 @@ func TestApp(t *testing.T) {
 			},
 		})
 		require.Equal(t, 1, len(app.GetUserPasswordDataList()))
+	})
 
+	t.Run("files_operations", func(t *testing.T) {
+		app := storage.NewStorage()
+
+		require.Equal(t, 0, len(app.GetFileInfoList()))
+
+		data := &domain.FileInfo{
+			Name: "ya.ru",
+		}
+
+		err := app.AddFileInfo(data)
+		require.NoError(t, err)
+
+		require.Equal(t, 1, len(app.GetFileInfoList()))
+
+		err = app.AddFileInfo(data)
+		require.ErrorIs(t, err, domain.ErrClientInternal)
+
+		dt, err := app.GetFileInfo(data.Name)
+		require.NoError(t, err)
+
+		require.Equal(t, dt.Name, data.Name)
+		require.Equal(t, dt.Path, data.Path)
+
+		data = &domain.FileInfo{
+			Name: "ya.ru",
+			Path: "path",
+		}
+		err = app.UpdateFileInfo(data)
+		require.NoError(t, err)
+
+		dt, err = app.GetFileInfo(data.Name)
+		require.NoError(t, err)
+
+		ok := app.IsFileInfoExists(data.Name)
+		require.True(t, ok)
+
+		require.Equal(t, dt.Name, data.Name)
+		require.Equal(t, dt.Path, data.Path)
+
+		err = app.DeleteFileInfo("yayyy")
+		require.ErrorIs(t, err, domain.ErrClientInternal)
+
+		err = app.DeleteFileInfo("ya.ru")
+		require.NoError(t, err)
+
+		require.Equal(t, 0, len(app.GetFileInfoList()))
+
+		app.SetUserPasswordDatas([]domain.UserPasswordData{
+			{
+				Hint:     "ya.ru",
+				Login:    "login",
+				Passwrod: "pass",
+			},
+		})
+		require.Equal(t, 1, len(app.GetUserPasswordDataList()))
 	})
 }

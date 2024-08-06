@@ -11,6 +11,7 @@ import (
 	"github.com/StasMerzlyakov/gophkeeper/internal/config"
 	"github.com/StasMerzlyakov/gophkeeper/internal/domain"
 	"github.com/StasMerzlyakov/gophkeeper/internal/proto"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	gp "google.golang.org/grpc/codes"
@@ -129,11 +130,11 @@ func TestHandler(t *testing.T) {
 
 		hnd.SetSessionID(currentSessID)
 
-		rgHandler.setMasterKeyFn = func(ctx context.Context, req *proto.MasterKeyRequest) (*proto.MasterKeyResponse, error) {
+		rgHandler.setMasterKeyFn = func(ctx context.Context, req *proto.MasterKeyRequest) (*empty.Empty, error) {
 			assert.Equal(t, req.SessionId, currentSessID)
 			assert.Equal(t, req.MasterPasswordHint, mKey.MasterPasswordHint)
 			assert.Equal(t, req.HelloEncrypted, mKey.HelloEncrypted)
-			return &proto.MasterKeyResponse{}, nil
+			return nil, nil
 		}
 
 		ctx := context.Background()
@@ -199,7 +200,7 @@ func TestHandler(t *testing.T) {
 			HelloEncrypted:     "HelloEncrypted",
 			MasterPasswordHint: "MasterPasswordHint",
 		}
-		dtAccessor.helloFn = func(ctx context.Context, req *proto.HelloRequest) (*proto.HelloResponse, error) {
+		dtAccessor.helloFn = func(ctx context.Context, empty *empty.Empty) (*proto.HelloResponse, error) {
 			md, ok := metadata.FromIncomingContext(ctx)
 			require.True(t, ok)
 			values := md[domain.AuthorizationMetadataTokenName]

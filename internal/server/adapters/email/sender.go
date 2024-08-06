@@ -17,6 +17,8 @@ func NewSender(conf *config.ServerConf) *sender {
 	server.Host = conf.SMTPHost
 	server.Port = conf.SMTPPort
 	server.KeepAlive = true
+	server.Username = conf.SMTPUsername
+	server.Password = conf.SMTPPassword
 
 	return &sender{
 		conf:   conf,
@@ -36,12 +38,16 @@ func (snd *sender) Connect(ctx context.Context) error {
 	snd.once.Do(func() {
 		snd.client, snd.connectErr = snd.server.Connect()
 	})
-	return snd.connectErr
+	if snd.connectErr != nil {
+		return fmt.Errorf("can't connet to mail server - %w", snd.connectErr)
+	}
+	return nil
+
 }
 
 func (snd *sender) Close() error {
 	// quit sends the QUIT command and closes the connection to the server.
-	return snd.client.Quit()
+	return snd.client.Close()
 }
 
 const htmlBody = `<html>

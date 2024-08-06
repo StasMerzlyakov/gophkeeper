@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/adapters/grpc/handler"
 	"github.com/StasMerzlyakov/gophkeeper/internal/client/adapters/storage"
@@ -29,7 +31,7 @@ func printVersion() {
 
 func main() {
 
-	printVersion()
+	printVersion() // pring to stdout
 
 	flagSet := flag.NewFlagSet("main", flag.ContinueOnError)
 	conf, err := config.LoadClientConf(flagSet)
@@ -49,6 +51,11 @@ func main() {
 
 	app.SetMainLogger(log)
 
+	// pring version to log
+	log.Infof("Build version: %s", buildVersion)
+	log.Infof("Build date: %s", buildDate)
+	log.Infof("Build commit: %s", buildCommit)
+
 	// grpc
 	helper, err := handler.NewHandler(conf)
 	if err != nil {
@@ -56,15 +63,20 @@ func main() {
 	}
 
 	// controller
-	appCtrl := app.NewAppController(conf)
-	defer appCtrl.Stop()
+	appCtrl := app.NewViewController(conf)
+
+	defer func() {
+		stopCtx, cnclFn := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cnclFn()
+		appCtrl.Stop(stopCtx)
+	}()
 
 	statusWrapper := app.NewStatusWrapper(conf, helper)
 
 	appCtrl.SetServer(statusWrapper).SetAppStorage(storage.NewStorage())
 
 	// view
-	tView := tui.NewApp(conf)
+	tView := tui.NewApplicationView(conf)
 	tView.SetController(appCtrl)
 
 	appCtrl.SetInfoView(tView)

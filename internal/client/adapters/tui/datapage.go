@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"github.com/StasMerzlyakov/gophkeeper/internal/client/app"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -9,6 +10,9 @@ func (tApp *tuiApp) ShowDataAccessView() {
 
 	go func() {
 		tApp.app.QueueUpdateDraw(func() {
+			log := app.GetMainLogger()
+			log.Debug("DataPageMain start")
+
 			tApp.dataMainFlex.Clear()
 
 			box := tview.NewBox().SetBorder(true).SetTitle("UserData")
@@ -17,7 +21,7 @@ func (tApp *tuiApp) ShowDataAccessView() {
 			dataTypesList := tview.NewList().ShowSecondaryText(false)
 
 			dataTypes := []string{
-				"Bank cards", "UserPasswordData",
+				"Bank cards", "UserPasswordData", "Files",
 			}
 			for index, number := range dataTypes {
 				dataTypesList.AddItem(number, "", rune(49+index), nil)
@@ -27,8 +31,10 @@ func (tApp *tuiApp) ShowDataAccessView() {
 				switch index {
 				case 0:
 					tApp.controller.GetBankCardList()
-				default:
+				case 1:
 					tApp.controller.GetUserPasswordDataList()
+				default:
+					tApp.controller.GetFilesInfoList()
 				}
 			})
 
@@ -48,7 +54,9 @@ func (tApp *tuiApp) ShowDataAccessView() {
 					}
 					return event
 				})
+			tApp.app.SetRoot(tApp.pages, true).SetFocus(tApp.pages)
 			tApp.pages.SwitchToPage(DataPageMain)
+			log.Debug("DataPageMain shown")
 		})
 	}()
 }

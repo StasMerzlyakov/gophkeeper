@@ -90,6 +90,7 @@ func (st *storage) init(ctx context.Context, logger domain.Logger) error {
 		otp_key text not null,
 		master_hint text not null,
 		hello_encrypted text not null,
+		bucket text not null,
 		primary key(user_id)
 	);`); err != nil {
 		panic(err)

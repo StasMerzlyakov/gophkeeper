@@ -12,6 +12,7 @@ import (
 	"image/png"
 	"io"
 	"net/mail"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -37,9 +38,21 @@ const (
 )
 
 const (
-	saltLen    = 32
-	keyLen     = 32
-	iterations = 100002
+	Pbkdf2SaltLen    = 32
+	EncryptAESKeyLen = 2 * aes.BlockSize
+	Pbkdf2Iter       = 100002
+)
+
+const (
+	_ = 1 << (10 * iota)
+	KiB
+	MiB
+	GiB
+	TiB
+)
+
+const (
+	FileChunkSize = 4 * KiB
 )
 
 func GetAction(depth int) string {
@@ -201,22 +214,22 @@ func DecryptOTPKey(secretKey string, encryptedOTPKey string) (string, error) {
 func encryptData(password string, plaintext string) (string, error) {
 
 	// allocate memory to hold the header of the ciphertext
-	header := make([]byte, saltLen+aes.BlockSize)
+	header := make([]byte, Pbkdf2SaltLen+aes.BlockSize)
 
 	// generate salt
-	salt := header[:saltLen]
+	salt := header[:Pbkdf2SaltLen]
 	if _, err := io.ReadFull(rand.Reader, salt); err != nil {
 		panic(err)
 	}
 
 	// generate initialization vector
-	iv := header[saltLen : aes.BlockSize+saltLen]
+	iv := header[Pbkdf2SaltLen : aes.BlockSize+Pbkdf2SaltLen]
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
 		panic(err)
 	}
 
 	// generate a 32 bit key with the provided password
-	key := pbkdf2.Key([]byte(password), salt, iterations, keyLen, sha256.New)
+	key := pbkdf2.Key([]byte(password), salt, Pbkdf2Iter, EncryptAESKeyLen, sha256.New)
 
 	// generate a hmac for the message with the key
 	mac := hmac.New(sha256.New, key)
@@ -224,7 +237,7 @@ func encryptData(password string, plaintext string) (string, error) {
 	hmac := mac.Sum(nil)
 
 	// append this hmac to the plaintext
-	plaintext = string(hmac) + plaintext
+	plaintext = plaintext + string(hmac)
 
 	//create the cipher
 	block, err := aes.NewCipher(key)
@@ -237,7 +250,7 @@ func encryptData(password string, plaintext string) (string, error) {
 
 	// encrypt
 	stream := cipher.NewCFBEncrypter(block, iv)
-	stream.XORKeyStream(ciphertext[aes.BlockSize+saltLen:], []byte(plaintext))
+	stream.XORKeyStream(ciphertext[aes.BlockSize+Pbkdf2SaltLen:], []byte(plaintext))
 	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
@@ -249,12 +262,12 @@ func decryptData(password string, encrypted string) (string, error) {
 		return "", fmt.Errorf("%w decrypt err %s", ErrServerInternal, err.Error())
 	}
 	// get the salt from the ciphertext
-	salt := ciphertext[:saltLen]
+	salt := ciphertext[:Pbkdf2SaltLen]
 	// get the IV from the ciphertext
-	iv := ciphertext[saltLen : aes.BlockSize+saltLen]
+	iv := ciphertext[Pbkdf2SaltLen : aes.BlockSize+Pbkdf2SaltLen]
 
 	// generate the key with the KDF
-	key := pbkdf2.Key([]byte(password), salt, iterations, keyLen, sha256.New)
+	key := pbkdf2.Key([]byte(password), salt, Pbkdf2Iter, EncryptAESKeyLen, sha256.New)
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -265,13 +278,14 @@ func decryptData(password string, encrypted string) (string, error) {
 		return "", fmt.Errorf("%w wrong key length size", ErrServerInternal)
 	}
 
-	decrypted := ciphertext[saltLen+aes.BlockSize:]
+	decrypted := ciphertext[Pbkdf2SaltLen+aes.BlockSize:]
 	stream := cipher.NewCFBDecrypter(block, iv)
 	stream.XORKeyStream(decrypted, decrypted)
 
 	// extract hmac from plaintext
-	extractedMac := decrypted[:32]
-	plaintext := decrypted[32:]
+	len := len(decrypted)
+	extractedMac := decrypted[len-32:]
+	plaintext := decrypted[:len-32]
 
 	// validate the hmac
 	mac := hmac.New(sha256.New, key)
@@ -389,4 +403,64 @@ func CheckUserPasswordData(data *UserPasswordData) error {
 	}
 
 	return nil
+}
+
+func CheckFileForRead(info *FileInfo) error {
+	if len(info.Name) < 5 {
+		return fmt.Errorf("%w Name is too short", ErrClientDataIncorrect)
+	}
+
+	if strings.HasPrefix(TempFileNamePrefix, info.Name) {
+		return fmt.Errorf("%w wrong Name - it is start with %s", ErrClientDataIncorrect, TempFileNamePrefix)
+	}
+
+	f, err := os.Open(info.Path)
+	if err != nil {
+		return fmt.Errorf("%w file by path %s is not acceptable", ErrClientDataIncorrect, info.Path)
+	}
+	if err := f.Close(); err != nil {
+		return fmt.Errorf("%w file %s close error %s", ErrClientDataIncorrect, info.Path, err.Error())
+	}
+	return nil
+}
+
+func CheckFileForWrite(info *FileInfo) error {
+	path := info.Path
+	if info.Path == "" {
+		return fmt.Errorf("%w path is emptry", ErrClientDataIncorrect)
+	}
+	_, err := os.Stat(info.Path)
+	if err == nil {
+		return fmt.Errorf("%w file by path %s already exists", ErrClientDataIncorrect, info.Path)
+	}
+
+	dir := filepath.Dir(path)
+
+	inf, err := os.Stat(dir)
+	if err != nil {
+		return fmt.Errorf("%w can't get directory %s by info.Path", ErrClientDataIncorrect, dir)
+	}
+
+	if !inf.IsDir() {
+		return fmt.Errorf("%w wrong dir name %s", ErrClientDataIncorrect, dir)
+	}
+
+	ok, err := IsWritable(dir)
+	if err != nil {
+		return fmt.Errorf("%w can't test directory wriatble %s by info.Path", ErrClientDataIncorrect, dir)
+	}
+
+	if !ok {
+		return fmt.Errorf("%w directory is not writable %s", ErrClientDataIncorrect, dir)
+	}
+
+	return nil
+}
+
+func CreateStreamFileReader(name string) (StreamFileReader, error) {
+	return NewStreamFileReader(name, FileChunkSize)
+}
+
+func CreateStreamFileWriter(dir string) (StreamFileWriter, error) {
+	return NewStreamFileWriter(dir)
 }
