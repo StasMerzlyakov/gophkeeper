@@ -1,0 +1,5 @@
+{
+    "serverAddress" : "localhost:9192",
+    "caCert" : "./keys/ca-cert.pem",
+    "interactionTimeout" : "3s"
+}

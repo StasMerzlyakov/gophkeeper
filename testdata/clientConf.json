@@ -1,0 +1,4 @@
+{
+    "serverAddress" : "localhost:9193",
+    "interactionTimeout" : "4s"
+}

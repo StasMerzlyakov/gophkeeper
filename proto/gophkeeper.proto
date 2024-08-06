@@ -1,0 +1,178 @@
+syntax = "proto3";
+
+package proto;
+
+import "validate/validate.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "internal/proto";
+
+message RegistrationRequest {
+    string email = 1 [(validate.rules).string.email = true];
+    string password = 2;
+}
+
+message RegistrationResponse {
+    string session_id = 1;
+}
+
+message PassOTPRequest {
+    string session_id = 1;
+    string password = 2;
+}
+
+message PassOTPResponse {
+    string session_id = 1;
+}
+
+message MasterKeyRequest {
+    string session_id = 1;
+    string masterPasswordHint = 2;
+    string helloEncrypted = 3;
+}
+
+message CheckEMailRequest {
+    string email = 1 [(validate.rules).string.email = true];
+}
+
+message CheckEMailResponse {
+    enum EMailStatus {
+        BUSY = 0;
+        AVAILABLE = 1;
+    }
+    EMailStatus status = 1; 
+}
+
+service RegistrationService {
+    rpc CheckEMail(CheckEMailRequest)  returns (CheckEMailResponse);
+    rpc Registrate(RegistrationRequest) returns (RegistrationResponse);
+    rpc PassOTP(PassOTPRequest) returns (PassOTPResponse);
+    rpc SetMasterKey(MasterKeyRequest) returns (google.protobuf.Empty);
+};
+
+message LoginRequest {
+    string email = 1 [(validate.rules).string.email = true];
+    string password = 2;
+}
+
+message LoginResponse {
+    string session_id = 1;
+}
+
+message AuthResponse {
+    string token = 1;
+}
+
+service AuthService {
+    rpc Login(LoginRequest) returns (LoginResponse);
+    rpc PassOTP(PassOTPRequest) returns (AuthResponse);
+};
+
+service Pinger {
+    rpc Ping(google.protobuf.Empty) returns (google.protobuf.Empty);
+};
+
+message HelloResponse{
+    string helloEncrypted = 1;
+    string masterPasswordHint = 2;
+}
+
+message BankCard {
+    string number = 1;
+    string content = 2;
+}
+
+message BankCardListResponse {
+    repeated BankCard cards = 1;
+}
+
+message CreateBankCardRequest {
+    string number = 1;
+    string content = 2;
+}
+
+message DeleteBankCardRequest {
+    string number = 1;
+}
+
+message UpdateBankCardRequest {
+    string number = 1;
+    string content = 2;
+}
+
+message UserPasswordData {
+    string hint = 1;
+    string content = 2;
+}
+
+message UserPasswordDataResponse {
+    repeated UserPasswordData datas = 1;
+}
+
+
+message CreateUserPasswordDataRequest {
+    string hint = 1;
+    string content = 2;
+}
+
+message DeleteUserPasswordDataRequest {
+    string hint = 1;
+}
+
+
+message UpdateUserPasswordDataRequest {
+    string hint = 1;
+    string content = 2;
+}
+
+
+message FileInfo {
+    string name = 1;
+}
+
+service DataAccessor {
+    rpc Hello(google.protobuf.Empty) returns (HelloResponse);
+    rpc GetBankCardList(google.protobuf.Empty) returns (BankCardListResponse);
+    rpc CreateBankCard(CreateBankCardRequest) returns (google.protobuf.Empty);
+    rpc DeleteBankCard(DeleteBankCardRequest) returns (google.protobuf.Empty);
+    rpc UpdateBankCard(UpdateBankCardRequest) returns (google.protobuf.Empty);
+
+    rpc GetUserPasswordDataList(google.protobuf.Empty) returns (UserPasswordDataResponse);
+    rpc CreateUserPasswordData(CreateUserPasswordDataRequest) returns (google.protobuf.Empty);
+    rpc DeleteUserPasswordData(DeleteUserPasswordDataRequest) returns (google.protobuf.Empty);
+    rpc UpdateUserPasswordData(UpdateUserPasswordDataRequest) returns (google.protobuf.Empty);
+};
+
+message GetFileInfoListResponse {
+     repeated FileInfo fileInfo = 1;
+}
+
+message UploadFileRequest {
+    string    name    = 1;
+    int32     sizeInBytes = 2;
+    bytes     data        = 3;
+    bool      cancel = 4;
+}
+
+message LoadFileRequest {
+    string Name = 1;
+}
+
+
+message LoadFileResponse {
+    int32     sizeInBytes = 1;
+    bytes     data        = 2;
+}
+
+message DeleteFileInfoRequest {
+    string Name = 1;
+}
+
+service FileAccessor {
+    rpc GetFileInfoList(google.protobuf.Empty) returns (GetFileInfoListResponse);
+    rpc DeleteFileInfo(DeleteFileInfoRequest) returns (google.protobuf.Empty);
+    rpc UploadFile(stream UploadFileRequest) returns (google.protobuf.Empty);
+    rpc LoadFile(LoadFileRequest) returns (stream LoadFileResponse);
+}
+
+
