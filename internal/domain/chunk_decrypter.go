@@ -5,7 +5,6 @@ import (
 	"crypto/cipher"
 	"crypto/hmac"
 	"crypto/sha256"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"hash"
@@ -44,13 +43,8 @@ func (che *chunkDecrypter) WriteChunk(chunk []byte) ([]byte, error) {
 		}
 
 		salt := chn[:Pbkdf2SaltLen]
-
-		fmt.Println("decr   salt " + base64.StdEncoding.EncodeToString(salt))
-
 		// get the IV from the ciphertext
 		iv := chn[Pbkdf2SaltLen : aes.BlockSize+Pbkdf2SaltLen]
-
-		fmt.Println("decr   iv " + base64.StdEncoding.EncodeToString(iv))
 
 		key := pbkdf2.Key([]byte(che.pass), salt, Pbkdf2Iter, EncryptAESKeyLen, sha256.New)
 
@@ -91,15 +85,10 @@ func (che *chunkDecrypter) Finish() error {
 	if err != nil {
 		return fmt.Errorf("decrypt err - %w", err)
 	}
-	fmt.Println("decr   mac " + base64.StdEncoding.EncodeToString(mac))
 
 	che.cipher.XORKeyStream(mac, mac) // encrypt mac
 
-	fmt.Println("decryptmac " + base64.StdEncoding.EncodeToString(mac))
-
 	extractedMac := che.hasher.Sum(nil)
-
-	fmt.Println("extracted " + base64.StdEncoding.EncodeToString(extractedMac))
 
 	if !hmac.Equal(extractedMac, mac) {
 		return fmt.Errorf("decrypt err - hmac not equal")

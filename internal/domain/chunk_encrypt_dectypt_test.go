@@ -3,7 +3,6 @@ package domain_test
 import (
 	"bytes"
 	"crypto/rand"
-	"fmt"
 	"sync"
 	"testing"
 
@@ -139,9 +138,6 @@ func TestChunkEncryptDecryptTest(t *testing.T) {
 
 		_, err = actualBuf.Write(decrChunk2)
 		require.NoError(t, err)
-
-		fmt.Println(str)
-		fmt.Println(actualBuf.String())
 
 		require.NoError(t, decryptor.Finish())
 

@@ -140,9 +140,7 @@ func TestBigFileEncryptDecryptChunkWriter(t *testing.T) {
 
 	testFile, err := os.Open(filepath.Join(TestDataDirectory, "bigfile.mp4"))
 	require.NoError(t, err)
-	defer func() {
-		_ = testFile.Close()
-	}()
+	defer testFile.Close()
 
 	chunk := make([]byte, encrChunkSize)
 

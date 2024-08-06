@@ -7,7 +7,6 @@ import (
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
-	"encoding/base64"
 	"fmt"
 	"hash"
 	"io"
@@ -26,14 +25,11 @@ func NewChunkEncrypterByReader(password string, reader io.Reader) (*chunkEncrypt
 		return nil, fmt.Errorf("salt init err %w", err)
 	}
 
-	fmt.Println("encr   salt " + base64.StdEncoding.EncodeToString(salt))
-
 	// generate initialization vector
 	iv := header[Pbkdf2SaltLen : aes.BlockSize+Pbkdf2SaltLen]
 	if _, err := io.ReadFull(reader, iv); err != nil {
 		return nil, fmt.Errorf("iv init err %w", err)
 	}
-	fmt.Println("encr   iv " + base64.StdEncoding.EncodeToString(iv))
 
 	decr := NewChunkDecrypter(password)
 
@@ -110,11 +106,7 @@ func (che *chunkEncrypter) Finish() ([]byte, error) {
 	mac := che.hasher.Sum(nil)
 	// encrypt hmac
 
-	fmt.Println("encr   mac " + base64.StdEncoding.EncodeToString(mac))
-
 	che.cipher.XORKeyStream(mac, mac) // encrypt mac
-
-	fmt.Println("encriptmac " + base64.StdEncoding.EncodeToString(mac))
 
 	if _, err := che.decriptor.WriteChunk(mac); err != nil {
 		return nil, fmt.Errorf("%w can't write chunk", err)

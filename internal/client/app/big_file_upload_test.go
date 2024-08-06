@@ -111,7 +111,6 @@ func TestFileUploadingNew(t *testing.T) {
 	require.NoError(t, checkUploadedFile(f.Name(), masterKey))
 
 	t.Log("encryption success")
-	fmt.Println("-------------------------")
 
 	// read comlete
 	decryptFileInfo := &domain.FileInfo{
