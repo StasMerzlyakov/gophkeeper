@@ -11,10 +11,13 @@ import (
 // NewStorage create simple client storage.
 func NewStorage() *simpleStorage {
 	return &simpleStorage{
-		status:           domain.ClientStatusOnline,
-		userPasswordData: make(map[string]domain.UserPasswordData),
-		bankCards:        make(map[string]domain.BankCard),
-		filesInfo:        make(map[string]domain.FileInfo),
+		status:             domain.ClientStatusOnline,
+		userPasswordData:   make(map[string]domain.UserPasswordData),
+		bankCards:          make(map[string]domain.BankCard),
+		filesInfo:          make(map[string]domain.FileInfo),
+		userPasswordDataMx: &sync.Mutex{},
+		bankCardsMx:        &sync.Mutex{},
+		filesInfoMx:        &sync.Mutex{},
 	}
 }
 
@@ -24,11 +27,11 @@ type simpleStorage struct {
 	masterPassword     string
 	status             domain.ClientStatus
 	userPasswordData   map[string]domain.UserPasswordData
-	userPasswordDataMx sync.Mutex
+	userPasswordDataMx *sync.Mutex
 	bankCards          map[string]domain.BankCard
-	bankCardsMx        sync.Mutex
+	bankCardsMx        *sync.Mutex
 	filesInfo          map[string]domain.FileInfo
-	filesInfoMx        sync.Mutex
+	filesInfoMx        *sync.Mutex
 }
 
 func (ss *simpleStorage) SetMasterPassword(masterPassword string) {
